@@ -1,0 +1,9 @@
+{
+  "name": "Gemini 3.1 Pro",
+  "provider": "Google Vertex",
+  "tps": 81,
+  "input": 2,
+  "output": 12,
+  "hero": false,
+  "tag": null
+}

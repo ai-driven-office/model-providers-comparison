@@ -1,0 +1,12 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ModelDashboard from "../components/ModelDashboard";
+
+const modelEntries = await getCollection("models");
+const models = modelEntries.map((entry) => entry.data);
+---
+
+<BaseLayout title="AI Model Comparison">
+  <ModelDashboard models={models} client:load />
+</BaseLayout>

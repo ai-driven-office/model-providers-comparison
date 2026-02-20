@@ -1,0 +1,9 @@
+{
+  "name": "Claude Sonnet 4.6",
+  "provider": "Anthropic",
+  "tps": 41,
+  "input": 3,
+  "output": 15,
+  "hero": false,
+  "tag": null
+}

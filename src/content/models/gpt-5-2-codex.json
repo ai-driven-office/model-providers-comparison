@@ -1,0 +1,9 @@
+{
+  "name": "GPT-5.2-Codex",
+  "provider": "OpenAI",
+  "tps": 42,
+  "input": 1.75,
+  "output": 14,
+  "hero": false,
+  "tag": null
+}

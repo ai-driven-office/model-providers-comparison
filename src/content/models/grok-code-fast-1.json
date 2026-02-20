@@ -1,0 +1,9 @@
+{
+  "name": "Grok Code Fast 1",
+  "provider": "xAI",
+  "tps": 121,
+  "input": 0.20,
+  "output": 1.50,
+  "hero": false,
+  "tag": null
+}
