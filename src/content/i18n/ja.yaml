@@ -42,6 +42,9 @@ resultsDisclaimer: "これらの推薦は、2026年2月時点の公開ベンチ�
 bestAbsolute: 最高品質
 bestValue: コスパ最強
 bestSpeed: 最速
+ctaTitle: 正確なデータを一緒に作りましょう
+ctaBody: "価格の間違い・未掲載モデル・古いベンチマークを見つけたら、Issue や Pull Request をお送りください。皆さんの修正がコミュニティの力になります。"
+ctaButton: Issue / PR を送る
 footer: "データ出典: OpenRouter · 100万トークンあたりの価格 · $1 = ¥150換算"
 copyright: "©CyberAgent, Inc. · AIドリブン推進室（AI Driven Office）"
 tokSec: トークン/秒

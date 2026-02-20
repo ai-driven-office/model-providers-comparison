@@ -186,7 +186,35 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
           </span>
         </div>
 
-        {/* Language Switcher */}
+        {/* Controls */}
+        <div className="flex items-center gap-2">
+        <a
+          href="https://github.com/ai-driven-office/model-providers-comparison"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex items-center justify-center w-8 h-8 rounded-lg border transition-all duration-200"
+          style={{
+            background: "rgba(51,112,254,0.06)",
+            borderColor: "rgba(51,112,254,0.12)",
+          }}
+          title="View on GitHub"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(51,112,254,0.15)";
+            e.currentTarget.style.borderColor = "rgba(51,112,254,0.25)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(51,112,254,0.06)";
+            e.currentTarget.style.borderColor = "rgba(51,112,254,0.12)";
+          }}
+        >
+          <svg
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            className="w-4 h-4 text-gray-400 transition-colors duration-200 group-hover:text-white"
+          >
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
+          </svg>
+        </a>
         <div className="flex items-center gap-0.5 rounded-lg p-[3px] border" style={{ background: "rgba(51,112,254,0.06)", borderColor: "rgba(51,112,254,0.12)" }}>
           <button
             onClick={() => setReduceMotion(!reduceMotion)}
@@ -228,6 +256,7 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
               {opt.label}
             </button>
           ))}
+        </div>
         </div>
       </div>
 
@@ -697,8 +726,86 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
         }}
       />
 
+      {/* Contribution CTA */}
+      <div
+        className="mt-10 rounded-xl border relative overflow-hidden"
+        style={{
+          background: "linear-gradient(135deg, rgba(51,112,254,0.06) 0%, rgba(138,60,184,0.04) 50%, rgba(255,4,19,0.05) 100%)",
+          borderColor: "rgba(51,112,254,0.12)",
+        }}
+      >
+        <div
+          className="absolute inset-x-0 top-0 h-px"
+          style={{
+            background: "linear-gradient(90deg, transparent, rgba(51,112,254,0.4), rgba(138,60,184,0.3), rgba(255,4,19,0.4), transparent)",
+          }}
+        />
+        <div className="px-6 py-5 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+          <div
+            className="flex items-center justify-center w-10 h-10 rounded-full shrink-0"
+            style={{
+              background: "linear-gradient(135deg, rgba(51,112,254,0.15), rgba(138,60,184,0.1))",
+              border: "1px solid rgba(51,112,254,0.2)",
+            }}
+          >
+            <svg viewBox="0 0 16 16" fill="currentColor" className="w-5 h-5 text-gray-300">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
+            </svg>
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <h3
+              className="text-sm font-bold text-white m-0 mb-1"
+              style={{
+                fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+              }}
+            >
+              {l.ctaTitle}
+            </h3>
+            <p
+              className="text-xs text-gray-400 m-0 leading-relaxed max-w-lg"
+              style={{
+                fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+              }}
+            >
+              {l.ctaBody}
+            </p>
+          </div>
+          <a
+            href="https://github.com/ai-driven-office/model-providers-comparison/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-semibold no-underline transition-all duration-200"
+            style={{
+              fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+              fontSize: 12,
+              background: "rgba(51,112,254,0.1)",
+              borderColor: "rgba(51,112,254,0.25)",
+              color: "#7BAAFF",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(51,112,254,0.2)";
+              e.currentTarget.style.borderColor = "rgba(51,112,254,0.4)";
+              e.currentTarget.style.color = "#fff";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(51,112,254,0.1)";
+              e.currentTarget.style.borderColor = "rgba(51,112,254,0.25)";
+              e.currentTarget.style.color = "#7BAAFF";
+            }}
+          >
+            <svg viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
+            </svg>
+            {l.ctaButton}
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-0.5">
+              <path d="M2.5 6h7M6.5 3l3 3-3 3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
       {/* Footer — AID branding + copyright */}
-      <footer className="mt-10 pt-6 relative" style={{ borderTop: "1px solid rgba(51,112,254,0.08)" }}>
+      <footer className="mt-6 pt-6 relative" style={{ borderTop: "1px solid rgba(51,112,254,0.08)" }}>
         {/* Gradient bar — AID signature element */}
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-48"

@@ -42,6 +42,9 @@ resultsDisclaimer: "These recommendations are computed from approximate ability 
 bestAbsolute: BEST
 bestValue: VALUE
 bestSpeed: SPEED
+ctaTitle: "Help us keep this accurate"
+ctaBody: "Found a wrong price, missing model, or outdated benchmark? Open an issue or send a pull request — every fix helps the community."
+ctaButton: "Open an Issue or PR"
 footer: "Data sourced from OpenRouter · Prices per million tokens"
 copyright: "©CyberAgent, Inc. · AI Driven Office (AIドリブン推進室)"
 tokSec: tokens/sec
