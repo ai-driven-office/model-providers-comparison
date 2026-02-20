@@ -25,7 +25,8 @@ import { ModelIcon, ProviderIcon } from "./ui/ProviderIcon";
    CONFIG
    ═══════════════════════════════════════════════════════ */
 
-const SLIDE_DURATION = 12_000;
+const SLIDE_DURATION_DATA = 12_000;
+const SLIDE_DURATION_IMAGE = 5_000;
 const FADE_MS = 450;
 const W = 2560;
 const H = 1080;
@@ -60,6 +61,134 @@ function AidLogo({ style = {} }: { style?: React.CSSProperties }) {
 }
 
 /* ═══════════════════════════════════════════════════════
+   LIVE CLOCK — updates every second
+   ═══════════════════════════════════════════════════════ */
+
+function LiveClock() {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const hours = now.getHours().toString().padStart(2, "0");
+  const mins = now.getMinutes().toString().padStart(2, "0");
+  const secs = now.getSeconds().toString().padStart(2, "0");
+  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+  const dateStr = `${now.getMonth() + 1}/${now.getDate()} (${weekdays[now.getDay()]})`;
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+      <div style={{ textAlign: "right" }}>
+        <div style={{
+          fontFamily: MONO,
+          fontSize: 28,
+          fontWeight: 700,
+          color: "rgba(255,255,255,0.55)",
+          letterSpacing: 2,
+          lineHeight: 1,
+        }}>
+          {hours}
+          <span style={{ opacity: 0.4, animation: "booth-pulse 2s ease-in-out infinite" }}>:</span>
+          {mins}
+          <span style={{ fontFamily: MONO, fontSize: 18, color: "rgba(255,255,255,0.25)", marginLeft: 4 }}>
+            {secs}
+          </span>
+        </div>
+        <div style={{
+          fontFamily: SANS,
+          fontSize: 13,
+          color: "rgba(255,255,255,0.25)",
+          letterSpacing: 1,
+          marginTop: 3,
+        }}>
+          {dateStr}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   WEATHER WIDGET — Tokyo ambient display
+   ═══════════════════════════════════════════════════════ */
+
+function WeatherWidget() {
+  const [weather, setWeather] = useState<{ temp: number; icon: string; desc: string } | null>(null);
+
+  useEffect(() => {
+    // Open-Meteo free API — Tokyo coordinates, no API key needed
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=35.6762&longitude=139.6503&current=temperature_2m,weather_code&timezone=Asia/Tokyo";
+    fetch(url)
+      .then(r => r.json())
+      .then(data => {
+        const temp = Math.round(data.current.temperature_2m);
+        const code = data.current.weather_code;
+        // WMO weather codes → icon + description
+        const weatherMap: Record<number, [string, string]> = {
+          0: ["☀️", "快晴"],
+          1: ["🌤️", "晴れ"],
+          2: ["⛅", "曇り"],
+          3: ["☁️", "曇天"],
+          45: ["🌫️", "霧"],
+          48: ["🌫️", "霧氷"],
+          51: ["🌦️", "小雨"],
+          53: ["🌧️", "雨"],
+          55: ["🌧️", "大雨"],
+          61: ["🌧️", "小雨"],
+          63: ["🌧️", "雨"],
+          65: ["🌧️", "大雨"],
+          71: ["🌨️", "小雪"],
+          73: ["🌨️", "雪"],
+          75: ["❄️", "大雪"],
+          80: ["🌦️", "にわか雨"],
+          81: ["🌧️", "にわか雨"],
+          82: ["⛈️", "豪雨"],
+          95: ["⛈️", "雷雨"],
+        };
+        const [icon, desc] = weatherMap[code] ?? ["🌤️", "晴れ"];
+        setWeather({ temp, icon, desc });
+      })
+      .catch(() => {
+        // Fallback if offline
+        setWeather({ temp: 12, icon: "🌤️", desc: "晴れ" });
+      });
+  }, []);
+
+  if (!weather) return null;
+
+  return (
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+    }}>
+      <span style={{ fontSize: 22 }}>{weather.icon}</span>
+      <div>
+        <div style={{
+          fontFamily: MONO,
+          fontSize: 20,
+          fontWeight: 700,
+          color: "rgba(255,255,255,0.45)",
+          lineHeight: 1,
+        }}>
+          {weather.temp}°C
+        </div>
+        <div style={{
+          fontFamily: SANS,
+          fontSize: 12,
+          color: "rgba(255,255,255,0.22)",
+          marginTop: 2,
+        }}>
+          東京 · {weather.desc}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
    PERSISTENT LOGO WATERMARK — shown on every slide
    ═══════════════════════════════════════════════════════ */
 
@@ -79,7 +208,7 @@ function PersistentBranding() {
         <AidLogo style={{ height: 320, width: "auto" }} />
       </div>
 
-      {/* Top-left logo — bigger */}
+      {/* Top-left logo */}
       <div style={{
         position: "absolute",
         top: 32,
@@ -116,35 +245,54 @@ function PersistentBranding() {
         </div>
       </div>
 
-      {/* Top-right live indicator */}
+      {/* Top-right: clock + weather + live indicator */}
       <div style={{
         position: "absolute",
-        top: 44,
+        top: 32,
         right: 60,
         zIndex: 90,
         display: "flex",
         alignItems: "center",
-        gap: 12,
+        gap: 28,
       }}>
+        <WeatherWidget />
+
         <div style={{
-          width: 10,
-          height: 10,
-          borderRadius: "50%",
-          background: AID_GRADIENT[0],
-          boxShadow: `0 0 16px ${AID_GRADIENT[0]}aa`,
-          animation: "booth-pulse 2s ease-in-out infinite",
+          width: 1,
+          height: 36,
+          background: `linear-gradient(180deg, transparent, rgba(255,255,255,0.08), transparent)`,
         }} />
-        <span style={{
-          fontFamily: SANS,
-          fontSize: 16,
-          color: "rgba(255,255,255,0.4)",
-          letterSpacing: 3,
-        }}>
-          最新データ · 2026年2月
-        </span>
+
+        <LiveClock />
+
+        <div style={{
+          width: 1,
+          height: 36,
+          background: `linear-gradient(180deg, transparent, rgba(255,255,255,0.08), transparent)`,
+        }} />
+
+        {/* Live pulse dot + label */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            background: "#00E5A0",
+            boxShadow: "0 0 12px rgba(0,229,160,0.6)",
+            animation: "booth-pulse 2s ease-in-out infinite",
+          }} />
+          <span style={{
+            fontFamily: SANS,
+            fontSize: 14,
+            color: "rgba(255,255,255,0.3)",
+            letterSpacing: 2,
+          }}>
+            LIVE
+          </span>
+        </div>
       </div>
 
-      {/* Bottom-right logo repeat — bigger */}
+      {/* Bottom-right logo + copyright */}
       <div style={{
         position: "absolute",
         bottom: 38,
@@ -197,25 +345,29 @@ function AnimatedNumber({ value, duration = 2000, suffix = "", decimals = 0, sty
    PROGRESS BAR
    ═══════════════════════════════════════════════════════ */
 
-function ProgressBar({ current, total, progress }: { current: number; total: number; progress: number }) {
+function ProgressBar({ current, total }: { current: number; total: number }) {
+  // Show 7 dot pairs (each pair = image + data slide)
+  const pairIndex = Math.floor(current / 2);
+  const numPairs = Math.ceil(total / 2);
+
   return (
     <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 5, background: "rgba(255,255,255,0.03)", zIndex: 100 }}>
       <div style={{
         height: "100%",
-        width: `${(progress / total) * 100}%`,
+        width: `${((current + 1) / total) * 100}%`,
         background: `linear-gradient(90deg, ${AID_GRADIENT.join(", ")})`,
-        transition: "width 0.3s linear",
+        transition: "width 0.5s ease",
         boxShadow: `0 0 20px ${AID_GRADIENT[0]}44`,
       }} />
-      <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 12 }}>
-        {Array.from({ length: total }, (_, i) => (
+      <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 14 }}>
+        {Array.from({ length: numPairs }, (_, i) => (
           <div key={i} style={{
-            width: i === current ? 32 : 10,
-            height: 10,
-            borderRadius: 5,
-            background: i === current ? `linear-gradient(90deg, ${AID_GRADIENT[0]}, ${AID_GRADIENT[2]})` : "rgba(255,255,255,0.1)",
+            width: i === pairIndex ? 28 : 8,
+            height: 8,
+            borderRadius: 4,
+            background: i === pairIndex ? `linear-gradient(90deg, ${AID_GRADIENT[0]}, ${AID_GRADIENT[2]})` : "rgba(255,255,255,0.08)",
             transition: "all 0.5s ease",
-            boxShadow: i === current ? `0 0 14px ${AID_GRADIENT[0]}66` : "none",
+            boxShadow: i === pairIndex ? `0 0 12px ${AID_GRADIENT[0]}66` : "none",
           }} />
         ))}
       </div>
@@ -843,6 +995,110 @@ function SlideClosing() {
 }
 
 /* ═══════════════════════════════════════════════════════
+   IMAGE INTERSTITIAL SLIDE
+   ═══════════════════════════════════════════════════════ */
+
+function SlideImage({ src, caption }: { src: string; caption?: string }) {
+  const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+  return (
+    <div style={{ width: W, height: H, position: "relative", overflow: "hidden", background: BG }}>
+      {/* Ken Burns slow zoom + fade-in */}
+      <img
+        src={`${base}booth/${src}`}
+        alt=""
+        style={{
+          width: W,
+          height: H,
+          objectFit: "cover",
+          objectPosition: "center",
+          display: "block",
+          animation: `booth-img-fade-in 1.2s ease-out, booth-ken-burns ${SLIDE_DURATION_IMAGE / 1000}s ease-out forwards`,
+          willChange: "transform, opacity",
+        }}
+      />
+
+      {/* Dark vignette for brand consistency */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: `radial-gradient(ellipse at center, transparent 30%, ${BG}bb 90%, ${BG} 100%)`,
+        pointerEvents: "none",
+      }} />
+
+      {/* Subtle bottom gradient for logo area */}
+      <div style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 280,
+        background: `linear-gradient(to top, ${BG}ee 0%, ${BG}88 40%, transparent 100%)`,
+        pointerEvents: "none",
+      }} />
+
+      {/* Center logo watermark — larger and more prominent than data slides */}
+      <div style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 20,
+        animation: "booth-img-fade-in 2s ease-out",
+        pointerEvents: "none",
+      }}>
+        <AidLogo style={{ height: 180, width: "auto", opacity: 0.12, filter: "drop-shadow(0 0 40px rgba(51,112,254,0.2))" }} />
+        <div style={{
+          width: 200, height: 2,
+          background: `linear-gradient(90deg, transparent, ${AID_GRADIENT[0]}44, transparent)`,
+        }} />
+        <div style={{
+          fontFamily: SANS,
+          fontSize: 20,
+          fontWeight: 600,
+          color: "rgba(255,255,255,0.15)",
+          letterSpacing: 8,
+          textTransform: "uppercase",
+        }}>
+          AI Driven Office
+        </div>
+      </div>
+
+      {/* Optional caption — bottom center */}
+      {caption && (
+        <div style={{
+          position: "absolute",
+          bottom: 80,
+          left: "50%",
+          transform: "translateX(-50%)",
+          fontFamily: SANS,
+          fontSize: 24,
+          fontWeight: 500,
+          color: "rgba(255,255,255,0.35)",
+          letterSpacing: 6,
+          animation: "booth-img-fade-in 2.5s ease-out",
+          pointerEvents: "none",
+        }}>
+          {caption}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
+   IMAGE SLIDE INDICES — used for variable timing
+   ═══════════════════════════════════════════════════════ */
+
+const IMAGE_SLIDE_INDICES = new Set([0, 2, 4, 6, 8, 10, 12]);
+
+function getSlideDuration(slideIndex: number): number {
+  return IMAGE_SLIDE_INDICES.has(slideIndex) ? SLIDE_DURATION_IMAGE : SLIDE_DURATION_DATA;
+}
+
+/* ═══════════════════════════════════════════════════════
    メインスライドショーコントローラー
    ═══════════════════════════════════════════════════════ */
 
@@ -856,15 +1112,13 @@ export default function BoothSlideshow({ models, providers }: Props) {
   const colorMap = useMemo(() => buildColorMap(providers), [providers]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [fadePhase, setFadePhase] = useState<"in" | "visible" | "out">("in");
-  const [slideProgress, setSlideProgress] = useState(0);
   const [viewport, setViewport] = useState({ width: W, height: H });
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const autoIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const autoIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const transitioningRef = useRef(false);
   const currentSlideRef = useRef(0);
 
-  const TOTAL_SLIDES = 7;
+  const TOTAL_SLIDES = 14;
 
   useEffect(() => {
     const updateViewport = () => {
@@ -897,30 +1151,31 @@ export default function BoothSlideshow({ models, providers }: Props) {
     }, FADE_MS);
   }, []);
 
-  // Start or restart auto-advance timer
-  const resetAutoAdvance = useCallback(() => {
-    if (autoIntervalRef.current) clearInterval(autoIntervalRef.current);
-    autoIntervalRef.current = setInterval(() => {
+  // Start or restart auto-advance timer (variable duration per slide)
+  const scheduleNext = useCallback(() => {
+    if (autoIntervalRef.current) clearTimeout(autoIntervalRef.current);
+    const duration = getSlideDuration(currentSlideRef.current);
+    autoIntervalRef.current = setTimeout(() => {
       const next = (currentSlideRef.current + 1) % TOTAL_SLIDES;
       goToSlide(next);
-    }, SLIDE_DURATION);
+      // After transition completes, schedule the next one
+      setTimeout(() => scheduleNext(), FADE_MS + 100);
+    }, duration);
   }, [goToSlide]);
+
+  const resetAutoAdvance = useCallback(() => {
+    if (autoIntervalRef.current) clearTimeout(autoIntervalRef.current);
+    scheduleNext();
+  }, [scheduleNext]);
 
   // Initial setup: fade in + progress bar + auto-advance
   useEffect(() => {
     setTimeout(() => setFadePhase("visible"), 100);
 
-    const startTime = Date.now();
-    timerRef.current = setInterval(() => {
-      const elapsed = (Date.now() - startTime) % (SLIDE_DURATION * TOTAL_SLIDES);
-      setSlideProgress(elapsed / SLIDE_DURATION);
-    }, 50);
-
     resetAutoAdvance();
 
     return () => {
-      if (autoIntervalRef.current) clearInterval(autoIntervalRef.current);
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (autoIntervalRef.current) clearTimeout(autoIntervalRef.current);
       if (slideTimerRef.current) clearTimeout(slideTimerRef.current);
     };
   }, [resetAutoAdvance]);
@@ -946,13 +1201,20 @@ export default function BoothSlideshow({ models, providers }: Props) {
   }, [goToSlide, resetAutoAdvance]);
 
   const slides = [
-    <SlideTitle key="title" />,
-    <SlideThroughput key="throughput" models={models} colorMap={colorMap} />,
-    <SlidePricing key="pricing" models={models} colorMap={colorMap} />,
-    <SlideAbilities key="abilities" models={models} colorMap={colorMap} />,
-    <SlideScatter key="scatter" models={models} colorMap={colorMap} />,
-    <SlideModelCards key="cards" models={models} colorMap={colorMap} />,
-    <SlideClosing key="closing" />,
+    <SlideImage key="img-hero" src="booth_hero.jpg" />,                         // 0  IMAGE
+    <SlideTitle key="title" />,                                                  // 1  DATA
+    <SlideImage key="img-speed" src="booth_speed.jpg" caption="速度" />,         // 2  IMAGE
+    <SlideThroughput key="throughput" models={models} colorMap={colorMap} />,     // 3  DATA
+    <SlideImage key="img-cost" src="booth_cost.jpg" caption="コスト" />,         // 4  IMAGE
+    <SlidePricing key="pricing" models={models} colorMap={colorMap} />,          // 5  DATA
+    <SlideImage key="img-intel" src="booth_intelligence.jpg" caption="知性" />,  // 6  IMAGE
+    <SlideAbilities key="abilities" models={models} colorMap={colorMap} />,       // 7  DATA
+    <SlideImage key="img-analysis" src="booth_analysis.jpg" caption="分析" />,   // 8  IMAGE
+    <SlideScatter key="scatter" models={models} colorMap={colorMap} />,          // 9  DATA
+    <SlideImage key="img-models" src="booth_models.jpg" caption="モデル" />,     // 10 IMAGE
+    <SlideModelCards key="cards" models={models} colorMap={colorMap} />,          // 11 DATA
+    <SlideImage key="img-future" src="booth_future.jpg" caption="未来" />,       // 12 IMAGE
+    <SlideClosing key="closing" />,                                              // 13 DATA
   ];
 
   const stageScaleRaw = Math.min(viewport.width / W, viewport.height / H);
@@ -979,7 +1241,7 @@ export default function BoothSlideshow({ models, providers }: Props) {
         {/* Persistent branding on ALL slides */}
         <PersistentBranding />
 
-        <ProgressBar current={currentSlide} total={TOTAL_SLIDES} progress={slideProgress} />
+        <ProgressBar current={currentSlide} total={TOTAL_SLIDES} />
       </div>
     </div>
   );
