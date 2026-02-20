@@ -1001,8 +1001,12 @@ function SlideClosing() {
 function SlideImage({ src, caption }: { src: string; caption?: string }) {
   const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
   return (
-    <div style={{ width: W, height: H, position: "relative", overflow: "hidden", background: BG }}>
-      {/* Ken Burns slow zoom + fade-in */}
+    <div style={{
+      width: W, height: H, position: "relative", overflow: "hidden", background: BG,
+      perspective: 1200,
+      transformStyle: "preserve-3d" as const,
+    }}>
+      {/* Ken Burns 3D zoom + fade-in */}
       <img
         src={`${base}booth/${src}`}
         alt=""
@@ -1014,6 +1018,7 @@ function SlideImage({ src, caption }: { src: string; caption?: string }) {
           display: "block",
           animation: `booth-img-fade-in 1.2s ease-out, booth-ken-burns ${SLIDE_DURATION_IMAGE / 1000}s ease-out forwards`,
           willChange: "transform, opacity",
+          transformOrigin: "60% 40%",
         }}
       />
 

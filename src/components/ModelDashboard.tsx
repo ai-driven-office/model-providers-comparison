@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import type { Model, Provider } from "../data/types";
 import { formatPrice, useLang, type Lang } from "../data/i18n";
-import { buildColorMap, type ColorMap } from "../data/colors";
+import { buildColorMap } from "../data/colors";
 import { ModelIcon, ProviderIcon } from "./ui/ProviderIcon";
 import ThroughputChart from "./ui/ThroughputChart";
 import DataTable from "./ui/DataTable";

@@ -60,7 +60,7 @@ const ogImageUrl = new URL(`${base}og.png`, Astro.site).href;
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap"
       media="print"
-      onload="this.media='all'"
+      onload="this.setAttribute('media','all')"
     />
     <noscript>
       <link
@@ -70,7 +70,7 @@ const ogImageUrl = new URL(`${base}og.png`, Astro.site).href;
     </noscript>
 
     <!-- Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify({
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": siteName,
