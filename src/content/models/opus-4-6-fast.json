@@ -1,9 +1,0 @@
-{
-  "name": "Opus 4.6 Fast",
-  "provider": "Anthropic",
-  "tps": 93,
-  "input": 60,
-  "output": 225,
-  "hero": false,
-  "tag": "fast"
-}

@@ -1,30 +1,42 @@
-import { useState } from "react";
-import type { Model } from "../data/types";
-import { i18n, type Lang } from "../data/i18n";
-import { colorMap } from "../data/colors";
+import { useState, useMemo } from "react";
+import type { Model, Provider } from "../data/types";
+import { formatPrice, type Lang } from "../data/i18n";
+import { buildColorMap, type ColorMap } from "../data/colors";
 import ThroughputChart from "./ui/ThroughputChart";
 import PricingChart from "./ui/PricingChart";
 import ScatterPlot from "./ui/ScatterPlot";
+import AbilityRadar from "./ui/AbilityRadar";
 import DataTable from "./ui/DataTable";
 
 interface Props {
   models: Model[];
+  providers: Provider[];
+  i18n: Record<string, Record<string, string>>;
 }
 
-type Tab = "throughput" | "pricing" | "scatter";
+type Tab = "throughput" | "pricing" | "scatter" | "abilities";
 
-export default function ModelDashboard({ models }: Props) {
+export default function ModelDashboard({ models, providers, i18n }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("throughput");
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLang] = useState<Lang>("ja");
   const l = i18n[lang];
   const isJa = lang === "ja";
 
+  const colorMap = useMemo(() => buildColorMap(providers), [providers]);
   const heroModel = models.find((m) => m.hero);
+  const priceHero = useMemo(
+    () =>
+      [...models]
+        .filter((m) => m.tag !== "fast")
+        .sort((a, b) => a.output - b.output)[0],
+    [models],
+  );
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "throughput", label: l.tabThroughput },
     { id: "pricing", label: l.tabPricing },
     { id: "scatter", label: l.tabScatter },
+    { id: "abilities", label: l.tabAbilities },
   ];
 
   return (
@@ -114,7 +126,7 @@ export default function ModelDashboard({ models }: Props) {
         ))}
       </div>
 
-      {/* Hero Card */}
+      {/* Speed Hero Card */}
       {activeTab === "throughput" && heroModel && (
         <div className="flex items-center justify-between rounded-2xl px-6 py-5 mb-6 border border-emerald-400/20 bg-gradient-to-r from-emerald-400/[0.08] to-emerald-400/[0.02]">
           <div>
@@ -159,6 +171,51 @@ export default function ModelDashboard({ models }: Props) {
         </div>
       )}
 
+      {/* Pricing Hero Card */}
+      {activeTab === "pricing" && priceHero && (
+        <div className="flex items-center justify-between rounded-2xl px-6 py-5 mb-6 border border-sky-400/20 bg-gradient-to-r from-sky-400/[0.08] to-sky-400/[0.02]">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xl">💰</span>
+              <span
+                className="text-[11px] text-sky-400"
+                style={{
+                  fontFamily: isJa
+                    ? "'Noto Sans JP', sans-serif"
+                    : "'Space Mono', monospace",
+                  letterSpacing: isJa ? 1 : 2,
+                  textTransform: isJa ? "none" : "uppercase",
+                }}
+              >
+                {l.priceHeroLabel}
+              </span>
+            </div>
+            <div className="text-[22px] font-extrabold">
+              {priceHero.name}{" "}
+              <span className="text-gray-500 font-normal text-sm">
+                {isJa
+                  ? `（${priceHero.provider.replace(" (Direct)", "")}）`
+                  : `on ${priceHero.provider}`}
+              </span>
+            </div>
+          </div>
+          <div className="text-right">
+            <div
+              className="text-sky-400 leading-none"
+              style={{
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 38,
+                fontWeight: 700,
+                textShadow: "0 0 40px rgba(56,189,248,0.3)",
+              }}
+            >
+              {formatPrice(priceHero.output, lang)}
+            </div>
+            <div className="text-gray-500 text-xs">{l.priceHeroUnit}</div>
+          </div>
+        </div>
+      )}
+
       {/* Chart Container */}
       <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl pt-6 pr-4 pb-4">
         {activeTab === "throughput" && (
@@ -171,7 +228,7 @@ export default function ModelDashboard({ models }: Props) {
                 </span>
               </h2>
             </div>
-            <ThroughputChart data={models} lang={lang} />
+            <ThroughputChart data={models} lang={lang} colorMap={colorMap} />
           </div>
         )}
 
@@ -188,9 +245,11 @@ export default function ModelDashboard({ models }: Props) {
             <PricingChart
               data={models}
               lang={lang}
+              colorMap={colorMap}
               labels={{
                 inputLegend: l.inputLegend,
                 outputLegend: l.outputLegend,
+                longContext: l.longContext,
               }}
             />
           </div>
@@ -207,6 +266,7 @@ export default function ModelDashboard({ models }: Props) {
             <ScatterPlot
               data={models}
               lang={lang}
+              colorMap={colorMap}
               labels={{
                 xLabel: l.scatterXLabel,
                 yLabel: l.scatterYLabel,
@@ -215,20 +275,45 @@ export default function ModelDashboard({ models }: Props) {
             />
           </div>
         )}
+
+        {activeTab === "abilities" && (
+          <div>
+            <div className="pl-6 mb-4">
+              <h2 className="text-base font-bold m-0 text-gray-200">
+                {l.abilityTitle}
+              </h2>
+              <p className="text-gray-600 text-xs m-0 mt-1">{l.abilitySub}</p>
+            </div>
+            <AbilityRadar
+              data={models}
+              lang={lang}
+              colorMap={colorMap}
+              labels={{
+                abilityTitle: l.abilityTitle,
+                abilitySub: l.abilitySub,
+                benchmarkTitle: l.benchmarkTitle,
+                benchmarkSub: l.benchmarkSub,
+                selectModels: l.selectModels,
+                selectAll: l.selectAll,
+                deselectAll: l.deselectAll,
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Provider Legend */}
       <div className="flex flex-wrap gap-x-4 gap-y-2 mt-5 justify-center">
-        {Object.entries(colorMap).map(([provider, color]) => (
-          <div key={provider} className="flex items-center gap-1.5">
+        {providers.map((p) => (
+          <div key={p.id} className="flex items-center gap-1.5">
             <div
               className="w-2 h-2 rounded-full"
               style={{
-                background: color,
-                boxShadow: `0 0 8px ${color}44`,
+                background: p.color,
+                boxShadow: `0 0 8px ${p.color}44`,
               }}
             />
-            <span className="text-gray-500 text-[11px]">{provider}</span>
+            <span className="text-gray-500 text-[11px]">{p.name}</span>
           </div>
         ))}
         <div className="flex items-center gap-1.5">
@@ -241,12 +326,15 @@ export default function ModelDashboard({ models }: Props) {
       <DataTable
         data={models}
         lang={lang}
+        colorMap={colorMap}
         labels={{
           colModel: l.colModel,
           colProvider: l.colProvider,
           colTPS: l.colTPS,
           colInput: l.colInput,
           colOutput: l.colOutput,
+          colInputLong: l.colInputLong,
+          colOutputLong: l.colOutputLong,
         }}
       />
 

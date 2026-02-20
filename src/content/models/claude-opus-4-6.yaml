@@ -1,0 +1,11 @@
+name: Claude Opus 4.6
+provider: anthropic
+tps: 37
+input: 5
+output: 25
+abilities:
+  planning: 92
+  coding: 88
+  image: 74
+  research: 91
+  creative: 95

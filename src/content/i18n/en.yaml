@@ -1,0 +1,49 @@
+badge: "Benchmarks · Feb 2026"
+title: AI Model Comparison
+subtitle: Throughput and pricing across frontier models
+tabThroughput: Throughput
+tabPricing: Pricing
+tabScatter: Speed vs Cost
+heroLabel: Speed Champion
+heroUnit: tokens/sec
+priceHeroLabel: Pricing Champion
+priceHeroUnit: output $/M tokens
+tpsTitle: Throughput
+tpsUnit: (tokens per second)
+priceTitle: Pricing
+priceUnit: ($ per million tokens)
+scatterTitle: Speed vs Output Cost
+scatterSub: "Bottom-right quadrant = fast & affordable (ideal)"
+scatterXLabel: Throughput (tps)
+scatterYLabel: Output $/M
+scatterTip: "↗ Top-right = fast & expensive · ↙ Bottom-left = slow & cheap"
+inputLegend: Input (lighter)
+outputLegend: "Output (darker, shown on label)"
+colModel: Model
+colProvider: Provider
+colTPS: TPS
+colInput: Input $/M
+colOutput: Output $/M
+colInputLong: ">200K Input $/M"
+colOutputLong: ">200K Output $/M"
+longContext: ">200K context"
+tabAbilities: Abilities
+abilityTitle: Model Ability Scores
+abilitySub: "Scores are approximate (目安) — normalized 0–100 from public benchmarks listed below"
+benchmarkTitle: Benchmark Sources
+benchmarkSub: "These scores are rough estimates derived from the following public benchmarks (Feb 2026)"
+selectModels: "Select models:"
+selectAll: ALL
+deselectAll: NONE
+resultsTitle: Results
+resultsSub: "Best model per ability — absolute quality, cost-efficiency, and speed"
+bestAbsolute: BEST
+bestValue: VALUE
+bestSpeed: SPEED
+footer: "Data sourced from OpenRouter · Prices per million tokens"
+tokSec: tokens/sec
+speed: Speed
+outputCost: Output cost
+input: Input
+output: Output
+throughput: Throughput

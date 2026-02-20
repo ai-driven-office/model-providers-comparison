@@ -1,9 +1,0 @@
-{
-  "name": "GLM 5",
-  "provider": "SiliconFlow",
-  "tps": 43,
-  "input": 0.30,
-  "output": 2.55,
-  "hero": false,
-  "tag": null
-}

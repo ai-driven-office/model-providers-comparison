@@ -1,0 +1,12 @@
+name: Opus 4.6 Fast
+provider: anthropic
+tps: 93
+input: 60
+output: 225
+tag: fast
+abilities:
+  planning: 92
+  coding: 88
+  image: 74
+  research: 91
+  creative: 95

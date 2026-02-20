@@ -1,0 +1,11 @@
+name: Grok Code Fast 1
+provider: xai
+tps: 121
+input: 0.20
+output: 1.50
+abilities:
+  planning: 68
+  coding: 78
+  image: 55
+  research: 72
+  creative: 70

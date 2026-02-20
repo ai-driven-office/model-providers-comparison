@@ -1,0 +1,11 @@
+name: GPT-5.3-Codex
+provider: openai
+tps: 50
+input: 1.75
+output: 14
+abilities:
+  planning: 85
+  coding: 93
+  image: 65
+  research: 88
+  creative: 80

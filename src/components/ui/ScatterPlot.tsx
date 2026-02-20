@@ -7,32 +7,34 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell,
   ReferenceLine,
   LabelList,
 } from "recharts";
 import type { Model } from "../../data/types";
-import { getColor } from "../../data/colors";
+import { getColor, type ColorMap } from "../../data/colors";
+import { formatPrice, formatPriceAxis, type Lang } from "../../data/i18n";
 
 const MONO = "'Space Mono', monospace";
 const SANS = "'DM Sans', sans-serif";
 
-function ScatterTooltip({ active, payload, lang }: any) {
+function ScatterTooltip({ active, payload, lang, colorMap }: any) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload as Model & { x: number; y: number };
-  const color = getColor(d.provider);
-  const labels =
-    lang === "ja"
-      ? {
-          speed: "速度",
-          outputCost: "出力コスト",
-          tip: "↗ 右上 = 高速＆高価 · ↙ 左下 = 低速＆安価",
-        }
-      : {
-          speed: "Speed",
-          outputCost: "Output cost",
-          tip: "↗ Top-right = fast & expensive · ↙ Bottom-left = slow & cheap",
-        };
+  const color = getColor(d.provider, colorMap);
+  const isJa = lang === "ja";
+  const labels = isJa
+    ? {
+        speed: "速度",
+        outputCost: "出力コスト",
+        longCtx: ">200K",
+        tip: "↗ 右上 = 高速＆高価 · ↙ 左下 = 低速＆安価",
+      }
+    : {
+        speed: "Speed",
+        outputCost: "Output cost",
+        longCtx: ">200K ctx",
+        tip: "↗ Top-right = fast & expensive · ↙ Bottom-left = slow & cheap",
+      };
   return (
     <div
       className="rounded-xl px-4 py-3 shadow-xl"
@@ -54,7 +56,12 @@ function ScatterTooltip({ active, payload, lang }: any) {
       </div>
       <div className="text-gray-300 text-[13px]">
         {labels.outputCost}:{" "}
-        <span className="text-white font-semibold">${d.output}/M</span>
+        <span className="text-white font-semibold">{formatPrice(d.output, lang)}/M</span>
+        {d.outputLong != null && (
+          <span className="text-orange-300/80 text-[11px] ml-1">
+            ({labels.longCtx}: {formatPrice(d.outputLong, lang)}/M)
+          </span>
+        )}
       </div>
       <div className="text-gray-400 text-[11px] mt-1 italic">{labels.tip}</div>
     </div>
@@ -63,17 +70,51 @@ function ScatterTooltip({ active, payload, lang }: any) {
 
 interface Props {
   data: Model[];
-  lang: string;
+  lang: Lang;
+  colorMap: ColorMap;
   labels: { xLabel: string; yLabel: string; sub: string };
 }
 
-export default function ScatterPlot({ data, lang, labels }: Props) {
-  const scatterData = data.map((m) => ({
-    ...m,
-    x: m.tps,
-    y: m.output,
-    z: Math.min(m.input, 10) * 10 + 20,
-  }));
+export default function ScatterPlot({ data, lang, colorMap, labels }: Props) {
+  const Y_CAP = 35;
+
+  const scatterData = data.map((m) => {
+    const clamped = m.output > Y_CAP;
+    return {
+      ...m,
+      x: m.tps,
+      y: clamped ? Y_CAP - 2 : m.output,
+      z: Math.min(m.input, 10) * 10 + 20,
+      clamped,
+      clampedLabel: clamped
+        ? `${m.name} (${formatPrice(m.output, lang)})`
+        : m.name,
+    };
+  });
+
+  const renderPoint = ({ cx, cy, payload }: any) => {
+    if (typeof cx !== "number" || typeof cy !== "number" || !payload) {
+      return null;
+    }
+
+    const fill =
+      payload.tag === "fast"
+        ? "#FFAA32"
+        : getColor(payload.provider, colorMap);
+    const isHighlighted = payload.hero || payload.tag === "fast";
+
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={isHighlighted ? 7 : 6}
+        fill={fill}
+        fillOpacity={0.95}
+        stroke={isHighlighted ? fill : "rgba(255,255,255,0.45)"}
+        strokeWidth={isHighlighted ? 2 : 1}
+      />
+    );
+  };
 
   return (
     <ResponsiveContainer width="100%" height={440}>
@@ -104,7 +145,7 @@ export default function ScatterPlot({ data, lang, labels }: Props) {
           tick={{ fill: "#555", fontSize: 11, fontFamily: MONO }}
           axisLine={{ stroke: "rgba(255,255,255,0.06)" }}
           tickLine={false}
-          tickFormatter={(v: number) => `$${v}`}
+          tickFormatter={(v: number) => formatPriceAxis(v, lang)}
           label={{
             value: labels.yLabel,
             angle: -90,
@@ -112,9 +153,11 @@ export default function ScatterPlot({ data, lang, labels }: Props) {
             fill: "#555",
             fontSize: 11,
           }}
+          domain={[0, Y_CAP]}
+          allowDataOverflow
         />
         <ZAxis dataKey="z" range={[120, 400]} />
-        <Tooltip content={<ScatterTooltip lang={lang} />} />
+        <Tooltip content={<ScatterTooltip lang={lang} colorMap={colorMap} />} />
         <ReferenceLine
           x={200}
           stroke="rgba(0,229,160,0.15)"
@@ -125,29 +168,54 @@ export default function ScatterPlot({ data, lang, labels }: Props) {
           stroke="rgba(0,229,160,0.15)"
           strokeDasharray="6 4"
         />
-        <Scatter data={scatterData}>
-          {scatterData.map((entry, i) => (
-            <Cell
-              key={i}
-              fill={
-                entry.tag === "fast" ? "#FFAA32" : getColor(entry.provider)
-              }
-              fillOpacity={entry.hero ? 1 : 0.8}
-              stroke={
-                entry.hero
-                  ? "#00E5A0"
-                  : entry.tag === "fast"
-                    ? "#FFAA32"
-                    : "none"
-              }
-              strokeWidth={entry.hero || entry.tag === "fast" ? 2 : 0}
-            />
-          ))}
+        <Scatter data={scatterData} shape={renderPoint} isAnimationActive={false}>
           <LabelList
-            dataKey="name"
+            dataKey="clampedLabel"
             position="top"
             style={{ fill: "#888", fontSize: 9, fontFamily: SANS }}
             offset={10}
+            content={({ x, y, value, index }: any) => {
+              const entry = scatterData[index];
+              if (!entry) return null;
+              if (entry.clamped) {
+                return (
+                  <g>
+                    <text
+                      x={x}
+                      y={(y ?? 0) - 12}
+                      textAnchor="middle"
+                      fill="#FFAA32"
+                      fontSize={9}
+                      fontFamily={SANS}
+                    >
+                      ⋯ {value}
+                    </text>
+                    <line
+                      x1={x}
+                      y1={(y ?? 0) - 4}
+                      x2={x}
+                      y2={(y ?? 0) + 4}
+                      stroke="#FFAA32"
+                      strokeWidth={1}
+                      strokeDasharray="2 2"
+                      opacity={0.6}
+                    />
+                  </g>
+                );
+              }
+              return (
+                <text
+                  x={x}
+                  y={(y ?? 0) - 10}
+                  textAnchor="middle"
+                  fill="#888"
+                  fontSize={9}
+                  fontFamily={SANS}
+                >
+                  {value}
+                </text>
+              );
+            }}
           />
         </Scatter>
       </ScatterChart>

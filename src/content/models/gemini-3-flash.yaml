@@ -1,0 +1,11 @@
+name: Gemini 3 Flash
+provider: google-ai-studio
+tps: 56
+input: 0.50
+output: 3
+abilities:
+  planning: 82
+  coding: 84
+  image: 81
+  research: 90
+  creative: 88

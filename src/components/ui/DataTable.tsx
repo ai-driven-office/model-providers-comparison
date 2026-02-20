@@ -1,37 +1,45 @@
 import type { Model } from "../../data/types";
-import { getColor } from "../../data/colors";
+import { getColor, type ColorMap } from "../../data/colors";
+import { formatPrice, type Lang } from "../../data/i18n";
 
 interface Props {
   data: Model[];
-  lang: string;
+  lang: Lang;
+  colorMap: ColorMap;
   labels: {
     colModel: string;
     colProvider: string;
     colTPS: string;
     colInput: string;
     colOutput: string;
+    colInputLong: string;
+    colOutputLong: string;
   };
 }
 
-export default function DataTable({ data, lang, labels }: Props) {
+export default function DataTable({ data, lang, colorMap, labels }: Props) {
   const sorted = [...data].sort((a, b) => b.tps - a.tps);
+  const hasLongContext = data.some((m) => m.inputLong != null);
   const isJa = lang === "ja";
   const headerFont = isJa
     ? "'Noto Sans JP', sans-serif"
     : "'Space Mono', monospace";
+
+  const headers = [
+    labels.colModel,
+    labels.colProvider,
+    labels.colTPS,
+    labels.colInput,
+    labels.colOutput,
+    ...(hasLongContext ? [labels.colInputLong, labels.colOutputLong] : []),
+  ];
 
   return (
     <div className="mt-7 bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden">
       <table className="w-full border-collapse text-xs">
         <thead>
           <tr className="border-b border-white/[0.06]">
-            {[
-              labels.colModel,
-              labels.colProvider,
-              labels.colTPS,
-              labels.colInput,
-              labels.colOutput,
-            ].map((h) => (
+            {headers.map((h) => (
               <th
                 key={h}
                 className="px-4 py-3 text-left text-gray-500 font-semibold tracking-wider"
@@ -82,7 +90,9 @@ export default function DataTable({ data, lang, labels }: Props) {
                 className="px-4 py-2.5"
                 style={{
                   color:
-                    m.tag === "fast" ? "#FFAA32" : getColor(m.provider),
+                    m.tag === "fast"
+                      ? "#FFAA32"
+                      : getColor(m.provider, colorMap),
                 }}
               >
                 {m.provider}
@@ -100,11 +110,29 @@ export default function DataTable({ data, lang, labels }: Props) {
                 {m.tps.toLocaleString()}
               </td>
               <td className="px-4 py-2.5 font-mono text-gray-400">
-                ${m.input}
+                {formatPrice(m.input, lang)}
               </td>
               <td className="px-4 py-2.5 font-mono text-gray-400">
-                ${m.output}
+                {formatPrice(m.output, lang)}
               </td>
+              {hasLongContext && (
+                <td className="px-4 py-2.5 font-mono text-gray-400">
+                  {m.inputLong != null ? (
+                    <span className="text-orange-300/80">{formatPrice(m.inputLong, lang)}</span>
+                  ) : (
+                    <span className="text-gray-700">—</span>
+                  )}
+                </td>
+              )}
+              {hasLongContext && (
+                <td className="px-4 py-2.5 font-mono text-gray-400">
+                  {m.outputLong != null ? (
+                    <span className="text-orange-300/80">{formatPrice(m.outputLong, lang)}</span>
+                  ) : (
+                    <span className="text-gray-700">—</span>
+                  )}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

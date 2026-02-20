@@ -1,0 +1,11 @@
+name: Claude Sonnet 4.6
+provider: anthropic
+tps: 41
+input: 3
+output: 15
+abilities:
+  planning: 85
+  coding: 86
+  image: 72
+  research: 84
+  creative: 88

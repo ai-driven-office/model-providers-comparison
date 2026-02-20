@@ -1,0 +1,49 @@
+badge: ベンチマーク · 2026年2月
+title: AIモデル比較
+subtitle: フロンティアモデルのスループットと価格
+tabThroughput: スループット
+tabPricing: 価格
+tabScatter: 速度 vs コスト
+heroLabel: スピードチャンピオン
+heroUnit: トークン/秒
+priceHeroLabel: 最安チャンピオン
+priceHeroUnit: 出力 円/100万トークン
+tpsTitle: スループット
+tpsUnit: （トークン/秒）
+priceTitle: 価格
+priceUnit: （100万トークンあたり・円）
+scatterTitle: 速度 vs 出力コスト
+scatterSub: 右下 = 高速＆低コスト（理想的）
+scatterXLabel: スループット (tps)
+scatterYLabel: 出力 円/M
+scatterTip: "↗ 右上 = 高速＆高価 · ↙ 左下 = 低速＆安価"
+inputLegend: 入力（薄い色）
+outputLegend: 出力（濃い色・ラベル表示）
+colModel: モデル
+colProvider: プロバイダー
+colTPS: TPS
+colInput: 入力 円/M
+colOutput: 出力 円/M
+colInputLong: ">200K 入力 円/M"
+colOutputLong: ">200K 出力 円/M"
+longContext: ">200Kコンテキスト"
+tabAbilities: 能力スコア
+abilityTitle: モデル能力スコア
+abilitySub: "各スコアは目安です — 以下の公開ベンチマークを0〜100に正規化した推定値"
+benchmarkTitle: ベンチマーク出典
+benchmarkSub: "これらのスコアは以下の公開ベンチマーク（2026年2月時点）から算出した概算値です"
+selectModels: "モデル選択："
+selectAll: 全選択
+deselectAll: 解除
+resultsTitle: 結果
+resultsSub: "能力別の最適モデル — 品質重視・コスパ重視・速度重視"
+bestAbsolute: 最高品質
+bestValue: コスパ最強
+bestSpeed: 最速
+footer: "データ出典: OpenRouter · 100万トークンあたりの価格· $1 = ¥150換算"
+tokSec: トークン/秒
+speed: 速度
+outputCost: 出力コスト
+input: 入力
+output: 出力
+throughput: スループット

@@ -1,74 +1,19 @@
 export type Lang = "en" | "ja";
 
-export const i18n: Record<Lang, Record<string, string>> = {
-  en: {
-    badge: "OpenRouter Benchmarks \u00b7 Feb 2026",
-    title: "AI Model Comparison",
-    subtitle: "Throughput and pricing across frontier models via OpenRouter",
-    tabThroughput: "Throughput",
-    tabPricing: "Pricing",
-    tabScatter: "Speed vs Cost",
-    heroLabel: "Speed Champion",
-    heroUnit: "tokens/sec",
-    tpsTitle: "Throughput",
-    tpsUnit: "(tokens per second)",
-    priceTitle: "Pricing",
-    priceUnit: "($ per million tokens)",
-    scatterTitle: "Speed vs Output Cost",
-    scatterSub: "Bottom-right quadrant = fast & affordable (ideal)",
-    scatterXLabel: "Throughput (tps)",
-    scatterYLabel: "Output $/M",
-    scatterTip: "\u2197 Top-right = fast & expensive \u00b7 \u2199 Bottom-left = slow & cheap",
-    inputLegend: "Input (lighter)",
-    outputLegend: "Output (darker, shown on label)",
-    colModel: "Model",
-    colProvider: "Provider",
-    colTPS: "TPS",
-    colInput: "Input $/M",
-    colOutput: "Output $/M",
-    footer:
-      "Data sourced from OpenRouter \u00b7 Prices per million tokens (\u2264200K tier where applicable)",
-    tokSec: "tokens/sec",
-    speed: "Speed",
-    outputCost: "Output cost",
-    input: "Input",
-    output: "Output",
-    throughput: "Throughput",
-  },
-  ja: {
-    badge: "OpenRouter \u30d9\u30f3\u30c1\u30de\u30fc\u30af \u00b7 2026\u5e742\u6708",
-    title: "AI\u30e2\u30c7\u30eb\u6bd4\u8f03",
-    subtitle:
-      "OpenRouter\u7d4c\u7531\u306e\u30d5\u30ed\u30f3\u30c6\u30a3\u30a2\u30e2\u30c7\u30eb\u306e\u30b9\u30eb\u30fc\u30d7\u30c3\u30c8\u3068\u4fa1\u683c",
-    tabThroughput: "\u30b9\u30eb\u30fc\u30d7\u30c3\u30c8",
-    tabPricing: "\u4fa1\u683c",
-    tabScatter: "\u901f\u5ea6 vs \u30b3\u30b9\u30c8",
-    heroLabel: "\u30b9\u30d4\u30fc\u30c9\u30c1\u30e3\u30f3\u30d4\u30aa\u30f3",
-    heroUnit: "\u30c8\u30fc\u30af\u30f3/\u79d2",
-    tpsTitle: "\u30b9\u30eb\u30fc\u30d7\u30c3\u30c8",
-    tpsUnit: "\uff08\u30c8\u30fc\u30af\u30f3/\u79d2\uff09",
-    priceTitle: "\u4fa1\u683c",
-    priceUnit: "\uff08100\u4e07\u30c8\u30fc\u30af\u30f3\u3042\u305f\u308a$\uff09",
-    scatterTitle: "\u901f\u5ea6 vs \u51fa\u529b\u30b3\u30b9\u30c8",
-    scatterSub: "\u53f3\u4e0b = \u9ad8\u901f\uff06\u4f4e\u30b3\u30b9\u30c8\uff08\u7406\u60f3\u7684\uff09",
-    scatterXLabel: "\u30b9\u30eb\u30fc\u30d7\u30c3\u30c8 (tps)",
-    scatterYLabel: "\u51fa\u529b $/M",
-    scatterTip:
-      "\u2197 \u53f3\u4e0a = \u9ad8\u901f\uff06\u9ad8\u4fa1 \u00b7 \u2199 \u5de6\u4e0b = \u4f4e\u901f\uff06\u5b89\u4fa1",
-    inputLegend: "\u5165\u529b\uff08\u8584\u3044\u8272\uff09",
-    outputLegend: "\u51fa\u529b\uff08\u6fc3\u3044\u8272\u30fb\u30e9\u30d9\u30eb\u8868\u793a\uff09",
-    colModel: "\u30e2\u30c7\u30eb",
-    colProvider: "\u30d7\u30ed\u30d0\u30a4\u30c0\u30fc",
-    colTPS: "TPS",
-    colInput: "\u5165\u529b $/M",
-    colOutput: "\u51fa\u529b $/M",
-    footer:
-      "\u30c7\u30fc\u30bf\u51fa\u5178: OpenRouter \u00b7 100\u4e07\u30c8\u30fc\u30af\u30f3\u3042\u305f\u308a\u306e\u4fa1\u683c\uff08\u2264200K\u30c6\u30a3\u30a2\u9069\u7528\u6642\uff09",
-    tokSec: "\u30c8\u30fc\u30af\u30f3/\u79d2",
-    speed: "\u901f\u5ea6",
-    outputCost: "\u51fa\u529b\u30b3\u30b9\u30c8",
-    input: "\u5165\u529b",
-    output: "\u51fa\u529b",
-    throughput: "\u30b9\u30eb\u30fc\u30d7\u30c3\u30c8",
-  },
-};
+export const USD_JPY_RATE = 150;
+
+export function formatPrice(value: number, lang: Lang): string {
+  if (lang === "ja") {
+    const yen = Math.round(value * USD_JPY_RATE);
+    return `${yen.toLocaleString()}円`;
+  }
+  return `$${value}`;
+}
+
+export function formatPriceAxis(value: number, lang: Lang): string {
+  if (lang === "ja") {
+    const yen = Math.round(value * USD_JPY_RATE);
+    return `¥${yen.toLocaleString()}`;
+  }
+  return `$${value}`;
+}

@@ -1,0 +1,12 @@
+name: GLM 4.7
+provider: cerebras
+tps: 1000
+input: 2.25
+output: 2.75
+hero: true
+abilities:
+  planning: 76
+  coding: 80
+  image: 58
+  research: 82
+  creative: 74

@@ -1,13 +1,11 @@
-export const colorMap: Record<string, string> = {
-  "Cerebras (Direct)": "#00E5A0",
-  xAI: "#FF6B6B",
-  "Google Vertex": "#4285F4",
-  "Google AI Studio": "#34A853",
-  Anthropic: "#D4A574",
-  SiliconFlow: "#A78BFA",
-  OpenAI: "#10B981",
-};
+import type { Provider } from "./types";
 
-export function getColor(provider: string): string {
+export type ColorMap = Record<string, string>;
+
+export function buildColorMap(providers: Provider[]): ColorMap {
+  return Object.fromEntries(providers.map((p) => [p.name, p.color]));
+}
+
+export function getColor(provider: string, colorMap: ColorMap): string {
   return colorMap[provider] ?? "#888";
 }

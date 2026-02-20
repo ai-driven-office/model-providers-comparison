@@ -3,10 +3,29 @@ import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ModelDashboard from "../components/ModelDashboard";
 
+const i18nEntries = await getCollection("i18n");
+const i18n = Object.fromEntries(
+  i18nEntries.map((e) => [e.id, e.data])
+) as Record<string, Record<string, string>>;
+
+const providerEntries = await getCollection("providers");
+const providerMap = Object.fromEntries(
+  providerEntries.map((p) => [p.id, p.data])
+);
+
 const modelEntries = await getCollection("models");
-const models = modelEntries.map((entry) => entry.data);
+const models = modelEntries.map((entry) => ({
+  ...entry.data,
+  providerId: entry.data.provider,
+  provider: providerMap[entry.data.provider]?.name ?? entry.data.provider,
+}));
+
+const providers = providerEntries.map((p) => ({
+  id: p.id,
+  ...p.data,
+}));
 ---
 
 <BaseLayout title="AI Model Comparison">
-  <ModelDashboard models={models} client:load />
+  <ModelDashboard models={models} providers={providers} i18n={i18n} client:load />
 </BaseLayout>

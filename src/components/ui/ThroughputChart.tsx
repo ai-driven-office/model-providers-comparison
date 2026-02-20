@@ -10,15 +10,15 @@ import {
   LabelList,
 } from "recharts";
 import type { Model } from "../../data/types";
-import { getColor } from "../../data/colors";
+import { getColor, type ColorMap } from "../../data/colors";
 
 const MONO = "'Space Mono', monospace";
 const SANS = "'DM Sans', sans-serif";
 
-function ThroughputTooltip({ active, payload, lang }: any) {
+function ThroughputTooltip({ active, payload, lang, colorMap }: any) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload as Model;
-  const color = getColor(d.provider);
+  const color = getColor(d.provider, colorMap);
   return (
     <div
       className="rounded-xl px-4 py-3 shadow-xl"
@@ -36,11 +36,11 @@ function ThroughputTooltip({ active, payload, lang }: any) {
         <span className="font-bold text-white text-lg">
           {d.tps.toLocaleString()}
         </span>{" "}
-        {lang === "ja" ? "トークン/秒" : "tokens/sec"}
+        {lang === "ja" ? "\u30c8\u30fc\u30af\u30f3/\u79d2" : "tokens/sec"}
       </div>
       {d.tag === "fast" && (
         <div className="text-amber-400 text-[11px] mt-1">
-          ⚡ 2.5x faster than standard Opus 4.6
+          \u26a1 2.5x faster than standard Opus 4.6
         </div>
       )}
     </div>
@@ -50,9 +50,10 @@ function ThroughputTooltip({ active, payload, lang }: any) {
 interface Props {
   data: Model[];
   lang: string;
+  colorMap: ColorMap;
 }
 
-export default function ThroughputChart({ data, lang }: Props) {
+export default function ThroughputChart({ data, lang, colorMap }: Props) {
   const sorted = [...data].sort((a, b) => b.tps - a.tps);
 
   return (
@@ -83,10 +84,15 @@ export default function ThroughputChart({ data, lang }: Props) {
           tickLine={false}
         />
         <Tooltip
-          content={<ThroughputTooltip lang={lang} />}
+          content={<ThroughputTooltip lang={lang} colorMap={colorMap} />}
           cursor={{ fill: "rgba(255,255,255,0.02)" }}
         />
-        <Bar dataKey="tps" radius={[0, 6, 6, 0]} barSize={26}>
+        <Bar
+          dataKey="tps"
+          radius={[0, 6, 6, 0]}
+          barSize={26}
+          isAnimationActive={false}
+        >
           {sorted.map((entry, i) => (
             <Cell
               key={i}
@@ -95,7 +101,7 @@ export default function ThroughputChart({ data, lang }: Props) {
                   ? "url(#heroGrad)"
                   : entry.tag === "fast"
                     ? "#FFAA32"
-                    : getColor(entry.provider)
+                    : getColor(entry.provider, colorMap)
               }
               fillOpacity={entry.hero || entry.tag === "fast" ? 1 : 0.75}
             />

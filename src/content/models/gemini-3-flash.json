@@ -1,9 +1,0 @@
-{
-  "name": "Gemini 3 Flash",
-  "provider": "Google AI Studio",
-  "tps": 56,
-  "input": 0.50,
-  "output": 3,
-  "hero": false,
-  "tag": null
-}

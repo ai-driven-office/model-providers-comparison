@@ -1,9 +1,0 @@
-{
-  "name": "GLM 4.7",
-  "provider": "Cerebras (Direct)",
-  "tps": 1000,
-  "input": 2.25,
-  "output": 2.75,
-  "hero": true,
-  "tag": null
-}

@@ -1,9 +1,0 @@
-{
-  "name": "Claude Haiku 4.5",
-  "provider": "Anthropic",
-  "tps": 64,
-  "input": 1,
-  "output": 5,
-  "hero": false,
-  "tag": null
-}

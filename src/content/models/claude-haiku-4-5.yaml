@@ -1,0 +1,11 @@
+name: Claude Haiku 4.5
+provider: anthropic
+tps: 64
+input: 1
+output: 5
+abilities:
+  planning: 72
+  coding: 75
+  image: 73
+  research: 70
+  creative: 78

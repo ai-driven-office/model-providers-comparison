@@ -1,0 +1,11 @@
+name: GPT-5.2-Codex
+provider: openai
+tps: 42
+input: 1.75
+output: 14
+abilities:
+  planning: 82
+  coding: 87
+  image: 87
+  research: 93
+  creative: 82

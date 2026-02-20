@@ -1,9 +1,0 @@
-{
-  "name": "Claude Opus 4.6",
-  "provider": "Anthropic",
-  "tps": 37,
-  "input": 5,
-  "output": 25,
-  "hero": false,
-  "tag": null
-}
