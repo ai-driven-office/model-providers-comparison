@@ -43,9 +43,11 @@ bestAbsolute: BEST
 bestValue: VALUE
 bestSpeed: SPEED
 footer: "Data sourced from OpenRouter · Prices per million tokens"
+copyright: "©CyberAgent, Inc. · AI Driven Office (AIドリブン推進室)"
 tokSec: tokens/sec
 speed: Speed
 outputCost: Output cost
 input: Input
 output: Output
 throughput: Throughput
+colAverage: Average

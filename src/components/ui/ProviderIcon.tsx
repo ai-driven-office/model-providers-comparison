@@ -1,11 +1,13 @@
-import type { SVGProps } from "react";
+import type { ReactElement, SVGProps } from "react";
 
 /**
  * Lightweight provider/model icons using inline SVG paths.
  * Replaces @lobehub/icons which has ESM compatibility issues with Astro SSR.
  */
 
-type IconComp = (props: SVGProps<SVGSVGElement> & { size?: number }) => JSX.Element | null;
+type IconComp = (
+  props: SVGProps<SVGSVGElement> & { size?: number },
+) => ReactElement | null;
 
 /* ─── Minimal inline SVG icon components ─── */
 

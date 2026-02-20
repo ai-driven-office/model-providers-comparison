@@ -29,5 +29,5 @@ const providers = providerEntries.map((p) => ({
 ---
 
 <BaseLayout title="AI Model Comparison">
-  <ModelDashboard models={models} providers={providers} i18n={i18n} client:idle />
+  <ModelDashboard models={models} providers={providers} i18n={i18n} client:load />
 </BaseLayout>

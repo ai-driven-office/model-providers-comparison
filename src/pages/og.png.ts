@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import type { ReactNode } from "react";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 
@@ -37,8 +38,7 @@ export const GET: APIRoute = async () => {
     { name: "Cerebras", color: "#00D4AA" },
   ];
 
-  const svg = await satori(
-    {
+  const tree = {
       type: "div",
       props: {
         style: {
@@ -214,16 +214,16 @@ export const GET: APIRoute = async () => {
           },
         ],
       },
-    },
-    {
+  } as unknown as ReactNode;
+
+  const svg = await satori(tree, {
       width: WIDTH,
       height: HEIGHT,
       fonts: [
         { name: "DM Sans", data: regular, weight: 400, style: "normal" as const },
         { name: "DM Sans", data: bold, weight: 700, style: "normal" as const },
       ],
-    },
-  );
+    });
 
   const resvg = new Resvg(svg, { fitTo: { mode: "width", value: WIDTH } });
   const png = resvg.render().asPng();

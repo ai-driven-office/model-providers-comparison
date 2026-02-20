@@ -42,10 +42,12 @@ resultsDisclaimer: "これらの推薦は、2026年2月時点の公開ベンチ�
 bestAbsolute: 最高品質
 bestValue: コスパ最強
 bestSpeed: 最速
-footer: "データ出典: OpenRouter · 100万トークンあたりの価格· $1 = ¥150換算"
+footer: "データ出典: OpenRouter · 100万トークンあたりの価格 · $1 = ¥150換算"
+copyright: "©CyberAgent, Inc. · AIドリブン推進室（AI Driven Office）"
 tokSec: トークン/秒
 speed: 速度
 outputCost: 出力コスト
 input: 入力
 output: 出力
 throughput: スループット
+colAverage: 平均

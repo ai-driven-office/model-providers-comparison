@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
   title: string;
@@ -11,7 +12,7 @@ const {
   description = "Compare AI model throughput and pricing across frontier models from OpenAI, Anthropic, Google, xAI, and more.",
 } = Astro.props;
 
-const siteName = "AI Model Comparison";
+const siteName = "AI Model Comparison — AI Driven Office";
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const canonicalUrl = new URL(base, Astro.site).href;
 const ogImageUrl = new URL(`${base}og.png`, Astro.site).href;
@@ -28,7 +29,7 @@ const ogImageUrl = new URL(`${base}og.png`, Astro.site).href;
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#0C0C1D" />
+    <meta name="theme-color" content="#08121a" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -47,7 +48,7 @@ const ogImageUrl = new URL(`${base}og.png`, Astro.site).href;
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
-    <meta name="twitter:image:alt" content="AI Model Comparison Dashboard — throughput and pricing across frontier models" />
+    <meta name="twitter:image:alt" content="AI Model Comparison Dashboard — AI Driven Office" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
@@ -57,14 +58,14 @@ const ogImageUrl = new URL(`${base}og.png`, Astro.site).href;
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap"
       media="print"
       onload="this.media='all'"
     />
     <noscript>
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap"
       />
     </noscript>
 
@@ -83,9 +84,22 @@ const ogImageUrl = new URL(`${base}og.png`, Astro.site).href;
         "priceCurrency": "USD",
       },
       "image": ogImageUrl,
+      "creator": {
+        "@type": "Organization",
+        "name": "AI Driven Office (AIドリブン推進室)",
+        "parentOrganization": {
+          "@type": "Organization",
+          "name": "CyberAgent, Inc.",
+          "url": "https://www.cyberagent.co.jp/"
+        }
+      }
     })} />
+
+    <ClientRouter />
   </head>
   <body class="px-6 py-8">
-    <slot />
+    <main transition:animate="fade">
+      <slot />
+    </main>
   </body>
 </html>

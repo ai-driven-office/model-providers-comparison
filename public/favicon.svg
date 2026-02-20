@@ -1,7 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="6" fill="#0C0C1D"/>
-  <rect x="5" y="20" width="4" height="8" rx="1" fill="#00E5A0" opacity="0.6"/>
-  <rect x="11" y="14" width="4" height="14" rx="1" fill="#00E5A0" opacity="0.75"/>
-  <rect x="17" y="8" width="4" height="20" rx="1" fill="#00E5A0" opacity="0.9"/>
-  <rect x="23" y="4" width="4" height="24" rx="1" fill="#00E5A0"/>
+  <defs>
+    <linearGradient id="aid" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3370FE"/>
+      <stop offset="40%" stop-color="#8A3CB8"/>
+      <stop offset="70%" stop-color="#E0247A"/>
+      <stop offset="100%" stop-color="#FF0413"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="6" fill="#0A0A0A"/>
+  <!-- := symbol -->
+  <rect x="7" y="10" width="5" height="3.5" rx="0.5" fill="url(#aid)"/>
+  <rect x="7" y="18.5" width="5" height="3.5" rx="0.5" fill="url(#aid)"/>
+  <rect x="16" y="14.25" width="10" height="3.5" rx="0.5" fill="url(#aid)"/>
 </svg>
