@@ -197,7 +197,7 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
           ).map((opt) => (
             <button
               key={opt.code}
-              onClick={() => { setLang(opt.code); sfxLang(); }}
+              onClick={() => { setLang(opt.code); if (!reduceMotion) sfxLang(); }}
               className="px-3.5 py-1 rounded-md border-none cursor-pointer transition-all duration-200"
               style={{
                 fontFamily:
@@ -245,7 +245,7 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
           return (
             <button
               key={tab.id}
-              onClick={() => { setActiveTab(tab.id); sfxTab(); }}
+              onClick={() => { setActiveTab(tab.id); if (!reduceMotion) sfxTab(); }}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 border-none cursor-pointer text-[13px] font-medium transition-all duration-200 relative"
               style={{
                 background: "transparent",
@@ -553,6 +553,7 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
                   data={models}
                   lang={lang}
                   colorMap={colorMap}
+                  reduceMotion={reduceMotion}
                   labels={{
                     resultsTitle: l.resultsTitle,
                     resultsSub: l.resultsSub,
@@ -592,7 +593,7 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
       {/* GLM × Cerebras Guide Link */}
       <a
         href={`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}glm-cerebras`}
-        onClick={() => sfxClick()}
+        onClick={() => { if (!reduceMotion) sfxClick(); }}
         className="flex items-center justify-between rounded-xl px-5 py-3.5 mt-6 mb-2 no-underline transition-all group relative overflow-hidden"
         style={{
           background: "linear-gradient(135deg, rgba(51,112,254,0.04) 0%, rgba(255,4,19,0.02) 100%)",

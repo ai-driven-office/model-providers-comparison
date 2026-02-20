@@ -145,6 +145,7 @@ interface Props {
   data: Model[];
   lang: Lang;
   colorMap: ColorMap;
+  reduceMotion?: boolean;
   labels: {
     resultsTitle: string;
     resultsSub: string;
@@ -166,6 +167,7 @@ function WinnerCard({
   subtitle2,
   colorMap,
   delay,
+  reduceMotion,
 }: {
   dimKey: keyof typeof DIMENSIONS;
   dimLabel: string;
@@ -174,6 +176,7 @@ function WinnerCard({
   subtitle2: string;
   colorMap: ColorMap;
   delay: number;
+  reduceMotion?: boolean;
 }) {
   const dim = DIMENSIONS[dimKey];
   const { first, second } = topTwo;
@@ -182,9 +185,9 @@ function WinnerCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={reduceMotion ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={reduceMotion ? { duration: 0 } : { duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}
       className="relative group"
     >
       <div
@@ -236,12 +239,13 @@ function WinnerCard({
             style={{ background: "rgba(255,255,255,0.04)" }}
           >
             <div
-              className="h-full rounded-full animate-bar-fill"
+              className={`h-full rounded-full${reduceMotion ? "" : " animate-bar-fill"}`}
               style={{
                 width: `${barPct}%`,
                 background: `linear-gradient(90deg, ${dim.color}, ${dim.color}88)`,
-                animationDelay: `${delay + 0.3}s`,
-                animationFillMode: "both",
+                ...(reduceMotion
+                  ? {}
+                  : { animationDelay: `${delay + 0.3}s`, animationFillMode: "both" }),
               }}
             />
           </div>
@@ -324,6 +328,7 @@ function CategoryRow({
   lang,
   rowIndex,
   labels,
+  reduceMotion,
 }: {
   abilityKey: AbilityKey;
   label: string;
@@ -334,15 +339,16 @@ function CategoryRow({
   lang: Lang;
   rowIndex: number;
   labels: Props["labels"];
+  reduceMotion?: boolean;
 }) {
   const cat = CATEGORY[abilityKey];
   const baseDelay = rowIndex * 0.12;
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={reduceMotion ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.4, delay: baseDelay }}
+      transition={reduceMotion ? { duration: 0 } : { duration: 0.4, delay: baseDelay }}
     >
       {/* Category section — icon + label as a left-aligned badge */}
       <div className="flex items-center gap-2 mb-3 ml-1">
@@ -383,6 +389,7 @@ function CategoryRow({
             }
             colorMap={colorMap}
             delay={baseDelay + 0.05}
+            reduceMotion={reduceMotion}
           />
         )}
         {value && (
@@ -398,6 +405,7 @@ function CategoryRow({
             }
             colorMap={colorMap}
             delay={baseDelay + 0.1}
+            reduceMotion={reduceMotion}
           />
         )}
         {speed && (
@@ -413,6 +421,7 @@ function CategoryRow({
             }
             colorMap={colorMap}
             delay={baseDelay + 0.15}
+            reduceMotion={reduceMotion}
           />
         )}
       </div>
@@ -423,7 +432,7 @@ function CategoryRow({
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  *  ResultsPanel — main export
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-export default function ResultsPanel({ data, lang, colorMap, labels }: Props) {
+export default function ResultsPanel({ data, lang, colorMap, labels, reduceMotion }: Props) {
   const abilityLabels = ABILITY_LABELS[lang] || ABILITY_LABELS.en;
   const isJa = lang === "ja";
 
@@ -441,13 +450,15 @@ export default function ResultsPanel({ data, lang, colorMap, labels }: Props) {
   return (
     <div className="relative px-4 sm:px-6 pb-6">
       {/* Film grain overlay */}
-      <div className="grain absolute inset-0 rounded-2xl overflow-hidden pointer-events-none" />
+      {!reduceMotion && (
+        <div className="grain absolute inset-0 rounded-2xl overflow-hidden pointer-events-none" />
+      )}
 
       {/* Dimension legend — top-right compact strip */}
       <motion.div
-        initial={{ opacity: 0, x: 8 }}
+        initial={reduceMotion ? false : { opacity: 0, x: 8 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
+        transition={reduceMotion ? { duration: 0 } : { duration: 0.5, delay: 0.1 }}
         className="flex items-center justify-end gap-4 mb-5"
       >
         {(
@@ -489,15 +500,16 @@ export default function ResultsPanel({ data, lang, colorMap, labels }: Props) {
             lang={lang}
             rowIndex={i}
             labels={labels}
+            reduceMotion={reduceMotion}
           />
         ))}
       </div>
 
       {/* Disclaimer — editorial footnote style */}
       <motion.div
-        initial={{ opacity: 0 }}
+        initial={reduceMotion ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.8 }}
+        transition={reduceMotion ? { duration: 0 } : { duration: 0.6, delay: 0.8 }}
         className="mt-6 flex items-start gap-2 px-1"
       >
         <Info
