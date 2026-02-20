@@ -1104,6 +1104,73 @@ function getSlideDuration(slideIndex: number): number {
 }
 
 /* ═══════════════════════════════════════════════════════
+   FULLSCREEN START OVERLAY
+   ═══════════════════════════════════════════════════════ */
+
+function FullscreenStartOverlay({ onStart }: { onStart: () => void }) {
+  return (
+    <div onClick={onStart} style={{
+      position: "fixed", inset: 0, zIndex: 9999, background: BG,
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      cursor: "pointer",
+    }}>
+      <div style={{
+        position: "absolute", width: 600, height: 600, borderRadius: "50%",
+        background: `radial-gradient(circle, ${AID_GRADIENT[0]}15 0%, transparent 70%)`,
+        filter: "blur(80px)", pointerEvents: "none",
+      }} />
+
+      <AidLogo style={{ height: 120, width: "auto", marginBottom: 48, opacity: 0.9 }} />
+
+      <div style={{
+        width: 240, height: 2,
+        background: `linear-gradient(90deg, transparent, ${AID_GRADIENT[0]}88, ${AID_GRADIENT[2]}88, transparent)`,
+        marginBottom: 48,
+      }} />
+
+      <div style={{ fontFamily: SANS, fontSize: 28, fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: 4 }}>
+        AIモデル比較
+      </div>
+      <div style={{ fontFamily: SANS, fontSize: 16, color: "rgba(255,255,255,0.25)", letterSpacing: 2, marginTop: 12 }}>
+        ブースディスプレイ
+      </div>
+
+      <div style={{
+        marginTop: 72, padding: "22px 64px", borderRadius: 18,
+        border: `1px solid ${AID_GRADIENT[0]}44`,
+        background: `linear-gradient(135deg, ${AID_GRADIENT[0]}12, ${AID_GRADIENT[2]}08)`,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, justifyContent: "center" }}>
+          <div style={{
+            width: 10, height: 10, borderRadius: "50%", background: AID_GRADIENT[0],
+            animation: "booth-pulse 2s ease-in-out infinite",
+            boxShadow: `0 0 12px ${AID_GRADIENT[0]}66`,
+          }} />
+          <span style={{ fontFamily: SANS, fontSize: 22, fontWeight: 600, color: AID_GRADIENT[0], letterSpacing: 4 }}>
+            クリックして開始
+          </span>
+        </div>
+        <div style={{
+          fontFamily: MONO, fontSize: 13, color: "rgba(255,255,255,0.2)",
+          marginTop: 10, textAlign: "center", letterSpacing: 2,
+        }}>
+          TAP TO START FULLSCREEN
+        </div>
+      </div>
+
+      <div style={{
+        position: "absolute", bottom: 48, display: "flex", gap: 36,
+        fontFamily: MONO, fontSize: 13, color: "rgba(255,255,255,0.12)", letterSpacing: 1,
+      }}>
+        <span>← → SLIDES</span>
+        <span>F FULLSCREEN</span>
+        <span>ESC EXIT</span>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
    メインスライドショーコントローラー
    ═══════════════════════════════════════════════════════ */
 
@@ -1122,6 +1189,9 @@ export default function BoothSlideshow({ models, providers }: Props) {
   const autoIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const transitioningRef = useRef(false);
   const currentSlideRef = useRef(0);
+  const [started, setStarted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const wakeLockRef = useRef<any>(null);
 
   const TOTAL_SLIDES = 14;
 
@@ -1137,6 +1207,35 @@ export default function BoothSlideshow({ models, providers }: Props) {
     window.addEventListener("resize", updateViewport);
     return () => window.removeEventListener("resize", updateViewport);
   }, []);
+
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (!started) return;
+    let lock: any = null;
+    const acquire = async () => {
+      try {
+        const nav = navigator as any;
+        if (nav.wakeLock) {
+          lock = await nav.wakeLock.request("screen");
+          wakeLockRef.current = lock;
+        }
+      } catch {}
+    };
+    acquire();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") acquire();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      lock?.release?.();
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [started]);
 
   // Keep ref in sync with state
   useEffect(() => { currentSlideRef.current = currentSlide; }, [currentSlide]);
@@ -1173,17 +1272,30 @@ export default function BoothSlideshow({ models, providers }: Props) {
     scheduleNext();
   }, [scheduleNext]);
 
-  // Initial setup: fade in + progress bar + auto-advance
+  const enterFullscreen = useCallback(async () => {
+    try { await document.documentElement.requestFullscreen(); } catch {}
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch {}
+  }, []);
+
+  const handleStart = useCallback(async () => {
+    setStarted(true);
+    try { await document.documentElement.requestFullscreen(); } catch {}
+  }, []);
+
   useEffect(() => {
     setTimeout(() => setFadePhase("visible"), 100);
-
-    resetAutoAdvance();
-
+    if (started) resetAutoAdvance();
     return () => {
       if (autoIntervalRef.current) clearTimeout(autoIntervalRef.current);
       if (slideTimerRef.current) clearTimeout(slideTimerRef.current);
     };
-  }, [resetAutoAdvance]);
+  }, [resetAutoAdvance, started]);
 
   // Keyboard navigation: ← → arrow keys
   useEffect(() => {
@@ -1198,12 +1310,15 @@ export default function BoothSlideshow({ models, providers }: Props) {
         const prev = (currentSlideRef.current - 1 + TOTAL_SLIDES) % TOTAL_SLIDES;
         goToSlide(prev);
         resetAutoAdvance();
+      } else if (e.key === "f" || e.key === "F") {
+        e.preventDefault();
+        toggleFullscreen();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [goToSlide, resetAutoAdvance]);
+  }, [goToSlide, resetAutoAdvance, toggleFullscreen]);
 
   const slides = [
     <SlideImage key="img-hero" src="booth_hero.jpg" />,                         // 0  IMAGE
@@ -1226,9 +1341,24 @@ export default function BoothSlideshow({ models, providers }: Props) {
   const stageScale = Number.isFinite(stageScaleRaw) && stageScaleRaw > 0 ? stageScaleRaw : 1;
 
   return (
-    <div suppressHydrationWarning style={{
+    <div suppressHydrationWarning onDoubleClick={toggleFullscreen} style={{
       width: "100vw", height: "100vh", position: "relative", overflow: "hidden", background: BG, fontFamily: SANS,
+      cursor: started && isFullscreen ? "none" : "default",
     }}>
+      {!started && <FullscreenStartOverlay onStart={handleStart} />}
+
+      {started && !isFullscreen && (
+        <button onClick={enterFullscreen} style={{
+          position: "fixed", bottom: 20, left: 20, zIndex: 200,
+          padding: "8px 18px", borderRadius: 10, border: `1px solid ${AID_GRADIENT[0]}44`,
+          background: "rgba(8,18,26,0.85)", color: AID_GRADIENT[0],
+          fontFamily: MONO, fontSize: 13, letterSpacing: 1, cursor: "pointer",
+          backdropFilter: "blur(8px)",
+        }}>
+          ⛶ FULLSCREEN (F)
+        </button>
+      )}
+
       <div style={{
         position: "absolute",
         left: "50%",
