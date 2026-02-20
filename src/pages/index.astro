@@ -26,8 +26,10 @@ const providers = providerEntries.map((p) => ({
   id: p.id,
   ...p.data,
 }));
+
+const buildDate = new Date().toISOString().split("T")[0];
 ---
 
 <BaseLayout title="AI Model Comparison">
-  <ModelDashboard models={models} providers={providers} i18n={i18n} client:load />
+  <ModelDashboard models={models} providers={providers} i18n={i18n} buildDate={buildDate} client:load />
 </BaseLayout>

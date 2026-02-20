@@ -16,6 +16,9 @@ const siteName = "AI Model Comparison — AI Driven Office";
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const canonicalUrl = new URL(base, Astro.site).href;
 const ogImageUrl = new URL(`${base}og.png`, Astro.site).href;
+const mdUrl = new URL(`${base}data.md`, Astro.site).href;
+const llmsTxtUrl = new URL(`${base}llms.txt`, Astro.site).href;
+const buildDate = new Date().toISOString().split("T")[0];
 ---
 
 <!doctype html>
@@ -28,8 +31,14 @@ const ogImageUrl = new URL(`${base}og.png`, Astro.site).href;
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
     <meta name="theme-color" content="#08121a" />
+    <meta name="date" content={buildDate} />
+    <meta name="last-modified" content={buildDate} />
+
+    <!-- AI / Bot discoverability -->
+    <link rel="alternate" type="text/markdown" href={mdUrl} title="AI Model Comparison (Markdown)" />
+    <link rel="author" href={llmsTxtUrl} type="text/plain" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -78,6 +87,7 @@ const ogImageUrl = new URL(`${base}og.png`, Astro.site).href;
       "url": canonicalUrl,
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Web",
+      "dateModified": buildDate,
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -92,6 +102,24 @@ const ogImageUrl = new URL(`${base}og.png`, Astro.site).href;
           "name": "CyberAgent, Inc.",
           "url": "https://www.cyberagent.co.jp/"
         }
+      }
+    })} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": "AI Model Throughput & Pricing Data",
+      "description": "Throughput (tokens/sec), pricing ($/M tokens), and capability scores for frontier AI models from OpenAI, Anthropic, Google, xAI, Cerebras, and SiliconFlow.",
+      "url": canonicalUrl,
+      "dateModified": buildDate,
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "distribution": {
+        "@type": "DataDownload",
+        "encodingFormat": "text/markdown",
+        "contentUrl": mdUrl,
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "AI Driven Office (AIドリブン推進室)",
       }
     })} />
 

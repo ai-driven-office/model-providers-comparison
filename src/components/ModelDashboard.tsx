@@ -31,6 +31,7 @@ interface Props {
   models: Model[];
   providers: Provider[];
   i18n: Record<string, Record<string, string>>;
+  buildDate: string;
 }
 
 type Tab = "throughput" | "pricing" | "scatter" | "abilities" | "recommendations";
@@ -90,7 +91,7 @@ function useInView(rootMargin = "200px") {
   return { ref, inView };
 }
 
-export default function ModelDashboard({ models, providers, i18n }: Props) {
+export default function ModelDashboard({ models, providers, i18n, buildDate }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("throughput");
   const [lang, setLang] = useLang("ja");
   const fallbackCopy =
@@ -814,6 +815,30 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
         <div className="flex flex-col items-center gap-3">
           {/* Footer logo */}
           <AidLogo className="h-6 w-auto opacity-40" />
+
+          {/* Last updated + Download Markdown */}
+          <div className="flex items-center gap-3 text-[10px] text-gray-600">
+            <span
+              style={{
+                fontFamily: isJa
+                  ? "'Noto Sans JP', sans-serif"
+                  : "'Space Mono', monospace",
+              }}
+            >
+              {l.lastUpdated}: {buildDate}
+            </span>
+            <span style={{ color: "rgba(51,112,254,0.2)" }}>|</span>
+            <a
+              href={`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}data.md`}
+              className="no-underline transition-colors duration-200"
+              style={{ color: "#5C8DFE" }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "#7BAAFF"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "#5C8DFE"; }}
+              title={l.downloadMd}
+            >
+              {l.downloadMd}
+            </a>
+          </div>
 
           {/* Data source note */}
           <div

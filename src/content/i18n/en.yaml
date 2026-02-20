@@ -54,3 +54,5 @@ input: Input
 output: Output
 throughput: Throughput
 colAverage: Average
+lastUpdated: "Last updated"
+downloadMd: "Download as Markdown"
