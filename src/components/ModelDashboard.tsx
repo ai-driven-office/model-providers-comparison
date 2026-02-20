@@ -128,8 +128,19 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
 
   return (
     <div className="max-w-[960px] mx-auto relative isolate">
-      {/* Ambient MeshGradient — AID blue→red aurora */}
-      <div ref={topGlow.ref} className="absolute inset-x-0 -top-8 h-[650px] -z-10 pointer-events-none">
+      {/* Ambient glow — static CSS fallback + live shader when effects are on */}
+      <div
+        ref={topGlow.ref}
+        className="absolute inset-x-0 -top-8 h-[650px] -z-10 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 50% at 30% 20%, rgba(51,112,254,0.12) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 70% 10%, rgba(255,4,19,0.08) 0%, transparent 60%)",
+          maskImage:
+            "linear-gradient(to bottom, black 20%, transparent 85%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, black 20%, transparent 85%)",
+        }}
+      >
         {!reduceMotion && topGlow.inView && (
           <MeshGradient
             colors={["#3370FE", "#8A3CB8", "#E0247A", "#FF0413"]}
