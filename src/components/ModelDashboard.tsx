@@ -1,4 +1,4 @@
-import { useState, useMemo, type ReactNode } from "react";
+import { useState, useMemo, lazy, Suspense, type ReactNode } from "react";
 import {
   Trophy,
   DollarSign,
@@ -12,11 +12,12 @@ import { formatPrice, type Lang } from "../data/i18n";
 import { buildColorMap, type ColorMap } from "../data/colors";
 import { ModelIcon, ProviderIcon } from "./ui/ProviderIcon";
 import ThroughputChart from "./ui/ThroughputChart";
-import PricingChart from "./ui/PricingChart";
-import ScatterPlot from "./ui/ScatterPlot";
-import AbilityRadar from "./ui/AbilityRadar";
-import ResultsPanel from "./ui/ResultsPanel";
 import DataTable from "./ui/DataTable";
+
+const PricingChart = lazy(() => import("./ui/PricingChart"));
+const ScatterPlot = lazy(() => import("./ui/ScatterPlot"));
+const AbilityRadar = lazy(() => import("./ui/AbilityRadar"));
+const ResultsPanel = lazy(() => import("./ui/ResultsPanel"));
 
 interface Props {
   models: Model[];
