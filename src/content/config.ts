@@ -35,6 +35,7 @@ const models = defineCollection({
     inputLong: z.number().nullable().default(null),
     outputLong: z.number().nullable().default(null),
     hero: z.boolean().default(false),
+    hidden: z.boolean().default(false),
     tag: z.string().nullable().default(null),
     abilities: abilitySchema,
   }),

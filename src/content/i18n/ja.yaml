@@ -1,6 +1,6 @@
 badge: ベンチマーク · 2026年2月
 title: AIモデル比較
-subtitle: フロンティアモデルのスループットと価格
+subtitle: フロンティアモデルの速度・価格・能力・おすすめを比較
 tabThroughput: スループット
 tabPricing: 価格
 tabScatter: 速度 vs コスト
@@ -35,8 +35,10 @@ benchmarkSub: "これらのスコアは以下の公開ベンチマーク（2026�
 selectModels: "モデル選択："
 selectAll: 全選択
 deselectAll: 解除
-resultsTitle: 結果
-resultsSub: "能力別の最適モデル — 品質重視・コスパ重視・速度重視"
+tabRecommendations: おすすめ
+resultsTitle: おすすめモデル
+resultsSub: "どのモデルを使うべき？ 各能力を「品質」「コスパ（スコア÷価格）」「速度（スコア×スループット）」の3軸で比較。すべてのスコアは目安です — 参考程度にお使いください。"
+resultsDisclaimer: "これらの推薦は、2026年2月時点の公開ベンチマークから算出した概算スコア（0〜100）に基づいています。あくまで目安であり、実際のワークロードでは異なる場合があります。ご自身のデータでの検証をお勧めします。"
 bestAbsolute: 最高品質
 bestValue: コスパ最強
 bestSpeed: 最速

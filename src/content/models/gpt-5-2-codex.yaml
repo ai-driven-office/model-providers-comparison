@@ -4,8 +4,8 @@ tps: 42
 input: 1.75
 output: 14
 abilities:
-  planning: 82
-  coding: 87
-  image: 87
-  research: 93
-  creative: 82
+  planning: 80
+  coding: 88
+  image: 70
+  research: 80
+  creative: 72

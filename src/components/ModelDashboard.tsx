@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Trophy, DollarSign } from "lucide-react";
 import type { Model, Provider } from "../data/types";
 import { formatPrice, type Lang } from "../data/i18n";
 import { buildColorMap, type ColorMap } from "../data/colors";
@@ -6,6 +7,7 @@ import ThroughputChart from "./ui/ThroughputChart";
 import PricingChart from "./ui/PricingChart";
 import ScatterPlot from "./ui/ScatterPlot";
 import AbilityRadar from "./ui/AbilityRadar";
+import ResultsPanel from "./ui/ResultsPanel";
 import DataTable from "./ui/DataTable";
 
 interface Props {
@@ -14,12 +16,14 @@ interface Props {
   i18n: Record<string, Record<string, string>>;
 }
 
-type Tab = "throughput" | "pricing" | "scatter" | "abilities";
+type Tab = "throughput" | "pricing" | "scatter" | "abilities" | "recommendations";
 
 export default function ModelDashboard({ models, providers, i18n }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("throughput");
   const [lang, setLang] = useState<Lang>("ja");
-  const l = i18n[lang];
+  const fallbackCopy =
+    i18n.en ?? Object.values(i18n)[0] ?? ({} as Record<string, string>);
+  const l = i18n[lang] ?? fallbackCopy;
   const isJa = lang === "ja";
 
   const colorMap = useMemo(() => buildColorMap(providers), [providers]);
@@ -37,6 +41,7 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
     { id: "pricing", label: l.tabPricing },
     { id: "scatter", label: l.tabScatter },
     { id: "abilities", label: l.tabAbilities },
+    { id: "recommendations", label: l.tabRecommendations },
   ];
 
   return (
@@ -131,7 +136,7 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
         <div className="flex items-center justify-between rounded-2xl px-6 py-5 mb-6 border border-emerald-400/20 bg-gradient-to-r from-emerald-400/[0.08] to-emerald-400/[0.02]">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xl">🏆</span>
+              <Trophy className="w-5 h-5 text-emerald-400" />
               <span
                 className="text-[11px] text-emerald-400"
                 style={{
@@ -176,7 +181,7 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
         <div className="flex items-center justify-between rounded-2xl px-6 py-5 mb-6 border border-sky-400/20 bg-gradient-to-r from-sky-400/[0.08] to-sky-400/[0.02]">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xl">💰</span>
+              <DollarSign className="w-5 h-5 text-sky-400" />
               <span
                 className="text-[11px] text-sky-400"
                 style={{
@@ -296,6 +301,32 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
                 selectModels: l.selectModels,
                 selectAll: l.selectAll,
                 deselectAll: l.deselectAll,
+              }}
+            />
+          </div>
+        )}
+
+        {activeTab === "recommendations" && (
+          <div>
+            <div className="pl-6 mb-4">
+              <h2 className="text-base font-bold m-0 text-gray-200">
+                {l.resultsTitle}
+              </h2>
+              <p className="text-gray-600 text-xs m-0 mt-1 max-w-[580px]">
+                {l.resultsSub}
+              </p>
+            </div>
+            <ResultsPanel
+              data={models}
+              lang={lang}
+              colorMap={colorMap}
+              labels={{
+                resultsTitle: l.resultsTitle,
+                resultsSub: l.resultsSub,
+                resultsDisclaimer: l.resultsDisclaimer,
+                bestAbsolute: l.bestAbsolute,
+                bestValue: l.bestValue,
+                bestSpeed: l.bestSpeed,
               }}
             />
           </div>

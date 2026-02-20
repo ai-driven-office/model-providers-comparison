@@ -1,4 +1,15 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
+import {
+  Brain,
+  Code,
+  Eye,
+  Microscope,
+  Palette,
+  Medal,
+  DollarSign,
+  Zap,
+  AlertTriangle,
+} from "lucide-react";
 import type { Model } from "../../data/types";
 import { getColor, type ColorMap } from "../../data/colors";
 import { formatPrice, type Lang } from "../../data/i18n";
@@ -26,12 +37,12 @@ const ABILITY_LABELS: Record<string, Record<AbilityKey, string>> = {
   },
 };
 
-const ABILITY_EMOJI: Record<AbilityKey, string> = {
-  planning: "🧠",
-  coding: "💻",
-  image: "👁",
-  research: "🔬",
-  creative: "🎨",
+const ABILITY_ICON: Record<AbilityKey, ReactNode> = {
+  planning: <Brain className="w-4 h-4 text-violet-400" />,
+  coding: <Code className="w-4 h-4 text-cyan-400" />,
+  image: <Eye className="w-4 h-4 text-amber-400" />,
+  research: <Microscope className="w-4 h-4 text-teal-400" />,
+  creative: <Palette className="w-4 h-4 text-pink-400" />,
 };
 
 interface Winner {
@@ -40,23 +51,28 @@ interface Winner {
   metric: number; // the computed metric (raw score, score/$, score×tps)
 }
 
-function findWinner(
+interface TopTwo {
+  first: Winner;
+  second: Winner | null;
+}
+
+function findTopTwo(
   models: Model[],
   key: AbilityKey,
   metric: (m: Model) => number,
-): Winner | null {
+): TopTwo | null {
   const eligible = models.filter((m) => m.tag !== "fast");
   if (!eligible.length) return null;
-  let best = eligible[0];
-  let bestVal = metric(best);
-  for (const m of eligible) {
-    const val = metric(m);
-    if (val > bestVal) {
-      best = m;
-      bestVal = val;
-    }
-  }
-  return { model: best, score: best.abilities[key], metric: bestVal };
+
+  // Sort descending by metric
+  const sorted = [...eligible]
+    .map((m) => ({ model: m, score: m.abilities[key], metric: metric(m) }))
+    .sort((a, b) => b.metric - a.metric);
+
+  return {
+    first: sorted[0],
+    second: sorted.length > 1 ? sorted[1] : null,
+  };
 }
 
 interface Props {
@@ -66,6 +82,7 @@ interface Props {
   labels: {
     resultsTitle: string;
     resultsSub: string;
+    resultsDisclaimer: string;
     bestAbsolute: string;
     bestValue: string;
     bestSpeed: string;
@@ -76,21 +93,25 @@ function WinnerBadge({
   icon,
   label,
   winner,
+  runnerUp,
   subtitle,
+  runnerUpSubtitle,
   accentColor,
   colorMap,
 }: {
-  icon: string;
+  icon: ReactNode;
   label: string;
   winner: Winner;
+  runnerUp: Winner | null;
   subtitle: string;
+  runnerUpSubtitle: string;
   accentColor: string;
   colorMap: ColorMap;
 }) {
   const providerColor = getColor(winner.model.provider, colorMap);
   return (
     <div className="flex items-start gap-2.5 min-w-0">
-      <span className="text-sm leading-none mt-0.5 shrink-0">{icon}</span>
+      <span className="leading-none mt-0.5 shrink-0">{icon}</span>
       <div className="min-w-0">
         <div
           className="text-[10px] mb-0.5"
@@ -98,6 +119,7 @@ function WinnerBadge({
         >
           {label}
         </div>
+        {/* 1st place */}
         <div className="flex items-center gap-1.5">
           <div
             className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -122,6 +144,33 @@ function WinnerBadge({
         >
           {subtitle}
         </div>
+        {/* 2nd place */}
+        {runnerUp && (
+          <div className="mt-1.5 flex items-center gap-1.5">
+            <div
+              className="w-1 h-1 rounded-full shrink-0"
+              style={{ background: getColor(runnerUp.model.provider, colorMap), opacity: 0.6 }}
+            />
+            <span
+              className="text-[11px] truncate"
+              style={{ color: "#777" }}
+            >
+              {runnerUp.model.name}
+            </span>
+            <span
+              className="text-[10px] shrink-0"
+              style={{ color: "#555", fontFamily: MONO }}
+            >
+              {runnerUp.score}
+            </span>
+            <span
+              className="text-[9px] shrink-0"
+              style={{ color: "#444", fontFamily: MONO }}
+            >
+              {runnerUpSubtitle}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -132,13 +181,13 @@ export default function ResultsPanel({ data, lang, colorMap, labels }: Props) {
 
   const results = useMemo(() => {
     return ABILITY_KEYS.map((key) => {
-      const absolute = findWinner(data, key, (m) => m.abilities[key]);
-      const value = findWinner(
+      const absolute = findTopTwo(data, key, (m) => m.abilities[key]);
+      const value = findTopTwo(
         data,
         key,
         (m) => (m.output > 0 ? m.abilities[key] / m.output : 0),
       );
-      const speed = findWinner(
+      const speed = findTopTwo(
         data,
         key,
         (m) => m.abilities[key] * m.tps,
@@ -148,32 +197,16 @@ export default function ResultsPanel({ data, lang, colorMap, labels }: Props) {
   }, [data]);
 
   return (
-    <div className="mt-7">
-      <div className="flex items-center gap-2.5 mb-1.5">
-        <span className="text-lg">🏅</span>
-        <h2
-          className="text-base font-bold m-0 text-gray-200"
-          style={{ fontFamily: SANS }}
-        >
-          {labels.resultsTitle}
-        </h2>
-      </div>
-      <p
-        className="text-gray-600 text-[11px] m-0 mb-4 max-w-[520px]"
-        style={{ fontFamily: SANS }}
-      >
-        {labels.resultsSub}
-      </p>
-
+    <div className="px-6 pb-2">
       <div className="space-y-2">
         {results.map(({ key, absolute, value, speed }) => (
           <div
             key={key}
-            className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-5 py-3.5"
+            className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-5 py-3.5"
           >
             {/* Category header */}
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-sm">{ABILITY_EMOJI[key]}</span>
+              {ABILITY_ICON[key]}
               <span
                 className="text-[12px] font-bold text-gray-300"
                 style={{ fontFamily: SANS }}
@@ -186,30 +219,36 @@ export default function ResultsPanel({ data, lang, colorMap, labels }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
               {absolute && (
                 <WinnerBadge
-                  icon="🥇"
+                  icon={<Medal className="w-3.5 h-3.5 text-yellow-400" />}
                   label={labels.bestAbsolute}
-                  winner={absolute}
-                  subtitle={`${absolute.score}/100`}
+                  winner={absolute.first}
+                  runnerUp={absolute.second}
+                  subtitle={`${absolute.first.score}/100`}
+                  runnerUpSubtitle={absolute.second ? `${absolute.second.score}/100` : ""}
                   accentColor="#FFD700"
                   colorMap={colorMap}
                 />
               )}
               {value && (
                 <WinnerBadge
-                  icon="💰"
+                  icon={<DollarSign className="w-3.5 h-3.5 text-sky-400" />}
                   label={labels.bestValue}
-                  winner={value}
-                  subtitle={`${value.score} pts / ${formatPrice(value.model.output, lang)}`}
+                  winner={value.first}
+                  runnerUp={value.second}
+                  subtitle={`${value.first.score} pts / ${formatPrice(value.first.model.output, lang)}`}
+                  runnerUpSubtitle={value.second ? `${value.second.score} / ${formatPrice(value.second.model.output, lang)}` : ""}
                   accentColor="#38BDF8"
                   colorMap={colorMap}
                 />
               )}
               {speed && (
                 <WinnerBadge
-                  icon="⚡"
+                  icon={<Zap className="w-3.5 h-3.5 text-emerald-400" />}
                   label={labels.bestSpeed}
-                  winner={speed}
-                  subtitle={`${speed.score} × ${speed.model.tps.toLocaleString()} tps`}
+                  winner={speed.first}
+                  runnerUp={speed.second}
+                  subtitle={`${speed.first.score} × ${speed.first.model.tps.toLocaleString()} tps`}
+                  runnerUpSubtitle={speed.second ? `${speed.second.score} × ${speed.second.model.tps.toLocaleString()}` : ""}
                   accentColor="#00E5A0"
                   colorMap={colorMap}
                 />
@@ -217,6 +256,21 @@ export default function ResultsPanel({ data, lang, colorMap, labels }: Props) {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Disclaimer */}
+      <div
+        className="mt-5 px-4 py-3 rounded-lg border border-amber-500/10 bg-amber-500/[0.04]"
+      >
+        <div className="flex items-start gap-2">
+          <AlertTriangle className="w-3.5 h-3.5 text-amber-400/60 mt-0.5 shrink-0" />
+          <p
+            className="text-[10px] text-amber-200/60 m-0 leading-relaxed"
+            style={{ fontFamily: SANS }}
+          >
+            {labels.resultsDisclaimer}
+          </p>
+        </div>
       </div>
     </div>
   );

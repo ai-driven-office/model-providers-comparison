@@ -14,11 +14,13 @@ const providerMap = Object.fromEntries(
 );
 
 const modelEntries = await getCollection("models");
-const models = modelEntries.map((entry) => ({
-  ...entry.data,
-  providerId: entry.data.provider,
-  provider: providerMap[entry.data.provider]?.name ?? entry.data.provider,
-}));
+const models = modelEntries
+  .filter((entry) => !entry.data.hidden)
+  .map((entry) => ({
+    ...entry.data,
+    providerId: entry.data.provider,
+    provider: providerMap[entry.data.provider]?.name ?? entry.data.provider,
+  }));
 
 const providers = providerEntries.map((p) => ({
   id: p.id,

@@ -9,6 +9,7 @@ import {
   Cell,
   LabelList,
 } from "recharts";
+import { Zap } from "lucide-react";
 import type { Model } from "../../data/types";
 import { getColor, type ColorMap } from "../../data/colors";
 
@@ -39,8 +40,9 @@ function ThroughputTooltip({ active, payload, lang, colorMap }: any) {
         {lang === "ja" ? "\u30c8\u30fc\u30af\u30f3/\u79d2" : "tokens/sec"}
       </div>
       {d.tag === "fast" && (
-        <div className="text-amber-400 text-[11px] mt-1">
-          \u26a1 2.5x faster than standard Opus 4.6
+        <div className="text-amber-400 text-[11px] mt-1 flex items-center gap-1">
+          <Zap className="w-3 h-3" />
+          2.5x faster than standard Opus 4.6
         </div>
       )}
     </div>

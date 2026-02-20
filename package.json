@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@astrojs/react": "^4.4.2",
+    "@lobehub/icons": "^4.6.0",
     "astro": "^5.17.3",
+    "lucide-react": "^0.575.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "recharts": "^3.7.0"
@@ -19,7 +21,6 @@
     "@tailwindcss/vite": "^4.2.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "playwright": "^1.58.2",
     "tailwindcss": "^4.2.0",
     "typescript": "^5.9.3"
   }

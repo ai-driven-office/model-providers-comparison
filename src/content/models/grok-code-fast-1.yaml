@@ -3,6 +3,7 @@ provider: xai
 tps: 121
 input: 0.20
 output: 1.50
+hidden: true
 abilities:
   planning: 68
   coding: 78

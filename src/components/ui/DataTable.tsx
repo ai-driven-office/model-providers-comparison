@@ -1,6 +1,8 @@
+import { Trophy } from "lucide-react";
 import type { Model } from "../../data/types";
 import { getColor, type ColorMap } from "../../data/colors";
 import { formatPrice, type Lang } from "../../data/i18n";
+import { ModelIcon, ProviderIcon } from "./ProviderIcon";
 
 interface Props {
   data: Model[];
@@ -77,7 +79,7 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
                         : "#ccc",
                   }}
                 >
-                  {m.hero && "\ud83c\udfc6 "}
+                  {m.hero && <Trophy className="w-3.5 h-3.5 text-emerald-400 inline-block mr-1 -mt-0.5" />}
                   {m.name}
                 </span>
                 {m.tag === "fast" && (
