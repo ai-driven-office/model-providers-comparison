@@ -13,6 +13,7 @@ import {
 import type { Model } from "../../data/types";
 import { getColor, type ColorMap } from "../../data/colors";
 import { formatPrice, formatPriceAxis, type Lang } from "../../data/i18n";
+import { ModelIcon } from "./ProviderIcon";
 
 const MONO = "'Space Mono', monospace";
 const SANS = "'DM Sans', sans-serif";
@@ -44,7 +45,10 @@ function ScatterTooltip({ active, payload, lang, colorMap }: any) {
         boxShadow: `0 8px 32px ${color}22`,
       }}
     >
-      <div className="text-white font-bold text-[15px]">{d.name}</div>
+      <div className="flex items-center gap-1.5 text-white font-bold text-[15px]">
+        <ModelIcon modelName={d.name} size={16} className="shrink-0 opacity-80" />
+        {d.name}
+      </div>
       <div className="text-[13px] mb-1.5" style={{ color }}>
         {d.provider}
       </div>

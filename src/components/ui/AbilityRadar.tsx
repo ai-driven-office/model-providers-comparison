@@ -12,6 +12,7 @@ import { useState } from "react";
 import type { Model } from "../../data/types";
 import { getColor, type ColorMap } from "../../data/colors";
 import type { Lang } from "../../data/i18n";
+import { ModelIcon } from "./ProviderIcon";
 
 const MONO = "'Space Mono', monospace";
 const SANS = "'DM Sans', sans-serif";
@@ -169,7 +170,7 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
       ability: key,
       label: abilityLabels[key],
       fullMark: 100,
-      domainMin: 50,
+      domainMin: 60,
     };
     data.forEach((m) => {
       if (selectedModels.has(m.name)) {
@@ -228,7 +229,7 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
                 <button
                   key={m.name}
                   onClick={() => toggleModel(m.name)}
-                  className="px-3 py-1.5 rounded-lg border cursor-pointer text-[11px] font-semibold transition-all duration-200"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer text-[11px] font-semibold transition-all duration-200"
                   style={{
                     fontFamily: SANS,
                     background: isSelected ? `${color}18` : "transparent",
@@ -237,6 +238,7 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
                     boxShadow: isSelected ? `0 0 12px ${color}15` : "none",
                   }}
                 >
+                  <ModelIcon modelName={m.name} size={13} className="shrink-0 opacity-70" />
                   {m.name}
                 </button>
               );
@@ -245,18 +247,18 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
       </div>
 
       {/* Radar Chart */}
-      <ResponsiveContainer width="100%" height={420}>
-        <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="75%">
+      <ResponsiveContainer width="100%" height={540}>
+        <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="82%">
           <PolarGrid stroke="rgba(255,255,255,0.06)" />
           <PolarAngleAxis
             dataKey="label"
-            tick={{ fill: "#888", fontSize: 12, fontFamily: SANS }}
+            tick={{ fill: "#888", fontSize: 13, fontFamily: SANS }}
           />
           <PolarRadiusAxis
             angle={90}
-            domain={[50, 100]}
+            domain={[60, 100]}
             tick={{ fill: "#444", fontSize: 9, fontFamily: MONO }}
-            tickCount={6}
+            tickCount={5}
             stroke="rgba(255,255,255,0.04)"
           />
           <Tooltip content={<RadarTooltipContent lang={lang} />} />

@@ -1,8 +1,16 @@
-import { useState, useMemo } from "react";
-import { Trophy, DollarSign } from "lucide-react";
+import { useState, useMemo, type ReactNode } from "react";
+import {
+  Trophy,
+  DollarSign,
+  Zap,
+  ScatterChart,
+  Brain,
+  Sparkles,
+} from "lucide-react";
 import type { Model, Provider } from "../data/types";
 import { formatPrice, type Lang } from "../data/i18n";
 import { buildColorMap, type ColorMap } from "../data/colors";
+import { ModelIcon, ProviderIcon } from "./ui/ProviderIcon";
 import ThroughputChart from "./ui/ThroughputChart";
 import PricingChart from "./ui/PricingChart";
 import ScatterPlot from "./ui/ScatterPlot";
@@ -36,12 +44,12 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
     [models],
   );
 
-  const tabs: { id: Tab; label: string }[] = [
-    { id: "throughput", label: l.tabThroughput },
-    { id: "pricing", label: l.tabPricing },
-    { id: "scatter", label: l.tabScatter },
-    { id: "abilities", label: l.tabAbilities },
-    { id: "recommendations", label: l.tabRecommendations },
+  const tabs: { id: Tab; label: string; icon: ReactNode }[] = [
+    { id: "throughput", label: l.tabThroughput, icon: <Zap className="w-3.5 h-3.5" /> },
+    { id: "pricing", label: l.tabPricing, icon: <DollarSign className="w-3.5 h-3.5" /> },
+    { id: "scatter", label: l.tabScatter, icon: <ScatterChart className="w-3.5 h-3.5" /> },
+    { id: "abilities", label: l.tabAbilities, icon: <Brain className="w-3.5 h-3.5" /> },
+    { id: "recommendations", label: l.tabRecommendations, icon: <Sparkles className="w-3.5 h-3.5" /> },
   ];
 
   return (
@@ -117,7 +125,7 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className="px-5 py-2 rounded-[9px] border-none cursor-pointer text-[13px] font-semibold transition-all duration-200"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[9px] border-none cursor-pointer text-[13px] font-semibold transition-all duration-200"
             style={{
               background:
                 activeTab === tab.id
@@ -126,6 +134,7 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
               color: activeTab === tab.id ? "#060610" : "#777",
             }}
           >
+            {tab.icon}
             {tab.label}
           </button>
         ))}
@@ -150,7 +159,8 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
                 {l.heroLabel}
               </span>
             </div>
-            <div className="text-[22px] font-extrabold">
+            <div className="flex items-center gap-2 text-[22px] font-extrabold">
+              <ModelIcon modelName={heroModel.name} size={22} className="shrink-0 opacity-80" />
               {heroModel.name}{" "}
               <span className="text-gray-500 font-normal text-sm">
                 {isJa
@@ -195,7 +205,8 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
                 {l.priceHeroLabel}
               </span>
             </div>
-            <div className="text-[22px] font-extrabold">
+            <div className="flex items-center gap-2 text-[22px] font-extrabold">
+              <ModelIcon modelName={priceHero.name} size={22} className="shrink-0 opacity-80" />
               {priceHero.name}{" "}
               <span className="text-gray-500 font-normal text-sm">
                 {isJa
@@ -334,21 +345,22 @@ export default function ModelDashboard({ models, providers, i18n }: Props) {
       </div>
 
       {/* Provider Legend */}
-      <div className="flex flex-wrap gap-x-4 gap-y-2 mt-5 justify-center">
+      <div className="flex flex-wrap gap-x-5 gap-y-2 mt-5 justify-center">
         {providers.map((p) => (
           <div key={p.id} className="flex items-center gap-1.5">
+            <ProviderIcon providerId={p.id} size={14} className="opacity-60" />
             <div
-              className="w-2 h-2 rounded-full"
+              className="w-1.5 h-1.5 rounded-full"
               style={{
                 background: p.color,
-                boxShadow: `0 0 8px ${p.color}44`,
+                boxShadow: `0 0 6px ${p.color}44`,
               }}
             />
             <span className="text-gray-500 text-[11px]">{p.name}</span>
           </div>
         ))}
         <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(255,170,50,0.27)]" />
+          <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(255,170,50,0.27)]" />
           <span className="text-gray-500 text-[11px]">Fast Mode</span>
         </div>
       </div>

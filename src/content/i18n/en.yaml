@@ -1,6 +1,6 @@
-badge: "Benchmarks · Feb 2026"
+badge: "Live Data · Feb 2026"
 title: AI Model Comparison
-subtitle: Speed, pricing, abilities, and recommendations across frontier models
+subtitle: Speed, pricing, capabilities, and recommendations across AI model providers
 tabThroughput: Throughput
 tabPricing: Pricing
 tabScatter: Speed vs Cost
@@ -37,7 +37,7 @@ selectAll: ALL
 deselectAll: NONE
 tabRecommendations: Picks
 resultsTitle: Recommendations
-resultsSub: "Which model to use? We rank each ability by raw quality, cost-efficiency (score ÷ price), and speed (score × throughput). All scores are approximate — treat as a starting point, not gospel."
+resultsSub: "Which model to use? We rank each capability by raw quality, cost-efficiency (score ÷ price), and speed (score × throughput). All scores are approximate — treat as a starting point, not gospel."
 resultsDisclaimer: "These recommendations are computed from approximate ability scores (0–100) normalized from public benchmarks as of Feb 2026. They are opinionated estimates and may not reflect your specific workload. Always test with your own data."
 bestAbsolute: BEST
 bestValue: VALUE

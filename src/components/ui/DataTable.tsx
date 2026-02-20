@@ -71,6 +71,7 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
             >
               <td className="px-4 py-2.5 font-semibold">
                 <span
+                  className="inline-flex items-center gap-1.5"
                   style={{
                     color: m.hero
                       ? "#00E5A0"
@@ -79,7 +80,8 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
                         : "#ccc",
                   }}
                 >
-                  {m.hero && <Trophy className="w-3.5 h-3.5 text-emerald-400 inline-block mr-1 -mt-0.5" />}
+                  {m.hero && <Trophy className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
+                  <ModelIcon modelName={m.name} size={15} className="shrink-0 opacity-70" />
                   {m.name}
                 </span>
                 {m.tag === "fast" && (
@@ -88,16 +90,19 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
                   </span>
                 )}
               </td>
-              <td
-                className="px-4 py-2.5"
-                style={{
-                  color:
-                    m.tag === "fast"
-                      ? "#FFAA32"
-                      : getColor(m.provider, colorMap),
-                }}
-              >
-                {m.provider}
+              <td className="px-4 py-2.5">
+                <span
+                  className="inline-flex items-center gap-1.5"
+                  style={{
+                    color:
+                      m.tag === "fast"
+                        ? "#FFAA32"
+                        : getColor(m.provider, colorMap),
+                  }}
+                >
+                  <ProviderIcon providerId={m.providerId} size={14} className="shrink-0 opacity-60" />
+                  {m.provider}
+                </span>
               </td>
               <td
                 className="px-4 py-2.5 font-mono font-bold"
