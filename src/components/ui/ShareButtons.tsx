@@ -288,7 +288,7 @@ export function ShareCta({
 
   return (
     <div
-      className="mt-6 rounded-xl border relative overflow-hidden"
+      className="mt-10 rounded-xl border relative overflow-hidden"
       style={{
         background:
           "linear-gradient(135deg, rgba(29,155,240,0.04) 0%, rgba(51,112,254,0.06) 50%, rgba(138,60,184,0.04) 100%)",

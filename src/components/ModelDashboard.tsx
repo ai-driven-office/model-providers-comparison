@@ -324,7 +324,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       </p>
 
       {/* Why brief */}
-      <p className="text-gray-600 text-xs m-0 mb-7 max-w-[520px] leading-relaxed" style={{ fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif" }}>
+      <p className="text-gray-600 text-xs m-0 mb-9 max-w-[520px] leading-relaxed" style={{ fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif" }}>
         {isJa
           ? "AI各社は自社モデルが優れるベンチマークを強調する傾向があり、全体像の把握が困難です。本サイトは独立した比較データを提供し、その課題に応えます。"
           : "AI labs tend to highlight benchmarks where their models lead, making the full picture hard to see. This site provides independent, standardized comparison data."
@@ -342,7 +342,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       </p>
 
       {/* News Ticker — latest headline, links to #news */}
-      <div className="mb-8">
+      <div className="mb-10">
         <NewsTicker
           variant="dashboard"
           text={news.length > 0
@@ -354,7 +354,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
       {/* Tabs */}
       <div
-        className="flex gap-0 mb-8 w-fit"
+        className="flex gap-0 mb-10 w-fit"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
         {tabs.map((tab) => {
@@ -391,7 +391,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         {/* Speed Hero Card */}
         {activeTab === "throughput" && heroModel && (
           <div
-            className="flex items-center justify-between rounded-2xl px-6 py-5 mb-6 relative overflow-hidden"
+            className="flex items-center justify-between rounded-2xl px-6 py-5 mb-8 relative overflow-hidden"
             style={{
             border: "1px solid rgba(51,112,254,0.2)",
             background: "linear-gradient(135deg, rgba(51,112,254,0.08) 0%, rgba(255,4,19,0.04) 100%)",
@@ -466,7 +466,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         {/* Pricing Hero Card */}
         {activeTab === "pricing" && priceHero && (
           <div
-            className="flex items-center justify-between rounded-2xl px-6 py-5 mb-6 relative overflow-hidden"
+            className="flex items-center justify-between rounded-2xl px-6 py-5 mb-8 relative overflow-hidden"
             style={{
             border: "1px solid rgba(255,4,19,0.2)",
             background: "linear-gradient(135deg, rgba(255,4,19,0.06) 0%, rgba(138,60,184,0.04) 100%)",
@@ -687,7 +687,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       </div>
 
       {/* Provider Legend */}
-      <div className="flex flex-wrap gap-x-5 gap-y-2 mt-5 justify-center">
+      <div className="flex flex-wrap gap-x-5 gap-y-2 mt-8 justify-center">
         {providers.map((p) => (
           <div key={p.id} className="flex items-center gap-1.5">
             <ProviderIcon providerId={p.id} size={14} className="opacity-60" />
@@ -711,7 +711,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       <a
         href={`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}glm-cerebras`}
         onClick={() => { if (!reduceMotion) sfxClick(); }}
-        className="flex items-center justify-between rounded-xl px-5 py-3.5 mt-6 mb-2 no-underline transition-all group relative overflow-hidden"
+        className="flex items-center justify-between rounded-xl px-5 py-3.5 mt-8 mb-3 no-underline transition-all group relative overflow-hidden"
         style={{
           background: "linear-gradient(135deg, rgba(51,112,254,0.04) 0%, rgba(255,4,19,0.02) 100%)",
           border: "1px solid rgba(51,112,254,0.1)",
@@ -771,7 +771,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => { if (!reduceMotion) sfxClick(); }}
-        className="flex items-center justify-between rounded-xl px-5 py-3.5 mt-2 mb-2 no-underline transition-all group relative overflow-hidden"
+        className="flex items-center justify-between rounded-xl px-5 py-3.5 mt-3 mb-3 no-underline transition-all group relative overflow-hidden"
         style={{
           background: "linear-gradient(135deg, rgba(255,106,0,0.04) 0%, rgba(255,4,19,0.02) 100%)",
           border: "1px solid rgba(255,106,0,0.1)",
@@ -855,7 +855,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       )}
 
       {/* ── Section divider: data ↑ · editorial ↓ ── */}
-      <div className="mt-14 mb-10 flex items-center gap-4">
+      <div className="mt-20 mb-14 flex items-center gap-6">
         <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(51,112,254,0.15), rgba(138,60,184,0.1))" }} />
         <div
           className="text-[10px] tracking-widest text-gray-600 shrink-0"
@@ -922,7 +922,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
       {/* Contribution CTA */}
       <div
-        className="mt-4 rounded-xl border relative overflow-hidden"
+        className="mt-6 rounded-xl border relative overflow-hidden"
         style={{
           background: "linear-gradient(135deg, rgba(51,112,254,0.06) 0%, rgba(138,60,184,0.04) 50%, rgba(255,4,19,0.05) 100%)",
           borderColor: "rgba(51,112,254,0.12)",
@@ -996,7 +996,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       </div>
 
       {/* Footer — AID branding + copyright */}
-      <footer className="mt-6 pt-6 relative" style={{ borderTop: "1px solid rgba(51,112,254,0.08)" }}>
+      <footer className="mt-12 pt-8 relative" style={{ borderTop: "1px solid rgba(51,112,254,0.08)" }}>
         {/* Gradient bar — AID signature element */}
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-48"
@@ -1005,7 +1005,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           }}
         />
 
-        <div className="flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-4">
           {/* Footer logo */}
           <AidLogo className="h-6 w-auto opacity-40" />
 
