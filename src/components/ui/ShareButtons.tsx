@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Share2, Check, Link2 } from "lucide-react";
 import type { Lang } from "../../data/i18n";
+import { trackShare } from "../../data/analytics";
 
 interface ShareLabels {
   shareX: string;
@@ -59,6 +60,7 @@ export default function ShareButtons({
   const doNativeShare = useCallback(async () => {
     try {
       await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
+      trackShare("native");
       onShare?.();
     } catch {
       /* user cancelled */
@@ -75,6 +77,7 @@ export default function ShareButtons({
       "_blank",
       "noopener,noreferrer,width=550,height=420",
     );
+    trackShare("x");
     onShare?.();
     setOpen(false);
   }, [shareText, shareUrl, onShare]);
@@ -83,6 +86,7 @@ export default function ShareButtons({
     try {
       await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
       setCopied(true);
+      trackShare("copy_link");
       onShare?.();
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -254,6 +258,7 @@ export function ShareCta({
   const doNativeShare = useCallback(async () => {
     try {
       await navigator.share({ title: labels.shareCtaTitle, text: shareText, url: shareUrl });
+      trackShare("native_cta");
       onShare?.();
     } catch {
       /* user cancelled */
@@ -270,6 +275,7 @@ export function ShareCta({
       "_blank",
       "noopener,noreferrer,width=550,height=420",
     );
+    trackShare("x_cta");
     onShare?.();
   }, [shareText, shareUrl, onShare]);
 
@@ -277,6 +283,7 @@ export function ShareCta({
     try {
       await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
       setCopied(true);
+      trackShare("copy_link_cta");
       onShare?.();
       setTimeout(() => setCopied(false), 2000);
     } catch {

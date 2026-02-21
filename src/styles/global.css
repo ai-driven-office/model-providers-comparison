@@ -222,15 +222,12 @@ body {
 .hdr-glow,
 .hdr-vivid,
 .hdr-ambient {
-  transition: filter 0.6s ease, text-shadow 0.6s ease, opacity 0.6s ease;
+  transition: filter 0.6s ease, opacity 0.6s ease;
 }
 
-/* Super-white text: visible glow on all displays, brighter-than-#fff on HDR */
+/* Super-white text: brighter-than-#fff on HDR displays */
 .hdr-active .hdr-text {
   filter: brightness(1.8);
-  text-shadow:
-    0 0 30px rgba(255,255,255,0.35),
-    0 0 60px rgba(255,255,255,0.12);
 }
 
 /* Extra-intense glow for hero numbers */
@@ -240,7 +237,7 @@ body {
 
 /* Saturated vivid colors for charts and colored elements */
 .hdr-active .hdr-vivid {
-  filter: saturate(1.6) brightness(1.12);
+  filter: saturate(2.5) brightness(1.4);
 }
 
 /* Boosted ambient lighting */
@@ -262,10 +259,6 @@ body {
 @media (dynamic-range: high) {
   .hdr-active .hdr-text {
     filter: brightness(3);
-    text-shadow:
-      0 0 40px rgba(255,255,255,0.5),
-      0 0 80px rgba(255,255,255,0.2),
-      0 0 120px rgba(255,255,255,0.08);
   }
 
   .hdr-active .hdr-glow {
@@ -273,7 +266,7 @@ body {
   }
 
   .hdr-active .hdr-vivid {
-    filter: saturate(2.2) brightness(1.35);
+    filter: saturate(3.5) brightness(2);
   }
 
   .hdr-active .hdr-ambient {

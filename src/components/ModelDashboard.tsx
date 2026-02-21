@@ -20,6 +20,16 @@ import { sfxTab, sfxLang, sfxClick, sfxShare } from "../data/sfx";
 import NewsTicker from "./ui/NewsTicker";
 import Testimonials from "./ui/Testimonials";
 import ShareButtons, { ShareCta } from "./ui/ShareButtons";
+import { trackTabSwitch, trackLangSwitch, trackShare } from "../data/analytics";
+
+/* ── HDR trigger: ~1 KB HEVC video with PQ HDR metadata (5 000 nit peak white).
+   Embedding it activates the browser's Extended Dynamic Range pipeline so that
+   CSS `filter: brightness(N)` can push luminance *above* standard #ffffff.
+   On SDR displays the video is invisible and harmless.                      ── */
+const HDR_VIDEO_SRC =
+  "data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28ybXA0MQAAAAhmcmVlAAAAvG1kYXQAAAAfTgEFGkdWStxcTEM/lO/FETzRQ6gD7gAA7gIAA3EYgAAAAEgoAa8iNjAkszOL+e58c//cEe//0TT//scp1n/381P/RWP/zOW4QtxorfVogeh8nQDbQAAAAwAQMCcWUTAAAAMAAAMAAAMA84AAAAAVAgHQAyu+KT35E7gAADFgAAADABLQAAAAEgIB4AiS76MTkNbgAAF3AAAPSAAAABICAeAEn8+hBOTXYAADUgAAHRAAAAPibW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAAKcAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAw10cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAAKcAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAABAAAAAQAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAACnAAAAAAABAAAAAAKFbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAABdwAAAD6BVxAAAAAAAMWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABDb3JlIE1lZGlhIFZpZGVvAAAAAixtaW5mAAAAFHZtaGQAAAABAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAHsc3RibAAAARxzdHNkAAAAAAAAAAEAAAEMaHZjMQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAQABAASAAAAEgAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABj//wAAAHVodmNDAQIgAAAAsAAAAAAAPPAA/P36+gAACwOgAAEAGEABDAH//wIgAAADALAAAAMAAAMAPBXAkKEAAQAmQgEBAiAAAAMAsAAAAwAAAwA8oBQgQcCTDLYgV7kWVYC1CRAJAICiAAEACUQBwChkuNBTJAAAAApmaWVsAQAAAAATY29scm5jbHgACQAQAAkAAAAAEHBhc3AAAAABAAAAAQAAABRidHJ0AAAAAAAALPwAACz8AAAAKHN0dHMAAAAAAAAAAwAAAAIAAAPoAAAAAQAAAAEAAAABAAAD6AAAABRzdHNzAAAAAAAAAAEAAAABAAAAEHNkdHAAAAAAIBAQGAAAAChjdHRzAAAAAAAAAAMAAAABAAAAAAAAAAEAAAfQAAAAAgAAAAAAAAAcc3RzYwAAAAAAAAABAAAAAQAAAAQAAAABAAAAJHN0c3oAAAAAAAAAAAAAAAQAAABvAAAAGQAAABYAAAAWAAAAFHN0Y28AAAAAAAAAAQAAACwAAABhdWR0YQAAAFltZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAACxpbHN0AAAAJKl0b28AAAAcZGF0YQAAAAEAAAAATGF2ZjYwLjMuMTAw";
+const HDR_POSTER =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQAAAAA3iMLMAAAAAXNSR0IArs4c6QAAAA5JREFUeNpj+P+fgRQEAP1OH+HeyHWXAAAAAElFTkSuQmCC";
 
 const pricingImport = () => import("./ui/PricingChart");
 const scatterImport = () => import("./ui/ScatterPlot");
@@ -161,11 +171,24 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
   ];
 
   return (
-    <div className="max-w-[960px] mx-auto relative isolate">
+    <div className={`max-w-[960px] mx-auto relative isolate${!reduceMotion ? ' hdr-active' : ''}`}>
+      {/* HDR trigger video — activates Extended Dynamic Range rendering */}
+      {!reduceMotion && (
+        <video
+          muted
+          autoPlay
+          playsInline
+          className="hdr-trigger-video"
+          onCanPlayThrough={(e) => { (e.target as HTMLVideoElement).currentTime = 0; }}
+          poster={HDR_POSTER}
+          src={HDR_VIDEO_SRC}
+        />
+      )}
+
       {/* Ambient glow — static CSS fallback + live shader when effects are on */}
       <div
         ref={topGlow.ref}
-        className="absolute inset-x-0 -top-8 h-[650px] -z-10 pointer-events-none"
+        className="absolute inset-x-0 -top-8 h-[650px] -z-10 pointer-events-none hdr-ambient"
         style={{
           background:
             "radial-gradient(ellipse 80% 50% at 30% 20%, rgba(51,112,254,0.12) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 70% 10%, rgba(255,4,19,0.08) 0%, transparent 60%)",
@@ -204,7 +227,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             style={{ background: "linear-gradient(180deg, transparent, rgba(51,112,254,0.3), transparent)" }}
           />
           <span
-            className="text-[11px]"
+            className="text-[11px] hdr-glow"
             style={{
               fontFamily: isJa
                 ? "'Noto Sans JP', sans-serif"
@@ -284,7 +307,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           ).map((opt) => (
             <button
               key={opt.code}
-              onClick={() => { setLang(opt.code); if (!reduceMotion) sfxLang(); }}
+              onClick={() => { setLang(opt.code); trackLangSwitch(opt.code); if (!reduceMotion) sfxLang(); }}
               className="px-3.5 py-1 rounded-md border-none cursor-pointer transition-all duration-200"
               style={{
                 fontFamily:
@@ -310,7 +333,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
       {/* Title */}
       <h1
-        className="text-4xl font-black m-0 mb-4"
+        className="text-4xl font-black m-0 mb-4 hdr-text"
         style={{
           color: "#fff",
           letterSpacing: isJa ? 1 : -1,
@@ -319,12 +342,15 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       >
         {l.title}
       </h1>
-      <p className="text-gray-500 text-sm m-0 mb-6 max-w-[520px]">
+      <p
+        className="text-sm m-0 mb-6 max-w-[520px]"
+        style={{ color: "rgba(255,255,255,0.45)", mixBlendMode: "plus-lighter" }}
+      >
         {l.subtitle}
       </p>
 
       {/* Why brief */}
-      <p className="text-gray-600 text-xs m-0 mb-9 max-w-[520px] leading-relaxed" style={{ fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif" }}>
+      <p className="text-xs m-0 mb-9 max-w-[520px] leading-relaxed" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter", fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif" }}>
         {isJa
           ? "AI各社は自社モデルが優れるベンチマークを強調する傾向があり、全体像の把握が困難です。本サイトは独立した比較データを提供し、その課題に応えます。"
           : "AI labs tend to highlight benchmarks where their models lead, making the full picture hard to see. This site provides independent, standardized comparison data."
@@ -365,7 +391,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           return (
             <button
               key={tab.id}
-              onClick={() => { setActiveTab(tab.id); if (!reduceMotion) sfxTab(); }}
+              onClick={() => { setActiveTab(tab.id); trackTabSwitch(tab.id); if (!reduceMotion) sfxTab(); }}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 border-none cursor-pointer text-[13px] font-medium transition-all duration-200 relative whitespace-nowrap shrink-0"
               style={{
                 background: "transparent",
@@ -378,7 +404,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               {tab.label}
               {isActive && (
                 <span
-                  className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full"
+                  className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full hdr-vivid"
                   style={{
                     background: "linear-gradient(90deg, #3370FE, #5C8DFE)",
                   }}
@@ -456,7 +482,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
                   background: "linear-gradient(135deg, #5C8DFE, #FF3640)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  filter: "drop-shadow(0 0 30px rgba(51,112,254,0.3))",
+                  filter: `drop-shadow(0 0 30px rgba(51,112,254,0.3))${!reduceMotion ? ' brightness(2.5)' : ''}`,
                 }}
               >
                 {heroModel.tps.toLocaleString()}
@@ -531,7 +557,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
                   background: "linear-gradient(135deg, #FF3640, #E0247A)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  filter: "drop-shadow(0 0 30px rgba(255,4,19,0.3))",
+                  filter: `drop-shadow(0 0 30px rgba(255,4,19,0.3))${!reduceMotion ? ' brightness(2.5)' : ''}`,
                 }}
               >
                 {formatPrice(priceHero.output, lang)}
@@ -544,7 +570,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         {/* Chart Container */}
         <div
           ref={chartGlow.ref}
-          className="rounded-2xl pt-6 pr-4 pb-4 relative overflow-hidden isolate"
+          className="rounded-2xl pt-6 pr-4 pb-4 relative overflow-hidden isolate hdr-vivid"
           style={{ background: "rgba(51,112,254,0.02)", border: "1px solid rgba(51,112,254,0.06)" }}
         >
           {!reduceMotion && chartGlow.inView && (
@@ -572,7 +598,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "throughput" && (
             <div>
               <div className="pl-6 mb-4">
-                <h2 className="text-base font-bold m-0 text-gray-200">
+                <h2 className="text-base font-bold m-0 text-gray-200 hdr-text">
                   {l.tpsTitle}{" "}
                   <span className="text-gray-600 font-normal text-[13px]">
                     {l.tpsUnit}
@@ -586,7 +612,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "pricing" && (
             <div>
               <div className="pl-6 mb-4">
-                <h2 className="text-base font-bold m-0 text-gray-200">
+                <h2 className="text-base font-bold m-0 text-gray-200 hdr-text">
                   {l.priceTitle}{" "}
                   <span className="text-gray-600 font-normal text-[13px]">
                     {l.priceUnit}
@@ -611,7 +637,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "scatter" && (
             <div>
               <div className="pl-6 mb-4">
-                <h2 className="text-base font-bold m-0 text-gray-200">
+                <h2 className="text-base font-bold m-0 text-gray-200 hdr-text">
                   {l.scatterTitle}
                 </h2>
                 <p className="text-gray-600 text-xs m-0 mt-1">{l.scatterSub}</p>
@@ -634,7 +660,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "abilities" && (
             <div>
               <div className="pl-6 mb-4">
-                <h2 className="text-base font-bold m-0 text-gray-200">
+                <h2 className="text-base font-bold m-0 text-gray-200 hdr-text">
                   {l.abilityTitle}
                 </h2>
                 <p className="text-gray-600 text-xs m-0 mt-1">{l.abilitySub}</p>
@@ -661,7 +687,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "recommendations" && (
             <div>
               <div className="pl-6 mb-4">
-                <h2 className="text-base font-bold m-0 text-gray-200">
+                <h2 className="text-base font-bold m-0 text-gray-200 hdr-text">
                   {l.resultsTitle}
                 </h2>
                 <p className="text-gray-600 text-xs m-0 mt-1 max-w-[580px]">
@@ -690,7 +716,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       </div>
 
       {/* Provider Legend */}
-      <div className="flex flex-wrap gap-x-5 gap-y-2 mt-8 justify-center">
+      <div className="flex flex-wrap gap-x-5 gap-y-2 mt-8 justify-center hdr-vivid">
         {providers.map((p) => (
           <div key={p.id} className="flex items-center gap-1.5">
             <ProviderIcon providerId={p.id} size={14} className="opacity-60" />
@@ -858,7 +884,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       )}
 
       {/* ── Section divider: data ↑ · editorial ↓ ── */}
-      <div className="mt-20 mb-14 flex items-center gap-6">
+      <div className="mt-20 mb-14 flex items-center gap-6 hdr-vivid">
         <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(51,112,254,0.15), rgba(138,60,184,0.1))" }} />
         <div
           className="text-[10px] tracking-widest text-gray-600 shrink-0"
@@ -893,7 +919,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
       {/* Bottom ambient glow — CSS-only bookend (no GPU cost) */}
       <div
-        className="absolute inset-x-0 bottom-0 h-[400px] -z-10 pointer-events-none"
+        className="absolute inset-x-0 bottom-0 h-[400px] -z-10 pointer-events-none hdr-ambient"
         style={{
           background:
             "radial-gradient(ellipse 120% 60% at 50% 100%, rgba(255,4,19,0.07) 0%, rgba(138,60,184,0.04) 35%, transparent 70%)",
@@ -995,7 +1021,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       <footer className="mt-12 pt-8 relative" style={{ borderTop: "1px solid rgba(51,112,254,0.08)" }}>
         {/* Gradient bar — AID signature element */}
         <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-48"
+          className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-48 hdr-vivid hdr-pulse"
           style={{
             background: "linear-gradient(90deg, transparent, #3370FE, #8A3CB8, #E0247A, #FF0413, transparent)",
           }}

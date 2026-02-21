@@ -160,6 +160,28 @@ const buildDate = new Date().toISOString().split("T")[0];
       })();
     </script>
 
+    <!-- Google Analytics 4 -->
+    <!-- Setup: https://analytics.google.com → Admin → Create Property → Web stream → copy G-XXXXXXXXXX -->
+    {import.meta.env.PUBLIC_GA_ID && (
+      <>
+        <script
+          is:inline
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${import.meta.env.PUBLIC_GA_ID}`}
+        />
+        <script is:inline define:vars={{ gaId: import.meta.env.PUBLIC_GA_ID }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaId, {
+            send_page_view: true,
+            cookie_flags: 'SameSite=None;Secure',
+          });
+          window.gtag = gtag;
+        </script>
+      </>
+    )}
+
     <ClientRouter />
   </head>
   <body class="px-6 py-12 sm:py-16">
@@ -167,14 +189,18 @@ const buildDate = new Date().toISOString().split("T")[0];
       <slot />
     </main>
 
-    <!-- Cloudflare Web Analytics — free, no cookies, ~1KB -->
-    <!-- Get your token: https://dash.cloudflare.com → Web Analytics → Add Site -->
-    {import.meta.env.PUBLIC_CF_BEACON && (
-      <script
-        defer
-        src="https://static.cloudflareinsights.com/beacon.min.js"
-        data-cf-beacon={`{"token":"${import.meta.env.PUBLIC_CF_BEACON}"}`}
-      />
+    <!-- Re-fire GA4 page_view on Astro view transitions (SPA navigations) -->
+    {import.meta.env.PUBLIC_GA_ID && (
+      <script is:inline define:vars={{ gaId: import.meta.env.PUBLIC_GA_ID }}>
+        document.addEventListener('astro:page-load', function () {
+          if (typeof gtag === 'function') {
+            gtag('config', gaId, {
+              page_path: window.location.pathname,
+              page_title: document.title,
+            });
+          }
+        });
+      </script>
     )}
   </body>
 </html>
