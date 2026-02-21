@@ -16,9 +16,10 @@ import DataTable from "./ui/DataTable";
 import AbilityTable from "./ui/AbilityTable";
 import NewsTimeline from "./ui/NewsTimeline";
 import { MeshGradient, Dithering, NeuroNoise } from "@paper-design/shaders-react";
-import { sfxTab, sfxLang, sfxClick } from "../data/sfx";
+import { sfxTab, sfxLang, sfxClick, sfxShare } from "../data/sfx";
 import NewsTicker from "./ui/NewsTicker";
 import Testimonials from "./ui/Testimonials";
+import ShareButtons, { ShareCta } from "./ui/ShareButtons";
 
 const pricingImport = () => import("./ui/PricingChart");
 const scatterImport = () => import("./ui/ScatterPlot");
@@ -127,6 +128,30 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
     [pricedModels],
   );
 
+  const shareUrl = typeof window !== "undefined"
+    ? window.location.href.split("?")[0].split("#")[0]
+    : "https://ai-driven-office.github.io/model-providers-comparison/";
+
+  const shareTitle = l.title ?? "AI Model Comparison";
+
+  const shareText = useMemo(() => {
+    if (activeTab === "throughput" && heroModel) {
+      return (l.shareSpeedText ?? "")
+        .replace("{model}", heroModel.name)
+        .replace("{tps}", heroModel.tps.toLocaleString());
+    }
+    if (activeTab === "pricing" && priceHero) {
+      return (l.sharePriceText ?? "")
+        .replace("{model}", priceHero.name)
+        .replace("{price}", formatPrice(priceHero.output, lang));
+    }
+    return l.shareDefaultText ?? "";
+  }, [activeTab, heroModel, priceHero, l, lang]);
+
+  const handleShare = useCallback(() => {
+    if (!reduceMotion) sfxShare();
+  }, [reduceMotion]);
+
   const tabs: { id: Tab; label: string; icon: ReactNode }[] = [
     { id: "throughput", label: l.tabThroughput, icon: <Zap className="w-3.5 h-3.5" /> },
     { id: "pricing", label: l.tabPricing, icon: <DollarSign className="w-3.5 h-3.5" /> },
@@ -171,7 +196,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       </div>
 
       {/* Top Bar — Logo + Badge + Lang Switcher */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-10">
         <div className="flex items-center gap-4">
           <AidLogo className="h-8 w-auto" />
           <div
@@ -197,6 +222,20 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
         {/* Controls */}
         <div className="flex items-center gap-2">
+        <ShareButtons
+          shareText={shareText}
+          shareUrl={shareUrl}
+          shareTitle={shareTitle}
+          labels={{
+            shareX: l.shareX ?? "Share on X",
+            shareCopy: l.shareCopy ?? "Copy link",
+            shareNative: l.shareNative ?? "Share…",
+            shareCopied: l.shareCopied ?? "Copied!",
+          }}
+          lang={lang}
+          reduceMotion={reduceMotion}
+          onShare={handleShare}
+        />
         <a
           href="https://github.com/ai-driven-office/model-providers-comparison"
           target="_blank"
@@ -271,7 +310,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
       {/* Title */}
       <h1
-        className="text-4xl font-black m-0 mb-3"
+        className="text-4xl font-black m-0 mb-4"
         style={{
           color: "#fff",
           letterSpacing: isJa ? 1 : -1,
@@ -280,7 +319,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       >
         {l.title}
       </h1>
-      <p className="text-gray-500 text-sm m-0 mb-5 max-w-[520px]">
+      <p className="text-gray-500 text-sm m-0 mb-6 max-w-[520px]">
         {l.subtitle}
       </p>
 
@@ -865,9 +904,25 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         }}
       />
 
+      {/* Share CTA */}
+      <ShareCta
+        shareText={shareText}
+        shareUrl={shareUrl}
+        labels={{
+          shareCtaTitle: l.shareCtaTitle ?? "Spread the word",
+          shareCtaBody: l.shareCtaBody ?? "Share this comparison with others.",
+          shareX: l.shareX ?? "Share on X",
+          shareCopy: l.shareCopy ?? "Copy link",
+          shareCopied: l.shareCopied ?? "Copied!",
+        }}
+        lang={lang}
+        reduceMotion={reduceMotion}
+        onShare={handleShare}
+      />
+
       {/* Contribution CTA */}
       <div
-        className="mt-10 rounded-xl border relative overflow-hidden"
+        className="mt-4 rounded-xl border relative overflow-hidden"
         style={{
           background: "linear-gradient(135deg, rgba(51,112,254,0.06) 0%, rgba(138,60,184,0.04) 50%, rgba(255,4,19,0.05) 100%)",
           borderColor: "rgba(51,112,254,0.12)",

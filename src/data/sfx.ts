@@ -138,6 +138,43 @@ export function sfxClick() {
   }
 }
 
+/* ── Share — outward broadcast pulse ── */
+export function sfxShare() {
+  try {
+    const ac = getCtx();
+    const t = ac.currentTime;
+
+    const o1 = ac.createOscillator();
+    o1.type = "sine";
+    o1.frequency.setValueAtTime(880, t);
+    o1.frequency.exponentialRampToValueAtTime(1760, t + 0.08);
+
+    const g1 = ac.createGain();
+    g1.gain.setValueAtTime(0, t);
+    g1.gain.linearRampToValueAtTime(0.06, t + 0.005);
+    g1.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    o1.connect(g1).connect(ac.destination);
+    o1.start(t);
+    o1.stop(t + 0.16);
+
+    const o2 = ac.createOscillator();
+    o2.type = "triangle";
+    o2.frequency.setValueAtTime(1320, t + 0.04);
+    o2.frequency.exponentialRampToValueAtTime(2200, t + 0.12);
+    o2.detune.value = 8;
+
+    const g2 = ac.createGain();
+    g2.gain.setValueAtTime(0, t + 0.04);
+    g2.gain.linearRampToValueAtTime(0.04, t + 0.05);
+    g2.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    o2.connect(g2).connect(ac.destination);
+    o2.start(t + 0.04);
+    o2.stop(t + 0.21);
+  } catch {
+    /* Audio not available */
+  }
+}
+
 /* ── Copy success — ascending sci-fi chime ── */
 export function sfxSuccess() {
   try {

@@ -70,6 +70,17 @@ useCases: "Use cases"
 speedComparisons: "Speed Comparisons"
 testimonialsTitle: "What People Are Saying"
 testimonialsSub: "Community reactions from X"
+shareButton: Share
+shareCopied: Link copied!
+shareX: Share on X
+shareCopy: Copy link
+shareNative: Share…
+shareDefaultText: "Compare AI model speed, pricing & capabilities — independent data across OpenAI, Anthropic, Google, xAI & more"
+shareSpeedText: "{model} hits {tps} tokens/sec! Compare AI model throughput across providers"
+sharePriceText: "{model} at just {price}/M output — compare AI model pricing"
+shareHashtags: "AIModels,LLM"
+shareCtaTitle: "Spread the word"
+shareCtaBody: "Know someone evaluating AI models? Share this comparison — the more eyes, the better the data."
 ogTitle: "AI Model Comparison — AI Driven Office"
 ogDescription: "Compare AI model throughput and pricing across frontier models from OpenAI, Anthropic, Google, xAI, and more."
 ogSiteName: "AI Model Comparison — AI Driven Office"

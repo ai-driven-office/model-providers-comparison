@@ -70,6 +70,17 @@ useCases: "活用例"
 speedComparisons: "速度比較"
 testimonialsTitle: "みんなの声"
 testimonialsSub: "Xでの反響をご紹介します"
+shareButton: 共有
+shareCopied: リンクをコピーしました！
+shareX: Xでシェア
+shareCopy: リンクをコピー
+shareNative: 共有…
+shareDefaultText: "主要AIモデルのスループット・価格・能力を独立比較 — OpenAI、Anthropic、Googleなどの最新データ"
+shareSpeedText: "{model}が{tps}トークン/秒を記録！AIモデルのスループットを比較"
+sharePriceText: "{model}が最安値！AIモデルの価格を比較"
+shareHashtags: "AIモデル比較,LLM"
+shareCtaTitle: "この比較をシェア"
+shareCtaBody: "AIモデルを検討中の方に教えてあげませんか？シェアが増えるほどデータも充実します。"
 ogTitle: "AIモデル比較 — AIドリブン推進室"
 ogDescription: "主要AIモデルのスループット・価格・能力を一覧比較。OpenAI、Anthropic、Google、xAIなどの最新データをリアルタイムで確認できます。"
 ogSiteName: "AIモデル比較 — AIドリブン推進室"
