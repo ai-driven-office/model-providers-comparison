@@ -161,26 +161,17 @@ const buildDate = new Date().toISOString().split("T")[0];
     </script>
 
     <!-- Google Analytics 4 -->
-    <!-- Setup: https://analytics.google.com → Admin → Create Property → Web stream → copy G-XXXXXXXXXX -->
-    {import.meta.env.PUBLIC_GA_ID && (
-      <>
-        <script
-          is:inline
-          async
-          src={`https://www.googletagmanager.com/gtag/js?id=${import.meta.env.PUBLIC_GA_ID}`}
-        />
-        <script is:inline define:vars={{ gaId: import.meta.env.PUBLIC_GA_ID }}>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', gaId, {
-            send_page_view: true,
-            cookie_flags: 'SameSite=None;Secure',
-          });
-          window.gtag = gtag;
-        </script>
-      </>
-    )}
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-MNPRWQE87B"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-MNPRWQE87B', {
+        send_page_view: true,
+        cookie_flags: 'SameSite=None;Secure',
+      });
+      window.gtag = gtag;
+    </script>
 
     <ClientRouter />
   </head>
@@ -190,17 +181,15 @@ const buildDate = new Date().toISOString().split("T")[0];
     </main>
 
     <!-- Re-fire GA4 page_view on Astro view transitions (SPA navigations) -->
-    {import.meta.env.PUBLIC_GA_ID && (
-      <script is:inline define:vars={{ gaId: import.meta.env.PUBLIC_GA_ID }}>
-        document.addEventListener('astro:page-load', function () {
-          if (typeof gtag === 'function') {
-            gtag('config', gaId, {
-              page_path: window.location.pathname,
-              page_title: document.title,
-            });
-          }
-        });
-      </script>
-    )}
+    <script is:inline>
+      document.addEventListener('astro:page-load', function () {
+        if (typeof gtag === 'function') {
+          gtag('config', 'G-MNPRWQE87B', {
+            page_path: window.location.pathname,
+            page_title: document.title,
+          });
+        }
+      });
+    </script>
   </body>
 </html>
