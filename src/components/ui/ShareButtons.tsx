@@ -123,7 +123,7 @@ export default function ShareButtons({
         }}
         title={labels.shareNative}
       >
-        <Share2 className="w-3.5 h-3.5 text-gray-400 transition-colors duration-200 group-hover:text-white" />
+        <Share2 className="w-3.5 h-3.5 transition-colors duration-200 group-hover:text-white" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }} />
       </button>
 
       {/* Popover */}

@@ -190,7 +190,7 @@ export default function ScatterPlot({ data, lang, colorMap, labels }: Props) {
               const entry = scatterData[index];
               if (!entry) return null;
               if (entry.clamped) {
-                const labelFill = entry.xClamped ? "#FF6A00" : "#FFAA32";
+                const labelFill = entry.xClamped ? "#D43D00" : "#C07800";
                 return (
                   <g>
                     <text

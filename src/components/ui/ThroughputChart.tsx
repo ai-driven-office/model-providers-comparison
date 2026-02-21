@@ -212,7 +212,7 @@ export default function ThroughputChart({ data, lang, colorMap }: Props) {
                 typeof value === "number"
                   ? value.toLocaleString()
                   : String(value ?? "");
-              const labelColor = row.isCapped ? "#FF6A00" : "#aaa";
+              const labelColor = row.isCapped ? "#D43D00" : "#888";
               return (
                 <text
                   x={(x ?? 0) + (_w ?? 0) + 6}

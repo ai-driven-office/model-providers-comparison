@@ -116,6 +116,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
   const [reduceMotion, setReduceMotion] = useReduceMotion();
   const topGlow = useInView("200px");
   const chartGlow = useInView("100px");
+  const bottomGlow = useInView("200px");
 
   useEffect(() => {
     pricingImport();
@@ -219,15 +220,15 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       </div>
 
       {/* Top Bar — Logo + Badge + Lang Switcher */}
-      <div className="flex items-center justify-between mb-10">
-        <div className="flex items-center gap-4">
-          <AidLogo className="h-8 w-auto" />
+      <div className="flex items-center justify-between gap-3 mb-8 sm:mb-10 flex-wrap">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <AidLogo className="h-7 sm:h-8 w-auto shrink-0" />
           <div
-            className="h-4 w-px"
+            className="h-4 w-px shrink-0 hidden sm:block"
             style={{ background: "linear-gradient(180deg, transparent, rgba(51,112,254,0.3), transparent)" }}
           />
           <span
-            className="text-[11px] hdr-glow"
+            className="text-[10px] sm:text-[11px] hdr-glow truncate"
             style={{
               fontFamily: isJa
                 ? "'Noto Sans JP', sans-serif"
@@ -244,7 +245,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
         <ShareButtons
           shareText={shareText}
           shareUrl={shareUrl}
@@ -281,7 +282,8 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           <svg
             viewBox="0 0 16 16"
             fill="currentColor"
-            className="w-4 h-4 text-gray-400 transition-colors duration-200 group-hover:text-white"
+            className="w-4 h-4 transition-colors duration-200 group-hover:text-white"
+            style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}
           >
             <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
           </svg>
@@ -292,7 +294,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             className="px-2 py-1 rounded-md border-none cursor-pointer transition-all duration-200"
             style={{
               background: reduceMotion ? "transparent" : "rgba(51,112,254,0.15)",
-              color: reduceMotion ? "#444" : "#5C8DFE",
+              color: reduceMotion ? "rgba(255,255,255,0.3)" : "#5C8DFE",
             }}
             title={reduceMotion ? (isJa ? "エフェクトON" : "Enable effects") : (isJa ? "エフェクトOFF" : "Disable effects")}
           >
@@ -321,7 +323,8 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
                   lang === opt.code
                     ? "linear-gradient(135deg, rgba(51,112,254,0.2), rgba(255,4,19,0.15))"
                     : "transparent",
-                color: lang === opt.code ? "#fff" : "#555",
+                color: lang === opt.code ? "#fff" : "rgba(255,255,255,0.35)",
+                mixBlendMode: lang === opt.code ? "normal" : "plus-lighter" as any,
               }}
             >
               {opt.label}
@@ -333,7 +336,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
       {/* Title */}
       <h1
-        className="text-4xl font-black m-0 mb-4 hdr-text"
+        className="text-2xl sm:text-4xl font-black m-0 mb-3 sm:mb-4 hdr-text"
         style={{
           color: "#fff",
           letterSpacing: isJa ? 1 : -1,
@@ -343,17 +346,17 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         {l.title}
       </h1>
       <p
-        className="text-sm m-0 mb-6 max-w-[520px]"
+        className="text-xs sm:text-sm m-0 mb-5 sm:mb-6 max-w-[520px]"
         style={{ color: "rgba(255,255,255,0.45)", mixBlendMode: "plus-lighter" }}
       >
         {l.subtitle}
       </p>
 
       {/* Why brief */}
-      <p className="text-xs m-0 mb-9 max-w-[520px] leading-relaxed" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter", fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif" }}>
+      <p className="text-[11px] sm:text-xs m-0 mb-7 sm:mb-9 max-w-[520px] leading-relaxed" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter", fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif" }}>
         {isJa
-          ? "AI各社は自社モデルが優れるベンチマークを強調する傾向があり、全体像の把握が困難です。本サイトは独立した比較データを提供し、その課題に応えます。"
-          : "AI labs tend to highlight benchmarks where their models lead, making the full picture hard to see. This site provides independent, standardized comparison data."
+          ? "各社が自社に有利なベンチマークだけを打ち出す中、全体像は見えにくい。独立した比較データで、その死角を埋める。"
+          : "AI labs cherry-pick the benchmarks they win. We fill the blind spots with independent data."
         }
         {" "}
         <a
@@ -368,7 +371,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       </p>
 
       {/* News Ticker — latest headline, links to #news */}
-      <div className="mb-10">
+      <div className="mb-8 sm:mb-10">
         <NewsTicker
           variant="dashboard"
           text={news.length > 0
@@ -380,7 +383,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
       {/* Tabs */}
       <div
-        className="flex gap-0 mb-10 overflow-x-auto scrollbar-hide -mx-6 px-6 sm:mx-0 sm:px-0"
+        className="flex gap-0 mb-8 sm:mb-10 overflow-x-auto scrollbar-hide -mx-6 px-6 sm:mx-0 sm:px-0"
         style={{
           borderBottom: "1px solid rgba(255,255,255,0.06)",
           WebkitOverflowScrolling: "touch",
@@ -392,7 +395,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             <button
               key={tab.id}
               onClick={() => { setActiveTab(tab.id); trackTabSwitch(tab.id); if (!reduceMotion) sfxTab(); }}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 border-none cursor-pointer text-[13px] font-medium transition-all duration-200 relative whitespace-nowrap shrink-0"
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-2.5 border-none cursor-pointer text-[11px] sm:text-[13px] font-medium transition-all duration-200 relative whitespace-nowrap shrink-0"
               style={{
                 background: "transparent",
                 color: isActive ? "#fff" : "#555",
@@ -404,7 +407,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               {tab.label}
               {isActive && (
                 <span
-                  className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full hdr-vivid"
+                  className="absolute bottom-0 left-2 right-2 sm:left-3 sm:right-3 h-[2px] rounded-full hdr-vivid"
                   style={{
                     background: "linear-gradient(90deg, #3370FE, #5C8DFE)",
                   }}
@@ -420,7 +423,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         {/* Speed Hero Card */}
         {activeTab === "throughput" && heroModel && (
           <div
-            className="flex items-center justify-between rounded-2xl px-6 py-5 mb-8 relative overflow-hidden"
+            className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 rounded-2xl px-4 sm:px-6 py-4 sm:py-5 mb-6 sm:mb-8 relative overflow-hidden"
             style={{
             border: "1px solid rgba(51,112,254,0.2)",
             background: "linear-gradient(135deg, rgba(51,112,254,0.08) 0%, rgba(255,4,19,0.04) 100%)",
@@ -445,11 +448,11 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               }}
             />
           )}
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <Trophy className="w-5 h-5" style={{ color: "#5C8DFE" }} />
+              <Trophy className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" style={{ color: "#5C8DFE" }} />
                 <span
-                  className="text-[11px]"
+                  className="text-[10px] sm:text-[11px]"
                   style={{
                     fontFamily: isJa
                       ? "'Noto Sans JP', sans-serif"
@@ -462,22 +465,22 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
                   {l.heroLabel}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-[22px] font-extrabold">
-                <ModelIcon modelName={heroModel.name} size={22} className="shrink-0 opacity-80" />
-                {heroModel.name}{" "}
-                <span className="text-gray-500 font-normal text-sm">
+              <div className="flex items-center gap-2 text-base sm:text-[22px] font-extrabold flex-wrap">
+                <ModelIcon modelName={heroModel.name} size={20} className="shrink-0 opacity-80" />
+                <span className="truncate">{heroModel.name}</span>
+                <span className="text-gray-500 font-normal text-xs sm:text-sm">
                   {isJa
                     ? `（${heroModel.provider.replace(" (Direct)", "")}）`
                     : `on ${heroModel.provider}`}
                 </span>
               </div>
             </div>
-            <div className="text-right">
+            <div className="text-left sm:text-right shrink-0">
               <div
                 className="leading-none"
                 style={{
                   fontFamily: "'Space Mono', monospace",
-                  fontSize: 38,
+                  fontSize: "clamp(28px, 8vw, 38px)",
                   fontWeight: 700,
                   background: "linear-gradient(135deg, #5C8DFE, #FF3640)",
                   WebkitBackgroundClip: "text",
@@ -495,7 +498,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         {/* Pricing Hero Card */}
         {activeTab === "pricing" && priceHero && (
           <div
-            className="flex items-center justify-between rounded-2xl px-6 py-5 mb-8 relative overflow-hidden"
+            className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 rounded-2xl px-4 sm:px-6 py-4 sm:py-5 mb-6 sm:mb-8 relative overflow-hidden"
             style={{
             border: "1px solid rgba(255,4,19,0.2)",
             background: "linear-gradient(135deg, rgba(255,4,19,0.06) 0%, rgba(138,60,184,0.04) 100%)",
@@ -520,11 +523,11 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               }}
             />
           )}
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <DollarSign className="w-5 h-5" style={{ color: "#FF3640" }} />
+              <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" style={{ color: "#FF3640" }} />
                 <span
-                  className="text-[11px]"
+                  className="text-[10px] sm:text-[11px]"
                   style={{
                     fontFamily: isJa
                       ? "'Noto Sans JP', sans-serif"
@@ -537,22 +540,22 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
                   {l.priceHeroLabel}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-[22px] font-extrabold">
-                <ModelIcon modelName={priceHero.name} size={22} className="shrink-0 opacity-80" />
-                {priceHero.name}{" "}
-                <span className="text-gray-500 font-normal text-sm">
+              <div className="flex items-center gap-2 text-base sm:text-[22px] font-extrabold flex-wrap">
+                <ModelIcon modelName={priceHero.name} size={20} className="shrink-0 opacity-80" />
+                <span className="truncate">{priceHero.name}</span>
+                <span className="text-gray-500 font-normal text-xs sm:text-sm">
                   {isJa
                     ? `（${priceHero.provider.replace(" (Direct)", "")}）`
                     : `on ${priceHero.provider}`}
                 </span>
               </div>
             </div>
-            <div className="text-right">
+            <div className="text-left sm:text-right shrink-0">
               <div
                 className="leading-none"
                 style={{
                   fontFamily: "'Space Mono', monospace",
-                  fontSize: 38,
+                  fontSize: "clamp(28px, 8vw, 38px)",
                   fontWeight: 700,
                   background: "linear-gradient(135deg, #FF3640, #E0247A)",
                   WebkitBackgroundClip: "text",
@@ -570,7 +573,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         {/* Chart Container */}
         <div
           ref={chartGlow.ref}
-          className="rounded-2xl pt-6 pr-4 pb-4 relative overflow-hidden isolate hdr-vivid"
+          className="rounded-xl sm:rounded-2xl pt-4 sm:pt-6 pr-2 sm:pr-4 pb-3 sm:pb-4 relative overflow-hidden isolate hdr-vivid"
           style={{ background: "rgba(51,112,254,0.02)", border: "1px solid rgba(51,112,254,0.06)" }}
         >
           {!reduceMotion && chartGlow.inView && (
@@ -597,10 +600,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           )}
           {activeTab === "throughput" && (
             <div>
-              <div className="pl-6 mb-4">
-                <h2 className="text-base font-bold m-0 text-gray-200 hdr-text">
+              <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
+                <h2 className="text-sm sm:text-base font-bold m-0 text-gray-200 hdr-text">
                   {l.tpsTitle}{" "}
-                  <span className="text-gray-600 font-normal text-[13px]">
+                  <span className="text-gray-600 font-normal text-xs sm:text-[13px]">
                     {l.tpsUnit}
                   </span>
                 </h2>
@@ -611,10 +614,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
           {activeTab === "pricing" && (
             <div>
-              <div className="pl-6 mb-4">
-                <h2 className="text-base font-bold m-0 text-gray-200 hdr-text">
+              <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
+                <h2 className="text-sm sm:text-base font-bold m-0 text-gray-200 hdr-text">
                   {l.priceTitle}{" "}
-                  <span className="text-gray-600 font-normal text-[13px]">
+                  <span className="text-gray-600 font-normal text-xs sm:text-[13px]">
                     {l.priceUnit}
                   </span>
                 </h2>
@@ -636,11 +639,11 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
           {activeTab === "scatter" && (
             <div>
-              <div className="pl-6 mb-4">
-                <h2 className="text-base font-bold m-0 text-gray-200 hdr-text">
+              <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
+                <h2 className="text-sm sm:text-base font-bold m-0 text-gray-200 hdr-text">
                   {l.scatterTitle}
                 </h2>
-                <p className="text-gray-600 text-xs m-0 mt-1">{l.scatterSub}</p>
+                <p className="text-gray-600 text-[10px] sm:text-xs m-0 mt-1">{l.scatterSub}</p>
               </div>
               <Suspense fallback={<ChartSkeleton />}>
                 <ScatterPlot
@@ -659,11 +662,11 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
           {activeTab === "abilities" && (
             <div>
-              <div className="pl-6 mb-4">
-                <h2 className="text-base font-bold m-0 text-gray-200 hdr-text">
+              <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
+                <h2 className="text-sm sm:text-base font-bold m-0 text-gray-200 hdr-text">
                   {l.abilityTitle}
                 </h2>
-                <p className="text-gray-600 text-xs m-0 mt-1">{l.abilitySub}</p>
+                <p className="text-gray-600 text-[10px] sm:text-xs m-0 mt-1">{l.abilitySub}</p>
               </div>
               <Suspense fallback={<ChartSkeleton height={580} />}>
                 <AbilityRadar
@@ -686,11 +689,11 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
           {activeTab === "recommendations" && (
             <div>
-              <div className="pl-6 mb-4">
-                <h2 className="text-base font-bold m-0 text-gray-200 hdr-text">
+              <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
+                <h2 className="text-sm sm:text-base font-bold m-0 text-gray-200 hdr-text">
                   {l.resultsTitle}
                 </h2>
-                <p className="text-gray-600 text-xs m-0 mt-1 max-w-[580px]">
+                <p className="text-gray-600 text-[10px] sm:text-xs m-0 mt-1 max-w-[580px]">
                   {l.resultsSub}
                 </p>
               </div>
@@ -740,7 +743,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       <a
         href={`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}glm-cerebras`}
         onClick={() => { if (!reduceMotion) sfxClick(); }}
-        className="flex items-center justify-between rounded-xl px-5 py-3.5 mt-8 mb-3 no-underline transition-all group relative overflow-hidden"
+        className="flex items-center justify-between rounded-xl px-4 sm:px-5 py-3 sm:py-3.5 mt-6 sm:mt-8 mb-3 no-underline transition-all group relative overflow-hidden gap-3"
         style={{
           background: "linear-gradient(135deg, rgba(51,112,254,0.04) 0%, rgba(255,4,19,0.02) 100%)",
           border: "1px solid rgba(51,112,254,0.1)",
@@ -773,25 +776,25 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             }}
           />
         )}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
             style={{ background: "linear-gradient(135deg, #3370FE, #5C8DFE)" }}
           >
             <Zap className="w-4 h-4 text-white" />
           </div>
-          <div>
-            <div className="text-[13px] font-bold text-gray-200">
+          <div className="min-w-0">
+            <div className="text-xs sm:text-[13px] font-bold text-gray-200">
               {isJa ? "GLM 4.7 × Cerebras ガイド" : "GLM 4.7 × Cerebras Guide"}
             </div>
-            <div className="text-[11px] text-gray-500">
+            <div className="text-[10px] sm:text-[11px] text-gray-500 truncate">
               {isJa
                 ? "1,000 tps でAIコーディング — OpenCodeセットアップガイド"
                 : "AI coding at 1,000 tps — OpenCode setup & recommended workflow"}
             </div>
           </div>
         </div>
-        <span className="text-gray-600 group-hover:text-gray-400 transition-colors text-sm">→</span>
+        <span className="text-gray-600 group-hover:text-gray-400 transition-colors text-sm shrink-0">→</span>
       </a>
 
       {/* Taalas HC1 Speed Record Link */}
@@ -800,7 +803,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => { if (!reduceMotion) sfxClick(); }}
-        className="flex items-center justify-between rounded-xl px-5 py-3.5 mt-3 mb-3 no-underline transition-all group relative overflow-hidden"
+        className="flex items-center justify-between rounded-xl px-4 sm:px-5 py-3 sm:py-3.5 mt-3 mb-3 no-underline transition-all group relative overflow-hidden gap-3"
         style={{
           background: "linear-gradient(135deg, rgba(255,106,0,0.04) 0%, rgba(255,4,19,0.02) 100%)",
           border: "1px solid rgba(255,106,0,0.1)",
@@ -833,25 +836,25 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             }}
           />
         )}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
             style={{ background: "linear-gradient(135deg, #FF6A00, #FF8C33)" }}
           >
             <Trophy className="w-4 h-4 text-white" />
           </div>
-          <div>
-            <div className="text-[13px] font-bold text-gray-200">
+          <div className="min-w-0">
+            <div className="text-xs sm:text-[13px] font-bold text-gray-200">
               {isJa ? "Taalas HC1 — 速度新記録" : "Taalas HC1 — New Speed Record"}
             </div>
-            <div className="text-[11px] text-gray-500">
+            <div className="text-[10px] sm:text-[11px] text-gray-500 truncate">
               {isJa
                 ? "16,960 tps — モデルをトランジスタに直接実装するカスタムシリコン"
                 : "16,960 tps — custom silicon that hardwires the model into transistors"}
             </div>
           </div>
         </div>
-        <span className="text-gray-600 group-hover:text-gray-400 transition-colors text-sm">→</span>
+        <span className="text-gray-600 group-hover:text-gray-400 transition-colors text-sm shrink-0">→</span>
       </a>
 
       {/* Data Table — switch to ability ranking when on abilities tab */}
@@ -884,7 +887,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       )}
 
       {/* ── Section divider: data ↑ · editorial ↓ ── */}
-      <div className="mt-20 mb-14 flex items-center gap-6 hdr-vivid">
+      <div className="mt-14 sm:mt-20 mb-10 sm:mb-14 flex items-center gap-4 sm:gap-6 hdr-vivid">
         <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(51,112,254,0.15), rgba(138,60,184,0.1))" }} />
         <div
           className="text-[10px] tracking-widest text-gray-600 shrink-0"
@@ -917,15 +920,6 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
       {/* Testimonials — hidden until real quotes are sourced */}
 
-      {/* Bottom ambient glow — CSS-only bookend (no GPU cost) */}
-      <div
-        className="absolute inset-x-0 bottom-0 h-[400px] -z-10 pointer-events-none hdr-ambient"
-        style={{
-          background:
-            "radial-gradient(ellipse 120% 60% at 50% 100%, rgba(255,4,19,0.07) 0%, rgba(138,60,184,0.04) 35%, transparent 70%)",
-        }}
-      />
-
       {/* Share CTA */}
       <ShareCta
         shareText={shareText}
@@ -956,7 +950,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             background: "linear-gradient(90deg, transparent, rgba(51,112,254,0.4), rgba(138,60,184,0.3), rgba(255,4,19,0.4), transparent)",
           }}
         />
-        <div className="px-6 py-5 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
           <div
             className="flex items-center justify-center w-10 h-10 rounded-full shrink-0"
             style={{
@@ -1018,7 +1012,34 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       </div>
 
       {/* Footer — AID branding + copyright */}
-      <footer className="mt-12 pt-8 relative" style={{ borderTop: "1px solid rgba(51,112,254,0.08)" }}>
+      <footer ref={bottomGlow.ref} className="mt-12 pt-8 relative isolate" style={{ borderTop: "1px solid rgba(51,112,254,0.08)" }}>
+        {/* Bottom ambient glow — shader when effects are on */}
+        <div
+          className="absolute inset-0 -z-10 pointer-events-none hdr-ambient"
+          style={{
+            background:
+              "radial-gradient(ellipse 120% 80% at 50% 100%, rgba(255,4,19,0.07) 0%, rgba(138,60,184,0.04) 35%, transparent 70%)",
+          }}
+        >
+          {!reduceMotion && bottomGlow.inView && (
+            <MeshGradient
+              colors={["#FF0413", "#E0247A", "#8A3CB8", "#3370FE"]}
+              speed={0.2}
+              distortion={0.6}
+              swirl={0.12}
+              grainOverlay={0.06}
+              style={{
+                width: "100%",
+                height: "100%",
+                opacity: 0.15,
+                maskImage:
+                  "linear-gradient(to top, black 30%, transparent 90%)",
+                WebkitMaskImage:
+                  "linear-gradient(to top, black 30%, transparent 90%)",
+              }}
+            />
+          )}
+        </div>
         {/* Gradient bar — AID signature element */}
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-48 hdr-vivid hdr-pulse"
@@ -1032,7 +1053,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           <AidLogo className="h-6 w-auto opacity-40" />
 
           {/* Last updated + Download Markdown */}
-          <div className="flex items-center gap-3 text-[10px] text-gray-600">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px]" style={{ color: "rgba(255,255,255,0.45)", mixBlendMode: "plus-lighter" }}>
             <span
               style={{
                 fontFamily: isJa
@@ -1042,7 +1063,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             >
               {l.lastUpdated}: {buildDate}
             </span>
-            <span style={{ color: "rgba(51,112,254,0.2)" }}>|</span>
+            <span className="hidden sm:inline" style={{ color: "rgba(51,112,254,0.2)" }}>|</span>
             <a
               href={`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}data.md`}
               className="no-underline transition-colors duration-200"
@@ -1053,7 +1074,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             >
               {l.downloadMd}
             </a>
-            <span style={{ color: "rgba(51,112,254,0.2)" }}>|</span>
+            <span className="hidden sm:inline" style={{ color: "rgba(51,112,254,0.2)" }}>|</span>
             <a
               href={`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}why`}
               className="no-underline transition-colors duration-200"
@@ -1067,11 +1088,13 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
           {/* Data source note */}
           <div
-            className="text-center text-gray-600 text-[10px]"
+            className="text-center text-[10px]"
             style={{
               fontFamily: isJa
                 ? "'Noto Sans JP', sans-serif"
                 : "'Space Mono', monospace",
+              color: "rgba(255,255,255,0.4)",
+              mixBlendMode: "plus-lighter" as any,
             }}
           >
             {l.footer}
@@ -1079,12 +1102,14 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
           {/* Copyright */}
           <div
-            className="text-center text-gray-700 text-[10px]"
+            className="text-center text-[10px]"
             style={{
               fontFamily: isJa
                 ? "'Noto Sans JP', sans-serif"
                 : "'Inter', sans-serif",
-              letterSpacing: isJa ? 0.5 : 0.5,
+              letterSpacing: 0.5,
+              color: "rgba(255,255,255,0.35)",
+              mixBlendMode: "plus-lighter" as any,
             }}
           >
             ©<a

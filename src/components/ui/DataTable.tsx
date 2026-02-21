@@ -37,8 +37,9 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
   ];
 
   return (
-    <div className="mt-7 bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden">
-      <table className="w-full border-collapse text-xs">
+    <div className="mt-5 sm:mt-7 bg-white/[0.02] border border-white/[0.06] rounded-xl sm:rounded-2xl overflow-hidden">
+      <div className="overflow-x-auto scrollbar-hide">
+      <table className="w-full border-collapse text-xs min-w-[600px]">
         <thead>
           <tr className="border-b border-white/[0.06]">
             {headers.map((h) => (
@@ -159,6 +160,7 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
