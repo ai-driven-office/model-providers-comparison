@@ -36,6 +36,14 @@ const ABILITY_LABELS: Record<string, Record<string, string>> = {
   },
 };
 
+const ABILITY_COLORS: Record<string, string> = {
+  planning: "#60A5FA",
+  coding: "#34D399",
+  image: "#FBBF24",
+  research: "#A78BFA",
+  creative: "#F472B6",
+};
+
 const BENCHMARKS: Record<string, Record<string, string[]>> = {
   en: {
     planning: [
@@ -107,20 +115,159 @@ const BENCHMARKS: Record<string, Record<string, string[]>> = {
   },
 };
 
+function renderAbilityIcon(ability: string, color: string) {
+  switch (ability) {
+    case "planning":
+      return (
+        <>
+          <circle cx="12" cy="12" r="8" stroke={color} strokeWidth="1.5" fill="none" opacity="0.7" />
+          <circle cx="12" cy="12" r="4" stroke={color} strokeWidth="1.5" fill="none" opacity="0.5" />
+          <circle cx="12" cy="12" r="1.5" fill={color} />
+          <line x1="12" y1="2.5" x2="12" y2="6" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="12" y1="18" x2="12" y2="21.5" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="2.5" y1="12" x2="6" y2="12" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="18" y1="12" x2="21.5" y2="12" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+        </>
+      );
+    case "coding":
+      return (
+        <>
+          <polyline points="8,5 2.5,12 8,19" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <polyline points="16,5 21.5,12 16,19" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <line x1="13.5" y1="5" x2="10.5" y2="19" stroke={color} strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+        </>
+      );
+    case "image":
+      return (
+        <>
+          <path d="M2,12 C4,7 8,5.5 12,5.5 C16,5.5 20,7 22,12 C20,17 16,18.5 12,18.5 C8,18.5 4,17 2,12Z" stroke={color} strokeWidth="1.5" fill="none" />
+          <circle cx="12" cy="12" r="3.5" stroke={color} strokeWidth="1.5" fill={`${color}25`} />
+          <circle cx="12" cy="12" r="1.5" fill={color} />
+        </>
+      );
+    case "research":
+      return (
+        <>
+          <circle cx="10" cy="10" r="7" stroke={color} strokeWidth="1.5" fill="none" />
+          <line x1="15" y1="15" x2="21" y2="21" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
+          <circle cx="10" cy="10" r="3" stroke={color} strokeWidth="1" fill="none" opacity="0.3" />
+        </>
+      );
+    case "creative":
+      return (
+        <>
+          <path d="M12,3 L13.5,9.5 L20,11 L13.5,12.5 L12,19 L10.5,12.5 L4,11 L10.5,9.5Z" fill={color} opacity="0.85" />
+          <path d="M19,3 L19.7,5.2 L22,5.5 L19.7,5.8 L19,8 L18.3,5.8 L16,5.5 L18.3,5.2Z" fill={color} opacity="0.45" />
+          <circle cx="4.5" cy="18" r="1" fill={color} opacity="0.3" />
+        </>
+      );
+    default:
+      return null;
+  }
+}
+
+function CustomAxisTick(props: any) {
+  const { x, y, cx, cy, payload, abilityLabels: labels } = props;
+  const key = payload?.value;
+  if (!key || !labels) return null;
+
+  const label = labels[key] || key;
+  const color = ABILITY_COLORS[key] || "#888";
+
+  if (typeof cx !== "number" || typeof cy !== "number") {
+    return (
+      <text x={x} y={y} textAnchor="middle" fill="#888" fontSize={12} fontFamily={SANS}>
+        {label}
+      </text>
+    );
+  }
+
+  const dx = x - cx;
+  const dy = y - cy;
+  const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+  const nx = dx / dist;
+  const ny = dy / dist;
+
+  const push = 6;
+  const ix = x + nx * push;
+  const iy = y + ny * push;
+  const absNx = Math.abs(nx);
+  const badgeR = 14;
+  const iconSize = 18;
+
+  let textDx = 0, textDy = 0;
+  let textAnchor = "middle";
+  let textBaseline = "central";
+
+  if (absNx < 0.2) {
+    textDy = ny < 0 ? -(badgeR + 8) : (badgeR + 14);
+    textBaseline = ny < 0 ? "auto" : "hanging";
+  } else {
+    textDx = nx > 0 ? (badgeR + 6) : -(badgeR + 6);
+    textDy = 1;
+    textAnchor = nx > 0 ? "start" : "end";
+  }
+
+  return (
+    <g>
+      <circle cx={ix} cy={iy} r={badgeR + 5} fill={color} opacity={0.05}>
+        <animate
+          attributeName="r"
+          values={`${badgeR + 3};${badgeR + 7};${badgeR + 3}`}
+          dur="4s"
+          repeatCount="indefinite"
+        />
+      </circle>
+      <circle
+        cx={ix} cy={iy} r={badgeR}
+        fill={`${color}15`}
+        stroke={`${color}30`}
+        strokeWidth={1}
+      />
+      <g
+        transform={`translate(${ix - iconSize / 2}, ${iy - iconSize / 2}) scale(${iconSize / 24})`}
+        style={{ filter: `drop-shadow(0 0 4px ${color}55)` }}
+      >
+        {renderAbilityIcon(key, color)}
+      </g>
+      <text
+        x={ix + textDx}
+        y={iy + textDy}
+        textAnchor={textAnchor}
+        dominantBaseline={textBaseline}
+        fill="#bbb"
+        fontSize={11}
+        fontWeight={600}
+        fontFamily={SANS}
+      >
+        {label}
+      </text>
+    </g>
+  );
+}
+
 function RadarTooltipContent({ active, payload, lang }: any) {
   if (!active || !payload?.length) return null;
   const d = payload[0]?.payload;
   if (!d) return null;
   const labels = ABILITY_LABELS[lang] || ABILITY_LABELS.en;
+  const abilityKey = d.ability;
+  const color = ABILITY_COLORS[abilityKey] || "#888";
   return (
     <div
-      className="rounded-xl px-4 py-3 shadow-xl"
+      className="rounded-xl px-4 py-3 shadow-2xl"
       style={{
-        background: "rgba(10,10,18,0.95)",
-        border: "1px solid rgba(255,255,255,0.1)",
+        background: "rgba(10,10,18,0.96)",
+        border: `1px solid ${color}30`,
+        boxShadow: `0 4px 24px rgba(0,0,0,0.4), 0 0 12px ${color}15`,
       }}
     >
-      <div className="text-white font-bold text-sm mb-1.5">{labels[d.ability] || d.ability}</div>
+      <div className="flex items-center gap-2 mb-2">
+        <svg width={16} height={16} viewBox="0 0 24 24" style={{ filter: `drop-shadow(0 0 3px ${color}66)` }}>
+          {renderAbilityIcon(abilityKey, color)}
+        </svg>
+        <span className="text-white font-bold text-sm">{labels[abilityKey] || abilityKey}</span>
+      </div>
       {payload.map((p: any) => (
         <div key={p.dataKey} className="text-[12px] flex items-center gap-1.5 mb-0.5">
           <div
@@ -252,48 +399,56 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
       </div>
 
       {/* Radar Chart */}
-      <ResponsiveContainer width="100%" height={540}>
-        <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="82%">
-          <PolarGrid stroke="rgba(255,255,255,0.06)" />
-          <PolarAngleAxis
-            dataKey="label"
-            tick={{ fill: "#888", fontSize: 13, fontFamily: SANS }}
-          />
-          <PolarRadiusAxis
-            angle={90}
-            domain={[domainFloor, 100]}
-            tick={{ fill: "#444", fontSize: 9, fontFamily: MONO }}
-            tickCount={5}
-            stroke="rgba(255,255,255,0.04)"
-          />
-          <Tooltip content={<RadarTooltipContent lang={lang} />} />
-          {data
-            .filter((m) => selectedModels.has(m.name) && m.tag !== "fast")
-            .map((m) => {
-              const color = getColor(m.provider, colorMap);
-              return (
-                <Radar
-                  key={m.name}
-                  name={m.name}
-                  dataKey={m.name}
-                  stroke={color}
-                  fill={color}
-                  fillOpacity={0.08}
-                  strokeWidth={2}
-                  isAnimationActive={false}
-                  dot={{ r: 3, fill: color, fillOpacity: 0.9 }}
-                />
-              );
-            })}
-          <Legend
-            wrapperStyle={{
-              fontSize: 11,
-              fontFamily: SANS,
-              paddingTop: 8,
-            }}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
+      <div
+        className="relative"
+        style={{
+          background: "radial-gradient(ellipse at 50% 46%, rgba(96,165,250,0.03) 0%, rgba(167,139,250,0.02) 25%, transparent 55%)",
+        }}
+      >
+        <ResponsiveContainer width="100%" height={560}>
+          <RadarChart data={radarData} cx="50%" cy="48%" outerRadius="72%">
+            <PolarGrid stroke="rgba(255,255,255,0.07)" gridType="circle" />
+            <PolarAngleAxis
+              dataKey="ability"
+              tickLine={false}
+              tick={<CustomAxisTick abilityLabels={abilityLabels} />}
+            />
+            <PolarRadiusAxis
+              angle={90}
+              domain={[domainFloor, 100]}
+              tick={{ fill: "#444", fontSize: 9, fontFamily: MONO }}
+              tickCount={5}
+              stroke="rgba(255,255,255,0.04)"
+            />
+            <Tooltip content={<RadarTooltipContent lang={lang} />} />
+            {data
+              .filter((m) => selectedModels.has(m.name) && m.tag !== "fast")
+              .map((m) => {
+                const color = getColor(m.provider, colorMap);
+                return (
+                  <Radar
+                    key={m.name}
+                    name={m.name}
+                    dataKey={m.name}
+                    stroke={color}
+                    fill={color}
+                    fillOpacity={0.10}
+                    strokeWidth={2}
+                    isAnimationActive={false}
+                    dot={{ r: 4, fill: color, fillOpacity: 1, stroke: "#0a0a12", strokeWidth: 2 }}
+                  />
+                );
+              })}
+            <Legend
+              wrapperStyle={{
+                fontSize: 11,
+                fontFamily: SANS,
+                paddingTop: 8,
+              }}
+            />
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
 
       {/* Benchmark Sources */}
       <div className="px-6 mt-4 mb-2">
@@ -310,39 +465,62 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
           {labels.benchmarkSub}
         </p>
         <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
-          {ABILITY_KEYS.map((key) => (
-            <div
-              key={key}
-              className="cursor-default transition-opacity"
-              onMouseEnter={() => setHoveredBenchmark(key)}
-              onMouseLeave={() => setHoveredBenchmark(null)}
-              style={{
-                opacity: hoveredBenchmark && hoveredBenchmark !== key ? 0.4 : 1,
-              }}
-            >
+          {ABILITY_KEYS.map((key) => {
+            const iconColor = ABILITY_COLORS[key] || "#888";
+            const isHovered = hoveredBenchmark === key;
+            return (
               <div
-                className="text-[11px] font-bold mb-1"
+                key={key}
+                className="cursor-default"
+                onMouseEnter={() => setHoveredBenchmark(key)}
+                onMouseLeave={() => setHoveredBenchmark(null)}
                 style={{
-                  color:
-                    hoveredBenchmark === key ? "#00E5A0" : "#888",
-                  fontFamily: SANS,
+                  opacity: hoveredBenchmark && !isHovered ? 0.35 : 1,
+                  transform: isHovered ? "translateY(-2px)" : "none",
+                  transition: "all 0.3s ease",
                 }}
               >
-                {abilityLabels[key]}
-              </div>
-              <ul className="list-none m-0 p-0">
-                {benchmarks[key].map((b) => (
-                  <li
-                    key={b}
-                    className="text-[10px] text-gray-600 leading-relaxed"
-                    style={{ fontFamily: MONO }}
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <svg
+                    width={15}
+                    height={15}
+                    viewBox="0 0 24 24"
+                    className="shrink-0"
+                    style={{
+                      opacity: isHovered ? 1 : 0.6,
+                      filter: isHovered
+                        ? `drop-shadow(0 0 4px ${iconColor}88)`
+                        : `drop-shadow(0 0 2px ${iconColor}33)`,
+                      transition: "all 0.3s ease",
+                    }}
                   >
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+                    {renderAbilityIcon(key, iconColor)}
+                  </svg>
+                  <span
+                    className="text-[11px] font-bold"
+                    style={{
+                      color: isHovered ? iconColor : "#888",
+                      fontFamily: SANS,
+                      transition: "color 0.3s ease",
+                    }}
+                  >
+                    {abilityLabels[key]}
+                  </span>
+                </div>
+                <ul className="list-none m-0 p-0">
+                  {benchmarks[key].map((b) => (
+                    <li
+                      key={b}
+                      className="text-[10px] text-gray-600 leading-relaxed"
+                      style={{ fontFamily: MONO }}
+                    >
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -8,8 +8,8 @@ body:
     running Llama 3.1 8B. Unlike GPU-based inference, the HC1 hardwires the model directly into custom silicon —
     no SRAM, no HBM, consuming 10x less power than conventional hardware. Built on TSMC 6nm process with
     815mm² die size and 53 billion transistors, the chip was developed by a 24-person team with $169–219M in funding.
-    This isn't just an incremental improvement — it's 458x faster than Claude Opus 4.6 and 303x faster than
-    Gemini 3 Flash. At this speed, real-time conversational AI with zero perceptible latency becomes reality.
+    This isn't just an incremental improvement — it's 458x faster than Claude Opus 4.6, 320x faster than
+    GPT-5.3-Codex, and still 17x faster than Cerebras GLM running on wafer-scale hardware. At this speed, real-time conversational AI with zero perceptible latency becomes reality.
     New use cases unlock: edge AI without cloud dependency, instant document summarization, live coding
     completions as fast as you type, real-time multilingual translation, and agentic workflows where speed
     compounds across chained LLM calls.
@@ -18,7 +18,7 @@ body:
     TaalasがHC1チップでAI推論速度の世界記録を更新しました。Llama 3.1 8Bで16,960トークン/秒を達成。
     GPU推論とは異なり、HC1はモデルをカスタムシリコンに直接実装 — SRAM不要・HBM不要・消費電力は従来の1/10。
     TSMC 6nmプロセス、815mm²のダイサイズ、530億トランジスタで構成され、24人のチームが$169〜219Mの資金で開発。
-    単なる改良ではありません — Claude Opus 4.6の458倍、Gemini 3 Flashの303倍の速度です。
+    単なる改良ではありません — Claude Opus 4.6の458倍、GPT-5.3-Codexの320倍、ウェーハスケールのCerebras GLMと比べても17倍の速度です。
     この速度で、体感遅延ゼロのリアルタイム会話AIが現実になります。
     新しいユースケース: クラウド不要のエッジAI、瞬時のドキュメント要約、タイピングと同速のライブコーディング補完、
     リアルタイム多言語翻訳、連鎖LLM呼び出しで速度が累積するエージェントワークフロー。
@@ -47,13 +47,7 @@ providers:
 
 comparisons:
   - { model: "Claude Opus 4.6", tps: 37, factor: 458 }
-  - { model: "GPT-5.2-Codex", tps: 42, factor: 404 }
   - { model: "GPT-5.3-Codex", tps: 53, factor: 320 }
-  - { model: "Gemini 3 Flash", tps: 56, factor: 303 }
-  - { model: "Claude Haiku 4.5", tps: 64, factor: 265 }
-  - { model: "Gemini 3.1 Pro", tps: 81, factor: 209 }
-  - { model: "Opus 4.6 Fast", tps: 93, factor: 182 }
-  - { model: "Grok Code Fast 1", tps: 121, factor: 140 }
   - { model: "GLM 4.7 (Cerebras)", tps: 1000, factor: 17 }
 
 specs:

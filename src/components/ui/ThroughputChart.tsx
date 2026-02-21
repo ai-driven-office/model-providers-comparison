@@ -106,6 +106,8 @@ function TruncatedBarShape(props: any) {
         height={height}
         fill={fill}
         fillOpacity={opacity}
+        rx={6}
+        ry={6}
       />
       {/* two diagonal "break" slashes */}
       <line

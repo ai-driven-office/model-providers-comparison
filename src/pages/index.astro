@@ -35,7 +35,13 @@ const news = newsEntries
 const buildDate = new Date().toISOString().split("T")[0];
 ---
 
-<BaseLayout title="AI Model Comparison">
+<BaseLayout
+  lang="ja"
+  title={i18n.ja?.ogTitle ?? "AIモデル比較 — AIドリブン推進室"}
+  description={i18n.ja?.ogDescription}
+  siteName={i18n.ja?.ogSiteName}
+  ogImageAlt={i18n.ja?.ogImageAlt}
+>
   <ModelDashboard
     models={models}
     providers={providers}

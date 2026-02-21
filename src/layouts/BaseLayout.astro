@@ -5,24 +5,37 @@ import { ClientRouter } from "astro:transitions";
 interface Props {
   title: string;
   description?: string;
+  lang?: "en" | "ja";
+  siteName?: string;
+  ogImageAlt?: string;
 }
 
 const {
+  lang = "ja",
   title,
-  description = "Compare AI model throughput and pricing across frontier models from OpenAI, Anthropic, Google, xAI, and more.",
+  description = lang === "ja"
+    ? "主要AIモデルのスループット・価格・能力を一覧比較。OpenAI、Anthropic、Google、xAIなどの最新データをリアルタイムで確認できます。"
+    : "Compare AI model throughput and pricing across frontier models from OpenAI, Anthropic, Google, xAI, and more.",
+  siteName = lang === "ja"
+    ? "AIモデル比較 — AIドリブン推進室"
+    : "AI Model Comparison — AI Driven Office",
+  ogImageAlt = lang === "ja"
+    ? "AIモデル比較ダッシュボード — AIドリブン推進室"
+    : "AI Model Comparison Dashboard — AI Driven Office",
 } = Astro.props;
 
-const siteName = "AI Model Comparison — AI Driven Office";
+const ogLocale = lang === "ja" ? "ja_JP" : "en_US";
+const altLocale = lang === "ja" ? "en_US" : "ja_JP";
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const canonicalUrl = new URL(base, Astro.site).href;
-const ogImageUrl = new URL(`${base}og.png`, Astro.site).href;
+const ogImageUrl = new URL(`${base}og.jpg`, Astro.site).href;
 const mdUrl = new URL(`${base}data.md`, Astro.site).href;
 const llmsTxtUrl = new URL(`${base}llms.txt`, Astro.site).href;
 const buildDate = new Date().toISOString().split("T")[0];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -47,17 +60,18 @@ const buildDate = new Date().toISOString().split("T")[0];
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:image:width" content="2848" />
+    <meta property="og:image:height" content="1504" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale:alternate" content={altLocale} />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
-    <meta name="twitter:image:alt" content="AI Model Comparison Dashboard — AI Driven Office" />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
@@ -87,6 +101,7 @@ const buildDate = new Date().toISOString().split("T")[0];
       "url": canonicalUrl,
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Web",
+      "inLanguage": lang,
       "dateModified": buildDate,
       "offers": {
         "@type": "Offer",
@@ -107,8 +122,10 @@ const buildDate = new Date().toISOString().split("T")[0];
     <script is:inline type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "Dataset",
-      "name": "AI Model Throughput & Pricing Data",
-      "description": "Throughput (tokens/sec), pricing ($/M tokens), and capability scores for frontier AI models from OpenAI, Anthropic, Google, xAI, Cerebras, and SiliconFlow.",
+      "name": lang === "ja" ? "AIモデル スループット＆価格データ" : "AI Model Throughput & Pricing Data",
+      "description": lang === "ja"
+        ? "主要AIモデル（OpenAI、Anthropic、Google、xAI、Cerebras、SiliconFlow）のスループット（トークン/秒）、価格、能力スコアのデータセット"
+        : "Throughput (tokens/sec), pricing ($/M tokens), and capability scores for frontier AI models from OpenAI, Anthropic, Google, xAI, Cerebras, and SiliconFlow.",
       "url": canonicalUrl,
       "dateModified": buildDate,
       "license": "https://creativecommons.org/licenses/by/4.0/",
@@ -125,7 +142,7 @@ const buildDate = new Date().toISOString().split("T")[0];
 
     <ClientRouter />
   </head>
-  <body class="px-6 py-8">
+  <body class="px-6 py-12 sm:py-16">
     <main transition:animate="fade">
       <slot />
     </main>

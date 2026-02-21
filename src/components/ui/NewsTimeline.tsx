@@ -277,7 +277,7 @@ export default function NewsTimeline({ posts, lang, labels }: Props) {
   const sorted = [...posts].sort((a, b) => b.timestamp - a.timestamp);
 
   return (
-    <section className="mt-10 mb-6">
+    <section id="news" className="mt-10 mb-6 scroll-mt-6">
       {/* Section header */}
       <div className="flex items-center gap-2 mb-1">
         <Newspaper className="w-4 h-4" style={{ color: "#5C8DFE" }} />

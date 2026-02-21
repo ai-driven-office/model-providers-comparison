@@ -18,6 +18,7 @@ import NewsTimeline from "./ui/NewsTimeline";
 import { MeshGradient, Dithering, NeuroNoise } from "@paper-design/shaders-react";
 import { sfxTab, sfxLang, sfxClick } from "../data/sfx";
 import NewsTicker from "./ui/NewsTicker";
+import Testimonials from "./ui/Testimonials";
 
 const pricingImport = () => import("./ui/PricingChart");
 const scatterImport = () => import("./ui/ScatterPlot");
@@ -170,7 +171,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       </div>
 
       {/* Top Bar — Logo + Badge + Lang Switcher */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <AidLogo className="h-8 w-auto" />
           <div
@@ -270,7 +271,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
       {/* Title */}
       <h1
-        className="text-4xl font-black m-0 mb-1.5"
+        className="text-4xl font-black m-0 mb-3"
         style={{
           color: "#fff",
           letterSpacing: isJa ? 1 : -1,
@@ -283,24 +284,38 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         {l.subtitle}
       </p>
 
-      {/* News Ticker */}
-      <div className="mb-5">
+      {/* Why brief */}
+      <p className="text-gray-600 text-xs m-0 mb-7 max-w-[520px] leading-relaxed" style={{ fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif" }}>
+        {isJa
+          ? "AI各社は自社モデルが優れるベンチマークを強調する傾向があり、全体像の把握が困難です。本サイトは独立した比較データを提供し、その課題に応えます。"
+          : "AI labs tend to highlight benchmarks where their models lead, making the full picture hard to see. This site provides independent, standardized comparison data."
+        }
+        {" "}
+        <a
+          href={`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}why`}
+          className="no-underline transition-colors duration-200"
+          style={{ color: "#5C8DFE", whiteSpace: "nowrap" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "#7BAAFF"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "#5C8DFE"; }}
+        >
+          {isJa ? "詳しく →" : "Why we built this →"}
+        </a>
+      </p>
+
+      {/* News Ticker — latest headline, links to #news */}
+      <div className="mb-8">
         <NewsTicker
           variant="dashboard"
-          items={[
-            { text: l.tickerHeadline ?? "NEW SPEED RECORD", highlight: true },
-            { text: l.tickerModel ?? "Llama 3.1 8B on Taalas HC1 — 16,960 tokens/sec" },
-            { text: l.tickerDetail ?? "Custom silicon: 17x faster than Cerebras, 28x faster than Groq" },
-            { text: l.tickerTry ?? "Try it free", href: "https://chatjimmy.ai/" },
-            { text: l.tickerLearn ?? "How it works: model hardwired into transistors", href: "https://taalas.com/the-path-to-ubiquitous-ai/" },
-            { text: l.tickerUseCase ?? "Use cases: real-time chat, edge AI, coding assistants, multilingual agents" },
-          ]}
+          text={news.length > 0
+            ? (isJa ? news[0].title.ja : news[0].title.en)
+            : (l.tickerHeadline ?? "")
+          }
         />
       </div>
 
       {/* Tabs */}
       <div
-        className="flex gap-0 mb-7 w-fit"
+        className="flex gap-0 mb-8 w-fit"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
         {tabs.map((tab) => {
@@ -711,6 +726,66 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         <span className="text-gray-600 group-hover:text-gray-400 transition-colors text-sm">→</span>
       </a>
 
+      {/* Taalas HC1 Speed Record Link */}
+      <a
+        href="https://taalas.com/the-path-to-ubiquitous-ai/"
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => { if (!reduceMotion) sfxClick(); }}
+        className="flex items-center justify-between rounded-xl px-5 py-3.5 mt-2 mb-2 no-underline transition-all group relative overflow-hidden"
+        style={{
+          background: "linear-gradient(135deg, rgba(255,106,0,0.04) 0%, rgba(255,4,19,0.02) 100%)",
+          border: "1px solid rgba(255,106,0,0.1)",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = "rgba(255,106,0,0.25)";
+          e.currentTarget.style.background = "linear-gradient(135deg, rgba(255,106,0,0.08) 0%, rgba(255,4,19,0.04) 100%)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = "rgba(255,106,0,0.1)";
+          e.currentTarget.style.background = "linear-gradient(135deg, rgba(255,106,0,0.04) 0%, rgba(255,4,19,0.02) 100%)";
+        }}
+      >
+        {!reduceMotion && (
+          <Dithering
+            colorBack="#00000000"
+            colorFront="#FF6A00"
+            shape="swirl"
+            type="8x8"
+            size={1.5}
+            speed={0.3}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              opacity: 0.06,
+              pointerEvents: "none",
+            }}
+          />
+        )}
+        <div className="flex items-center gap-3">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: "linear-gradient(135deg, #FF6A00, #FF8C33)" }}
+          >
+            <Trophy className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <div className="text-[13px] font-bold text-gray-200">
+              {isJa ? "Taalas HC1 — 速度新記録" : "Taalas HC1 — New Speed Record"}
+            </div>
+            <div className="text-[11px] text-gray-500">
+              {isJa
+                ? "16,960 tps — モデルをトランジスタに直接実装するカスタムシリコン"
+                : "16,960 tps — custom silicon that hardwires the model into transistors"}
+            </div>
+          </div>
+        </div>
+        <span className="text-gray-600 group-hover:text-gray-400 transition-colors text-sm">→</span>
+      </a>
+
       {/* Data Table — switch to ability ranking when on abilities tab */}
       {activeTab === "abilities" ? (
         <AbilityTable
@@ -740,6 +815,22 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         />
       )}
 
+      {/* ── Section divider: data ↑ · editorial ↓ ── */}
+      <div className="mt-14 mb-10 flex items-center gap-4">
+        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(51,112,254,0.15), rgba(138,60,184,0.1))" }} />
+        <div
+          className="text-[10px] tracking-widest text-gray-600 shrink-0"
+          style={{
+            fontFamily: "'Space Mono', monospace",
+            textTransform: "uppercase",
+            letterSpacing: 3,
+          }}
+        >
+          {isJa ? "ニュース & コミュニティ" : "News & Community"}
+        </div>
+        <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(138,60,184,0.1), rgba(255,4,19,0.12), transparent)" }} />
+      </div>
+
       {/* News Timeline */}
       {news.length > 0 && (
         <NewsTimeline
@@ -755,6 +846,15 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           }}
         />
       )}
+
+      {/* Testimonials */}
+      <Testimonials
+        lang={lang}
+        labels={{
+          testimonialsTitle: l.testimonialsTitle ?? "What People Are Saying",
+          testimonialsSub: l.testimonialsSub ?? "Community reactions from X",
+        }}
+      />
 
       {/* Bottom ambient glow — CSS-only bookend (no GPU cost) */}
       <div
@@ -875,6 +975,16 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               title={l.downloadMd}
             >
               {l.downloadMd}
+            </a>
+            <span style={{ color: "rgba(51,112,254,0.2)" }}>|</span>
+            <a
+              href={`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}why`}
+              className="no-underline transition-colors duration-200"
+              style={{ color: "#5C8DFE" }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "#7BAAFF"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "#5C8DFE"; }}
+            >
+              {isJa ? "なぜ作ったのか" : "Why this site?"}
             </a>
           </div>
 
