@@ -6,6 +6,7 @@ import {
   ScatterChart,
   Brain,
   Sparkles,
+  ChevronDown,
 } from "lucide-react";
 import type { Model, Provider, NewsPost } from "../data/types";
 import { formatPrice, useLang, type Lang } from "../data/i18n";
@@ -104,6 +105,102 @@ function useInView(rootMargin = "200px") {
     return () => obs.disconnect();
   }, [rootMargin]);
   return { ref, inView };
+}
+
+function MobileTabSelect({
+  tabs,
+  activeTab,
+  onSelect,
+}: {
+  tabs: { id: Tab; label: string; icon: ReactNode }[];
+  activeTab: Tab;
+  onSelect: (id: Tab) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const current = tabs.find((t) => t.id === activeTab)!;
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative sm:hidden mb-5">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center justify-between w-full gap-2 px-4 py-3 rounded-xl border-none cursor-pointer text-sm font-semibold"
+        style={{
+          background: "rgba(51,112,254,0.06)",
+          border: "1px solid rgba(51,112,254,0.15)",
+          color: "#fff",
+        }}
+      >
+        <span className="flex items-center gap-2">
+          <span style={{ color: "#5C8DFE" }}>{current.icon}</span>
+          {current.label}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span
+            className="text-[11px] font-medium tabular-nums"
+            style={{ color: "rgba(255,255,255,0.25)" }}
+          >
+            {tabs.indexOf(current) + 1} / {tabs.length}
+          </span>
+          <ChevronDown
+            className="w-4 h-4 transition-transform duration-200"
+            style={{
+              color: "rgba(255,255,255,0.4)",
+              transform: open ? "rotate(180deg)" : "rotate(0)",
+            }}
+          />
+        </span>
+      </button>
+      {open && (
+        <div
+          className="absolute top-full left-0 right-0 mt-1.5 rounded-xl overflow-hidden z-50"
+          style={{
+            background: "rgba(10,14,22,0.97)",
+            border: "1px solid rgba(51,112,254,0.18)",
+            backdropFilter: "blur(16px)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+          }}
+        >
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => { onSelect(tab.id); setOpen(false); }}
+                className="flex items-center gap-2.5 w-full px-4 py-3 border-none cursor-pointer text-sm font-medium transition-colors duration-150"
+                style={{
+                  background: isActive
+                    ? "rgba(51,112,254,0.1)"
+                    : "transparent",
+                  color: isActive ? "#fff" : "rgba(255,255,255,0.5)",
+                }}
+              >
+                <span style={{ color: isActive ? "#5C8DFE" : "rgba(255,255,255,0.3)" }}>
+                  {tab.icon}
+                </span>
+                {tab.label}
+                {isActive && (
+                  <span
+                    className="ml-auto w-1.5 h-1.5 rounded-full"
+                    style={{ background: "#5C8DFE" }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function ModelDashboard({ models, providers, news, i18n, buildDate }: Props) {
@@ -228,7 +325,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             style={{ background: "linear-gradient(180deg, transparent, rgba(51,112,254,0.3), transparent)" }}
           />
           <span
-            className="text-[10px] sm:text-[11px] hdr-glow truncate"
+            className="text-[11px] sm:text-[11px] hdr-glow truncate"
             style={{
               fontFamily: isJa
                 ? "'Zen Kaku Gothic New', sans-serif"
@@ -368,7 +465,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         {l.title}
       </h1>
       <p
-        className="text-[11px] sm:text-xs m-0 mb-4 sm:mb-5 max-w-[580px] leading-relaxed"
+        className="text-xs sm:text-xs m-0 mb-4 sm:mb-5 max-w-[580px] leading-relaxed"
         style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter", fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif" }}
       >
         {l.subtitle}
@@ -395,13 +492,17 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         />
       </div>
 
-      {/* Tabs */}
+      {/* Mobile: dropdown selector */}
+      <MobileTabSelect
+        tabs={tabs}
+        activeTab={activeTab}
+        onSelect={(id) => { setActiveTab(id); trackTabSwitch(id); if (!reduceMotion) sfxTab(); }}
+      />
+
+      {/* Desktop: horizontal tab bar */}
       <div
-        className="flex gap-0 mb-5 sm:mb-6 overflow-x-auto scrollbar-hide -mx-6 px-6 sm:mx-0 sm:px-0"
-        style={{
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          WebkitOverflowScrolling: "touch",
-        }}
+        className="hidden sm:flex gap-0 mb-6"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -409,7 +510,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             <button
               key={tab.id}
               onClick={() => { setActiveTab(tab.id); trackTabSwitch(tab.id); if (!reduceMotion) sfxTab(); }}
-              className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-2.5 border-none cursor-pointer text-[11px] sm:text-[13px] font-medium transition-all duration-200 relative whitespace-nowrap shrink-0"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 border-none cursor-pointer text-[13px] font-medium transition-all duration-200 relative whitespace-nowrap shrink-0"
               style={{
                 background: "transparent",
                 color: isActive ? "#fff" : "rgba(255,255,255,0.35)",
@@ -422,7 +523,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               {tab.label}
               {isActive && (
                 <span
-                  className="absolute bottom-0 left-2 right-2 sm:left-3 sm:right-3 h-[2px] rounded-full hdr-vivid"
+                  className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full hdr-vivid"
                   style={{
                     background: "linear-gradient(90deg, #3370FE, #5C8DFE)",
                   }}
@@ -467,7 +568,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             <div className="flex items-center gap-2 mb-1">
               <Trophy className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" style={{ color: "#5C8DFE" }} />
                 <span
-                  className="text-[10px] sm:text-[11px]"
+                  className="text-[11px] sm:text-[11px]"
                   style={{
                     fontFamily: isJa
                       ? "'Zen Kaku Gothic New', sans-serif"
@@ -480,10 +581,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
                   {l.heroLabel}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-base sm:text-[22px] font-extrabold flex-wrap">
+              <div className="flex items-center gap-2 text-[17px] sm:text-[22px] font-extrabold flex-wrap">
                 <ModelIcon modelName={heroModel.name} size={20} className="shrink-0 opacity-80" />
                 <span className="truncate">{heroModel.name}</span>
-                <span className="font-normal text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
+                <span className="font-normal text-[13px] sm:text-sm" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
                   {isJa
                     ? `（${heroModel.provider.replace(" (Direct)", "")}）`
                     : `on ${heroModel.provider}`}
@@ -505,7 +606,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               >
                 {heroModel.tps.toLocaleString()}
               </div>
-              <div className="text-xs" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>{l.heroUnit}</div>
+              <div className="text-[13px] sm:text-xs" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>{l.heroUnit}</div>
             </div>
           </div>
         )}
@@ -542,7 +643,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             <div className="flex items-center gap-2 mb-1">
               <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" style={{ color: "#FF3640" }} />
                 <span
-                  className="text-[10px] sm:text-[11px]"
+                  className="text-[11px] sm:text-[11px]"
                   style={{
                     fontFamily: isJa
                       ? "'Zen Kaku Gothic New', sans-serif"
@@ -555,10 +656,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
                   {l.priceHeroLabel}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-base sm:text-[22px] font-extrabold flex-wrap">
+              <div className="flex items-center gap-2 text-[17px] sm:text-[22px] font-extrabold flex-wrap">
                 <ModelIcon modelName={priceHero.name} size={20} className="shrink-0 opacity-80" />
                 <span className="truncate">{priceHero.name}</span>
-                <span className="font-normal text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
+                <span className="font-normal text-[13px] sm:text-sm" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
                   {isJa
                     ? `（${priceHero.provider.replace(" (Direct)", "")}）`
                     : `on ${priceHero.provider}`}
@@ -580,7 +681,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               >
                 {formatPrice(priceHero.output, lang)}
               </div>
-              <div className="text-xs" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>{l.priceHeroUnit}</div>
+              <div className="text-[13px] sm:text-xs" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>{l.priceHeroUnit}</div>
             </div>
           </div>
         )}
@@ -616,9 +717,9 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "throughput" && (
             <div>
               <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-sm sm:text-base font-bold m-0 hdr-text">
+                <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
                   {l.tpsTitle}{" "}
-                  <span className="font-normal text-xs sm:text-[13px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
+                  <span className="font-normal text-[13px] sm:text-[13px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
                     {l.tpsUnit}
                   </span>
                 </h2>
@@ -630,9 +731,9 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "pricing" && (
             <div>
               <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-sm sm:text-base font-bold m-0 hdr-text">
+                <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
                   {l.priceTitle}{" "}
-                  <span className="font-normal text-xs sm:text-[13px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
+                  <span className="font-normal text-[13px] sm:text-[13px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
                     {l.priceUnit}
                   </span>
                 </h2>
@@ -655,10 +756,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "scatter" && (
             <div>
               <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-sm sm:text-base font-bold m-0 hdr-text">
+                <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
                   {l.scatterTitle}
                 </h2>
-                <p className="text-[10px] sm:text-xs m-0 mt-1" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>{l.scatterSub}</p>
+                <p className="text-[11px] sm:text-xs m-0 mt-1" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>{l.scatterSub}</p>
               </div>
               <Suspense fallback={<ChartSkeleton />}>
                 <ScatterPlot
@@ -678,10 +779,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "abilities" && (
             <div>
               <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-sm sm:text-base font-bold m-0 hdr-text">
+                <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
                   {l.abilityTitle}
                 </h2>
-                <p className="text-[10px] sm:text-xs m-0 mt-1" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>{l.abilitySub}</p>
+                <p className="text-[11px] sm:text-xs m-0 mt-1" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>{l.abilitySub}</p>
               </div>
               <Suspense fallback={<ChartSkeleton height={580} />}>
                 <AbilityRadar
@@ -705,10 +806,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "recommendations" && (
             <div>
               <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-sm sm:text-base font-bold m-0 hdr-text">
+                <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
                   {l.resultsTitle}
                 </h2>
-                <p className="text-[10px] sm:text-xs m-0 mt-1 max-w-[580px]" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>
+                <p className="text-[11px] sm:text-xs m-0 mt-1 max-w-[580px]" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>
                   {l.resultsSub}
                 </p>
               </div>
@@ -745,12 +846,12 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
                 boxShadow: `0 0 6px ${p.color}44`,
               }}
             />
-            <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>{p.name}</span>
+            <span className="text-xs sm:text-[11px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>{p.name}</span>
           </div>
         ))}
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(255,170,50,0.27)]" />
-          <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>Fast Mode</span>
+          <span className="text-xs sm:text-[11px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>Fast Mode</span>
         </div>
       </div>
 
@@ -799,10 +900,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             <Zap className="w-4 h-4 text-white" />
           </div>
           <div className="min-w-0">
-            <div className="text-xs sm:text-[13px] font-bold" style={{ color: "rgba(255,255,255,0.6)", mixBlendMode: "plus-lighter" }}>
+            <div className="text-[13px] sm:text-[13px] font-bold" style={{ color: "rgba(255,255,255,0.6)", mixBlendMode: "plus-lighter" }}>
               {isJa ? "GLM 4.7 × Cerebras ガイド" : "GLM 4.7 × Cerebras Guide"}
             </div>
-            <div className="text-[10px] sm:text-[11px] truncate" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
+            <div className="text-[11px] sm:text-[11px] truncate" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
               {isJa
                 ? "1,000 tps でAIコーディング — OpenCodeセットアップガイド"
                 : "AI coding at 1,000 tps — OpenCode setup & recommended workflow"}
@@ -859,10 +960,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             <Trophy className="w-4 h-4 text-white" />
           </div>
           <div className="min-w-0">
-            <div className="text-xs sm:text-[13px] font-bold" style={{ color: "rgba(255,255,255,0.6)", mixBlendMode: "plus-lighter" }}>
+            <div className="text-[13px] sm:text-[13px] font-bold" style={{ color: "rgba(255,255,255,0.6)", mixBlendMode: "plus-lighter" }}>
               {isJa ? "Taalas HC1 — 速度新記録" : "Taalas HC1 — New Speed Record"}
             </div>
-            <div className="text-[10px] sm:text-[11px] truncate" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
+            <div className="text-[11px] sm:text-[11px] truncate" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
               {isJa
                 ? "16,960 tps — モデルをトランジスタに直接実装するカスタムシリコン"
                 : "16,960 tps — custom silicon that hardwires the model into transistors"}
@@ -905,7 +1006,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       <div className="mt-14 sm:mt-20 mb-10 sm:mb-14 flex items-center gap-4 sm:gap-6 hdr-vivid">
         <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(51,112,254,0.15), rgba(138,60,184,0.1))" }} />
         <div
-          className="text-[10px] tracking-widest shrink-0"
+          className="text-[11px] sm:text-[10px] tracking-widest shrink-0"
           style={{
             fontFamily: "'Space Mono', monospace",
             textTransform: "uppercase",
@@ -1072,7 +1173,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           <AidLogo className="h-6 w-auto opacity-40" />
 
           {/* Last updated + Download Markdown */}
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px]" style={{ color: "rgba(255,255,255,0.45)", mixBlendMode: "plus-lighter" }}>
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] sm:text-[10px]" style={{ color: "rgba(255,255,255,0.45)", mixBlendMode: "plus-lighter" }}>
             <span
               style={{
                 fontFamily: isJa
@@ -1107,7 +1208,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
           {/* Data source note */}
           <div
-            className="text-center text-[10px]"
+            className="text-center text-[11px] sm:text-[10px]"
             style={{
               fontFamily: isJa
                 ? "'Zen Kaku Gothic New', sans-serif"
@@ -1121,7 +1222,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
           {/* Copyright */}
           <div
-            className="text-center text-[10px]"
+            className="text-center text-[11px] sm:text-[10px]"
             style={{
               fontFamily: isJa
                 ? "'Zen Kaku Gothic New', sans-serif"
