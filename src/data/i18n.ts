@@ -4,20 +4,28 @@ export type Lang = "en" | "ja";
 
 const LANG_KEY = "aid-lang";
 
+function detectBrowserLang(): Lang {
+  const nav = navigator.language?.toLowerCase() ?? "";
+  return nav.startsWith("ja") ? "ja" : "en";
+}
+
 export function useLang(fallback: Lang = "ja"): [Lang, (l: Lang) => void] {
   const [lang, setLangState] = useState<Lang>(() => {
     if (typeof window === "undefined") return fallback;
     const stored = localStorage.getItem(LANG_KEY);
-    return stored === "en" || stored === "ja" ? stored : fallback;
+    if (stored === "en" || stored === "ja") return stored;
+    return detectBrowserLang();
   });
 
   useEffect(() => {
     localStorage.setItem(LANG_KEY, lang);
+    document.documentElement.lang = lang;
   }, [lang]);
 
   const setLang = useCallback((l: Lang) => {
     setLangState(l);
     localStorage.setItem(LANG_KEY, l);
+    document.documentElement.lang = l;
   }, []);
 
   return [lang, setLang];

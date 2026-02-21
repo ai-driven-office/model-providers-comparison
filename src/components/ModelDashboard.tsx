@@ -354,8 +354,11 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
       {/* Tabs */}
       <div
-        className="flex gap-0 mb-10 w-fit"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+        className="flex gap-0 mb-10 overflow-x-auto scrollbar-hide -mx-6 px-6 sm:mx-0 sm:px-0"
+        style={{
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          WebkitOverflowScrolling: "touch",
+        }}
       >
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -363,7 +366,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             <button
               key={tab.id}
               onClick={() => { setActiveTab(tab.id); if (!reduceMotion) sfxTab(); }}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 border-none cursor-pointer text-[13px] font-medium transition-all duration-200 relative"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 border-none cursor-pointer text-[13px] font-medium transition-all duration-200 relative whitespace-nowrap shrink-0"
               style={{
                 background: "transparent",
                 color: isActive ? "#fff" : "#555",
@@ -886,14 +889,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         />
       )}
 
-      {/* Testimonials */}
-      <Testimonials
-        lang={lang}
-        labels={{
-          testimonialsTitle: l.testimonialsTitle ?? "What People Are Saying",
-          testimonialsSub: l.testimonialsSub ?? "Community reactions from X",
-        }}
-      />
+      {/* Testimonials — hidden until real quotes are sourced */}
 
       {/* Bottom ambient glow — CSS-only bookend (no GPU cost) */}
       <div
@@ -1065,7 +1061,16 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               letterSpacing: isJa ? 0.5 : 0.5,
             }}
           >
-            {l.copyright}
+            ©<a
+              href="https://www.cyberagent.co.jp/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="no-underline hover:underline"
+              style={{ color: "inherit" }}
+            >CyberAgent, Inc.</a>
+            {isJa
+              ? " · AIドリブン推進室（AI Driven Office）"
+              : " · AI Driven Office (AIドリブン推進室)"}
           </div>
         </div>
       </footer>

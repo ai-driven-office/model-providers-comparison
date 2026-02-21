@@ -49,6 +49,14 @@ const buildDate = new Date().toISOString().split("T")[0];
     <meta name="date" content={buildDate} />
     <meta name="last-modified" content={buildDate} />
 
+    <!-- hreflang — same URL serves both languages client-side -->
+    <link rel="alternate" hreflang="ja" href={canonicalUrl} />
+    <link rel="alternate" hreflang="en" href={canonicalUrl} />
+    <link rel="alternate" hreflang="x-default" href={canonicalUrl} />
+
+    <!-- RSS feed -->
+    <link rel="alternate" type="application/rss+xml" title="AI Model Comparison — News" href={`${base}feed.xml`} />
+
     <!-- AI / Bot discoverability -->
     <link rel="alternate" type="text/markdown" href={mdUrl} title="AI Model Comparison (Markdown)" />
     <link rel="author" href={llmsTxtUrl} type="text/plain" />
@@ -140,11 +148,33 @@ const buildDate = new Date().toISOString().split("T")[0];
       }
     })} />
 
+    <!-- Detect stored/browser lang before paint to avoid flash -->
+    <script is:inline>
+      (function(){
+        var s=localStorage.getItem('aid-lang');
+        if(s==='en'||s==='ja'){document.documentElement.lang=s;return}
+        var b=(navigator.language||'').toLowerCase();
+        var l=b.startsWith('ja')?'ja':'en';
+        document.documentElement.lang=l;
+        localStorage.setItem('aid-lang',l);
+      })();
+    </script>
+
     <ClientRouter />
   </head>
   <body class="px-6 py-12 sm:py-16">
     <main transition:animate="fade">
       <slot />
     </main>
+
+    <!-- Cloudflare Web Analytics — free, no cookies, ~1KB -->
+    <!-- Get your token: https://dash.cloudflare.com → Web Analytics → Add Site -->
+    {import.meta.env.PUBLIC_CF_BEACON && (
+      <script
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={`{"token":"${import.meta.env.PUBLIC_CF_BEACON}"}`}
+      />
+    )}
   </body>
 </html>

@@ -570,7 +570,16 @@ export default function WhyPage() {
               fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
             }}
           >
-            {l.copyright}
+            ©<a
+              href="https://www.cyberagent.co.jp/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="no-underline hover:underline"
+              style={{ color: "inherit" }}
+            >CyberAgent, Inc.</a>
+            {isJa
+              ? " · AIドリブン推進室（AI Driven Office）"
+              : " · AI Driven Office (AIドリブン推進室)"}
           </div>
         </div>
       </footer>

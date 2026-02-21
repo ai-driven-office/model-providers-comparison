@@ -33,6 +33,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── Scrollbar-hide utility (mobile tab bar) ─── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ─── Tab indicator animation ─── */
 @keyframes tab-indicator-in {
   from {
@@ -193,4 +202,93 @@ body {
   opacity: 0.04;
   pointer-events: none;
   animation: grain 8s steps(10) infinite;
+}
+
+/* ─── HDR Super-bright & Super-vivid Effects ─── */
+
+/* Tiny 1px video that triggers browser HDR rendering pipeline */
+.hdr-trigger-video {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  z-index: -9999;
+}
+
+/* Smooth transitions for HDR toggle */
+.hdr-text,
+.hdr-glow,
+.hdr-vivid,
+.hdr-ambient {
+  transition: filter 0.6s ease, text-shadow 0.6s ease, opacity 0.6s ease;
+}
+
+/* Super-white text: visible glow on all displays, brighter-than-#fff on HDR */
+.hdr-active .hdr-text {
+  filter: brightness(1.8);
+  text-shadow:
+    0 0 30px rgba(255,255,255,0.35),
+    0 0 60px rgba(255,255,255,0.12);
+}
+
+/* Extra-intense glow for hero numbers */
+.hdr-active .hdr-glow {
+  filter: brightness(2.2);
+}
+
+/* Saturated vivid colors for charts and colored elements */
+.hdr-active .hdr-vivid {
+  filter: saturate(1.6) brightness(1.12);
+}
+
+/* Boosted ambient lighting */
+.hdr-active .hdr-ambient {
+  filter: saturate(1.8) brightness(1.5);
+}
+
+/* HDR pulsing glow for accent elements */
+@keyframes hdr-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.hdr-active .hdr-pulse {
+  animation: hdr-pulse 3s ease-in-out infinite;
+}
+
+/* On true HDR displays (Extended Dynamic Range), unleash full luminance */
+@media (dynamic-range: high) {
+  .hdr-active .hdr-text {
+    filter: brightness(3);
+    text-shadow:
+      0 0 40px rgba(255,255,255,0.5),
+      0 0 80px rgba(255,255,255,0.2),
+      0 0 120px rgba(255,255,255,0.08);
+  }
+
+  .hdr-active .hdr-glow {
+    filter: brightness(4);
+  }
+
+  .hdr-active .hdr-vivid {
+    filter: saturate(2.2) brightness(1.35);
+  }
+
+  .hdr-active .hdr-ambient {
+    filter: saturate(2.5) brightness(2);
+  }
+}
+
+/* Wide gamut P3 color enhancement for supported displays */
+@supports (color: color(display-p3 1 0 0)) {
+  .hdr-active {
+    --hdr-blue: color(display-p3 0.1 0.4 1);
+    --hdr-red: color(display-p3 1 0 0.05);
+    --hdr-green: color(display-p3 0 0.95 0.6);
+    --hdr-amber: color(display-p3 1 0.72 0);
+    --hdr-magenta: color(display-p3 0.95 0.08 0.48);
+    --hdr-purple: color(display-p3 0.56 0.18 0.78);
+  }
 }
