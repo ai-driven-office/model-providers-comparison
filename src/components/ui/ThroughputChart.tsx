@@ -15,7 +15,7 @@ import { getColor, type ColorMap } from "../../data/colors";
 import { ModelIcon } from "./ProviderIcon";
 
 const MONO = "'Space Mono', monospace";
-const SANS = "'DM Sans', sans-serif";
+const SANS = "'Inter', system-ui, sans-serif";
 
 function ThroughputTooltip({ active, payload, lang, colorMap }: any) {
   if (!active || !payload?.length) return null;

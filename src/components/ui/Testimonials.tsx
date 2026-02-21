@@ -1,8 +1,8 @@
 import { MessageCircle, ExternalLink } from "lucide-react";
 import type { Lang } from "../../data/i18n";
 
-const SANS_JA = "'Noto Sans JP', sans-serif";
-const SANS_EN = "'DM Sans', sans-serif";
+const SANS_JA = "'Zen Kaku Gothic New', sans-serif";
+const SANS_EN = "'Inter', system-ui, sans-serif";
 const MONO = "'Space Mono', monospace";
 
 const TWEET_URL = "https://x.com/gunta85/status/2024736151379333481";
@@ -72,8 +72,8 @@ function QuoteCard({
       </div>
 
       <p
-        className="text-[13px] text-gray-300 m-0 leading-relaxed"
-        style={{ fontFamily: lang === "ja" ? SANS_JA : SANS_EN }}
+        className="text-[13px] m-0 leading-relaxed"
+        style={{ fontFamily: lang === "ja" ? SANS_JA : SANS_EN, color: "rgba(255,255,255,0.5)", mixBlendMode: "plus-lighter" }}
       >
         {text}
       </p>
@@ -89,15 +89,15 @@ export default function Testimonials({ lang, labels }: Props) {
       <div className="flex items-center gap-2 mb-1">
         <MessageCircle className="w-4 h-4" style={{ color: "#5C8DFE" }} />
         <h2
-          className="text-base font-bold m-0 text-gray-200"
-          style={{ fontFamily: isJa ? SANS_JA : "'Inter', sans-serif" }}
+          className="text-base font-bold m-0"
+          style={{ fontFamily: isJa ? SANS_JA : "'Inter', sans-serif", color: "rgba(255,255,255,0.7)", mixBlendMode: "plus-lighter" }}
         >
           {labels.testimonialsTitle}
         </h2>
       </div>
       <p
-        className="text-gray-600 text-xs m-0 mb-5 pl-6"
-        style={{ fontFamily: isJa ? SANS_JA : "'Inter', sans-serif" }}
+        className="text-xs m-0 mb-5 pl-6"
+        style={{ fontFamily: isJa ? SANS_JA : "'Inter', sans-serif", color: "rgba(255,255,255,0.25)", mixBlendMode: "plus-lighter" }}
       >
         {labels.testimonialsSub}
       </p>
@@ -132,14 +132,14 @@ export default function Testimonials({ lang, labels }: Props) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 no-underline transition-opacity duration-200 hover:opacity-80"
           >
-            <XLogo className="w-3 h-3 text-gray-500" />
+            <XLogo className="w-3 h-3" style={{ color: "rgba(255,255,255,0.3)" }} />
             <span
-              className="text-[11px] text-gray-500"
-              style={{ fontFamily: isJa ? SANS_JA : MONO }}
+              className="text-[11px]"
+              style={{ fontFamily: isJa ? SANS_JA : MONO, color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}
             >
               {isJa ? "元ポストを見る" : "See the original post"}
             </span>
-            <ExternalLink className="w-2.5 h-2.5 text-gray-600" />
+            <ExternalLink className="w-2.5 h-2.5" style={{ color: "rgba(255,255,255,0.2)" }} />
           </a>
         </div>
       </div>

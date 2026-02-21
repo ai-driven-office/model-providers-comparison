@@ -24,7 +24,7 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
   const hasLongContext = data.some((m) => m.inputLong != null);
   const isJa = lang === "ja";
   const headerFont = isJa
-    ? "'Noto Sans JP', sans-serif"
+    ? "'Zen Kaku Gothic New', sans-serif"
     : "'Space Mono', monospace";
 
   const headers = [
@@ -45,11 +45,13 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
             {headers.map((h) => (
               <th
                 key={h}
-                className="px-4 py-3 text-left text-gray-500 font-semibold tracking-wider"
+                className="px-4 py-3 text-left font-semibold tracking-wider"
                 style={{
                   fontFamily: headerFont,
                   fontSize: 10,
                   textTransform: isJa ? "none" : "uppercase",
+                  color: "rgba(255,255,255,0.35)",
+                  mixBlendMode: "plus-lighter",
                 }}
               >
                 {h}
@@ -132,27 +134,27 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
               >
                 {m.tps.toLocaleString()}
               </td>
-              <td className="px-4 py-2.5 font-mono text-gray-400">
+              <td className="px-4 py-2.5 font-mono" style={{ color: "rgba(255,255,255,0.4)", mixBlendMode: "plus-lighter" }}>
                 {formatPrice(m.input, lang)}
               </td>
-              <td className="px-4 py-2.5 font-mono text-gray-400">
+              <td className="px-4 py-2.5 font-mono" style={{ color: "rgba(255,255,255,0.4)", mixBlendMode: "plus-lighter" }}>
                 {formatPrice(m.output, lang)}
               </td>
               {hasLongContext && (
-                <td className="px-4 py-2.5 font-mono text-gray-400">
+                <td className="px-4 py-2.5 font-mono" style={{ color: "rgba(255,255,255,0.4)", mixBlendMode: "plus-lighter" }}>
                   {m.inputLong != null ? (
                     <span className="text-orange-300/80">{formatPrice(m.inputLong, lang)}</span>
                   ) : (
-                    <span className="text-gray-700">—</span>
+                    <span style={{ color: "rgba(255,255,255,0.15)", mixBlendMode: "plus-lighter" }}>—</span>
                   )}
                 </td>
               )}
               {hasLongContext && (
-                <td className="px-4 py-2.5 font-mono text-gray-400">
+                <td className="px-4 py-2.5 font-mono" style={{ color: "rgba(255,255,255,0.4)", mixBlendMode: "plus-lighter" }}>
                   {m.outputLong != null ? (
                     <span className="text-orange-300/80">{formatPrice(m.outputLong, lang)}</span>
                   ) : (
-                    <span className="text-gray-700">—</span>
+                    <span style={{ color: "rgba(255,255,255,0.15)", mixBlendMode: "plus-lighter" }}>—</span>
                   )}
                 </td>
               )}

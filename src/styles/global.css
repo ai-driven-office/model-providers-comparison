@@ -1,18 +1,34 @@
 @import "tailwindcss";
 
+/* ─── Fallback font metrics: reduce CLS during web-font swap ─── */
+
 @font-face {
   font-family: "Inter Fallback";
-  src: local("Arial");
+  src: local("Arial"), local("Helvetica Neue"), local("Helvetica");
   size-adjust: 107%;
   ascent-override: 90%;
   descent-override: 22%;
   line-gap-override: 0%;
 }
 
+@font-face {
+  font-family: "JP Fallback";
+  src: local("Hiragino Kaku Gothic ProN"),
+       local("Hiragino Sans"),
+       local("Yu Gothic Medium"),
+       local("Yu Gothic"),
+       local("Meiryo"),
+       local("MS PGothic");
+  size-adjust: 100%;
+  ascent-override: 97%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+}
+
 @theme {
-  --font-sans: "Inter", "Inter Fallback", sans-serif;
-  --font-mono: "Space Mono", monospace;
-  --font-jp: "Noto Sans JP", sans-serif;
+  --font-sans: "Inter", "Inter Fallback", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, "SFMono-Regular", monospace;
+  --font-jp: "Zen Kaku Gothic New", "JP Fallback", system-ui, sans-serif;
 
   --color-aid-red: #FF0413;
   --color-aid-blue: #3370FE;
@@ -20,17 +36,51 @@
   --color-aid-purple: #8A3CB8;
 }
 
+/* ─── Root: modern font rendering pipeline ─── */
+
 html {
   color-scheme: dark;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  font-optical-sizing: auto;
+  hanging-punctuation: first last;
 }
 
 body {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: #08121a;
   color: #fff;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-synthesis: none;
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-feature-settings: "ss02" 1, "calt" 1;
+}
+
+/* ─── Language-aware typography ─── */
+
+:lang(ja) {
+  font-family: var(--font-jp);
+  line-break: strict;
+  word-break: auto-phrase;
+  overflow-wrap: anywhere;
+}
+
+:lang(en) {
+  font-family: var(--font-sans);
+  text-wrap: pretty;
+}
+
+h1, h2, h3, h4, h5, h6,
+[role="heading"] {
+  text-wrap: balance;
+  font-kerning: normal;
+}
+
+code, kbd, samp, pre {
+  font-variant-ligatures: none;
 }
 
 /* ─── Scrollbar-hide utility (mobile tab bar) ─── */

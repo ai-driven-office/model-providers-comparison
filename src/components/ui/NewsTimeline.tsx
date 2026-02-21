@@ -3,8 +3,8 @@ import type { NewsPost } from "../../data/types";
 import type { Lang } from "../../data/i18n";
 
 const MONO = "'Space Mono', monospace";
-const SANS_EN = "'DM Sans', sans-serif";
-const SANS_JA = "'Noto Sans JP', sans-serif";
+const SANS_EN = "'Inter', system-ui, sans-serif";
+const SANS_JA = "'Zen Kaku Gothic New', sans-serif";
 
 interface Props {
   posts: NewsPost[];
@@ -42,8 +42,8 @@ function ComparisonBar({
   return (
     <div className="flex items-center gap-2 py-1">
       <div
-        className="w-[130px] shrink-0 text-[11px] text-gray-400 truncate"
-        style={{ fontFamily: lang === "ja" ? SANS_JA : SANS_EN }}
+        className="w-[130px] shrink-0 text-[11px] truncate"
+        style={{ fontFamily: lang === "ja" ? SANS_JA : SANS_EN, color: "rgba(255,255,255,0.4)", mixBlendMode: "plus-lighter" }}
       >
         {model}
       </div>
@@ -178,8 +178,8 @@ function NewsCard({
 
           {/* Body */}
           <p
-            className="text-[13px] text-gray-400 m-0 mb-4 leading-relaxed"
-            style={{ fontFamily: sans }}
+            className="text-[13px] m-0 mb-4 leading-relaxed"
+            style={{ fontFamily: sans, color: "rgba(255,255,255,0.4)", mixBlendMode: "plus-lighter" }}
           >
             {body}
           </p>
@@ -190,11 +190,13 @@ function NewsCard({
               <div className="flex items-center gap-1.5 mb-2">
                 <Cpu className="w-3.5 h-3.5 text-orange-400/70" />
                 <span
-                  className="text-[11px] font-bold text-gray-500 tracking-wider"
+                  className="text-[11px] font-bold tracking-wider"
                   style={{
                     fontFamily: MONO,
                     textTransform: isJa ? "none" : "uppercase",
                     letterSpacing: isJa ? 1 : 2,
+                    color: "rgba(255,255,255,0.35)",
+                    mixBlendMode: "plus-lighter",
                   }}
                 >
                   {labels.speedComparisons}
@@ -231,10 +233,10 @@ function NewsCard({
                     border: "1px solid rgba(255,255,255,0.06)",
                   }}
                 >
-                  <span className="text-gray-500" style={{ fontFamily: sans }}>
+                  <span style={{ fontFamily: sans, color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
                     {isJa ? spec.label.ja : spec.label.en}:
                   </span>{" "}
-                  <span className="text-gray-300 font-semibold" style={{ fontFamily: MONO }}>
+                  <span className="font-semibold" style={{ fontFamily: MONO, color: "rgba(255,255,255,0.5)", mixBlendMode: "plus-lighter" }}>
                     {spec.value}
                   </span>
                 </div>
@@ -245,7 +247,7 @@ function NewsCard({
           {/* Footer: provider link + CTA */}
           {post.link && (
             <div className="flex items-center justify-between pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-              <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
+              <div className="flex items-center gap-1.5 text-[11px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
                 <Newspaper className="w-3 h-3" />
                 <span style={{ fontFamily: sans }}>Taalas</span>
               </div>
@@ -282,17 +284,19 @@ export default function NewsTimeline({ posts, lang, labels }: Props) {
       <div className="flex items-center gap-2 mb-1">
         <Newspaper className="w-4 h-4" style={{ color: "#5C8DFE" }} />
         <h2
-          className="text-base font-bold m-0 text-gray-200"
+          className="text-base font-bold m-0"
           style={{
             fontFamily: isJa ? SANS_JA : "'Inter', sans-serif",
+            color: "rgba(255,255,255,0.7)",
+            mixBlendMode: "plus-lighter",
           }}
         >
           {labels.newsTitle}
         </h2>
       </div>
       <p
-        className="text-gray-600 text-xs m-0 mb-5 pl-6"
-        style={{ fontFamily: isJa ? SANS_JA : "'Inter', sans-serif" }}
+        className="text-xs m-0 mb-5 pl-6"
+        style={{ fontFamily: isJa ? SANS_JA : "'Inter', sans-serif", color: "rgba(255,255,255,0.25)", mixBlendMode: "plus-lighter" }}
       >
         {labels.newsSub}
       </p>

@@ -84,19 +84,29 @@ const buildDate = new Date().toISOString().split("T")[0];
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
 
-    <!-- Fonts: preconnect, then non-blocking load -->
+    <!-- Fonts: preconnect → preload CSS → non-blocking stylesheet
+         - Inter variable (opsz + wght): optical sizing adapts stroke contrast
+           to rendered size; single file replaces 6 static weights
+         - Zen Kaku Gothic New: geometric JP sans by Yoshimichi Ohira;
+           Google Fonts auto-subsets by unicode-range (~120 small slices)
+         - Space Mono: static (no variable version available) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap"
+    />
+    <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap"
       media="print"
       onload="this.setAttribute('media','all')"
     />
     <noscript>
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap"
       />
     </noscript>
 
@@ -175,7 +185,7 @@ const buildDate = new Date().toISOString().split("T")[0];
 
     <ClientRouter />
   </head>
-  <body class="px-6 py-12 sm:py-16">
+  <body class="px-6 py-6 sm:py-10">
     <main transition:animate="fade">
       <slot />
     </main>

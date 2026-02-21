@@ -14,6 +14,12 @@ import { useLang, type Lang } from "../data/i18n";
 import { sfxLang } from "../data/sfx";
 import { MeshGradient } from "@paper-design/shaders-react";
 
+/* ── HDR trigger: ~1 KB HEVC video with PQ HDR metadata (5 000 nit peak white) ── */
+const HDR_VIDEO_SRC =
+  "data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28ybXA0MQAAAAhmcmVlAAAAvG1kYXQAAAAfTgEFGkdWStxcTEM/lO/FETzRQ6gD7gAA7gIAA3EYgAAAAEgoAa8iNjAkszOL+e58c//cEe//0TT//scp1n/381P/RWP/zOW4QtxorfVogeh8nQDbQAAAAwAQMCcWUTAAAAMAAAMAAAMA84AAAAAVAgHQAyu+KT35E7gAADFgAAADABLQAAAAEgIB4AiS76MTkNbgAAF3AAAPSAAAABICAeAEn8+hBOTXYAADUgAAHRAAAAPibW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAAKcAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAw10cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAAKcAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAABAAAAAQAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAACnAAAAAAABAAAAAAKFbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAABdwAAAD6BVxAAAAAAAMWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABDb3JlIE1lZGlhIFZpZGVvAAAAAixtaW5mAAAAFHZtaGQAAAABAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAHsc3RibAAAARxzdHNkAAAAAAAAAAEAAAEMaHZjMQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAQABAASAAAAEgAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABj//wAAAHVodmNDAQIgAAAAsAAAAAAAPPAA/P36+gAACwOgAAEAGEABDAH//wIgAAADALAAAAMAAAMAPBXAkKEAAQAmQgEBAiAAAAMAsAAAAwAAAwA8oBQgQcCTDLYgV7kWVYC1CRAJAICiAAEACUQBwChkuNBTJAAAAApmaWVsAQAAAAATY29scm5jbHgACQAQAAkAAAAAEHBhc3AAAAABAAAAAQAAABRidHJ0AAAAAAAALPwAACz8AAAAKHN0dHMAAAAAAAAAAwAAAAIAAAPoAAAAAQAAAAEAAAABAAAD6AAAABRzdHNzAAAAAAAAAAEAAAABAAAAEHNkdHAAAAAAIBAQGAAAAChjdHRzAAAAAAAAAAMAAAABAAAAAAAAAAEAAAfQAAAAAgAAAAAAAAAcc3RzYwAAAAAAAAABAAAAAQAAAAQAAAABAAAAJHN0c3oAAAAAAAAAAAAAAAQAAABvAAAAGQAAABYAAAAWAAAAFHN0Y28AAAAAAAAAAQAAACwAAABhdWR0YQAAAFltZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAACxpbHN0AAAAJKl0b28AAAAcZGF0YQAAAAEAAAAATGF2ZjYwLjMuMTAw";
+const HDR_POSTER =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQAAAAA3iMLMAAAAAXNSR0IArs4c6QAAAA5JREFUeNpj+P+fgRQEAP1OH+HeyHWXAAAAAElFTkSuQmCC";
+
 const content = {
   en: {
     badge: "About",
@@ -232,7 +238,20 @@ export default function WhyPage() {
   const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 
   return (
-    <div className="max-w-[720px] mx-auto relative isolate">
+    <div className={`max-w-[720px] mx-auto relative isolate${!reduceMotion ? ' hdr-active' : ''}`}>
+      {/* HDR trigger video */}
+      {!reduceMotion && (
+        <video
+          muted
+          autoPlay
+          playsInline
+          className="hdr-trigger-video"
+          onCanPlayThrough={(e) => { (e.target as HTMLVideoElement).currentTime = 0; }}
+          poster={HDR_POSTER}
+          src={HDR_VIDEO_SRC}
+        />
+      )}
+
       {/* Ambient glow */}
       <div
         ref={heroGlow.ref}
@@ -273,7 +292,7 @@ export default function WhyPage() {
           <span
             className="text-xs transition-colors"
             style={{
-              fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Space Mono', monospace",
+              fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Space Mono', monospace",
               letterSpacing: isJa ? 0.5 : 1,
             }}
           >
@@ -304,7 +323,7 @@ export default function WhyPage() {
               className="px-3.5 py-1 rounded-md border-none cursor-pointer transition-all duration-200"
               style={{
                 fontFamily:
-                  opt.code === "ja" ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+                  opt.code === "ja" ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
                 fontSize: 11,
                 fontWeight: 700,
                 letterSpacing: opt.code === "ja" ? 0 : 1,
@@ -312,7 +331,8 @@ export default function WhyPage() {
                   lang === opt.code
                     ? "linear-gradient(135deg, rgba(51,112,254,0.2), rgba(255,4,19,0.15))"
                     : "transparent",
-                color: lang === opt.code ? "#fff" : "#555",
+                color: lang === opt.code ? "#fff" : "rgba(255,255,255,0.35)",
+                mixBlendMode: lang === opt.code ? "normal" : "plus-lighter" as any,
               }}
             >
               {opt.label}
@@ -326,7 +346,7 @@ export default function WhyPage() {
         <span
           className="inline-block text-[10px] px-3 py-1 rounded-full"
           style={{
-            fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Space Mono', monospace",
+            fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Space Mono', monospace",
             letterSpacing: isJa ? 1 : 3,
             textTransform: isJa ? "none" : "uppercase",
             background: "linear-gradient(135deg, rgba(51,112,254,0.12), rgba(255,4,19,0.08))",
@@ -340,9 +360,9 @@ export default function WhyPage() {
 
       {/* Title */}
       <h1
-        className="text-5xl font-black m-0 mb-3 leading-tight"
+        className="text-5xl font-black m-0 mb-3 leading-tight hdr-text"
         style={{
-          fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+          fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
           letterSpacing: isJa ? 2 : -2,
           background: "linear-gradient(135deg, #fff 40%, #5C8DFE)",
           WebkitBackgroundClip: "text",
@@ -352,9 +372,11 @@ export default function WhyPage() {
         {l.title}
       </h1>
       <p
-        className="text-gray-500 text-base m-0 mb-16"
+        className="text-base m-0 mb-16"
         style={{
-          fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+          fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
+          color: "rgba(255,255,255,0.55)",
+          mixBlendMode: "plus-lighter",
         }}
       >
         {l.subtitle}
@@ -362,10 +384,11 @@ export default function WhyPage() {
 
       {/* Opening line — the hook */}
       <p
-        className="text-2xl font-bold m-0 mb-16 leading-relaxed"
+        className="text-2xl font-bold m-0 mb-16 leading-relaxed hdr-text"
         style={{
-          fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
-          color: "#e2e8f0",
+          fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
+          color: "rgba(255,255,255,0.85)",
+          mixBlendMode: "plus-lighter",
           letterSpacing: isJa ? 1 : -0.5,
         }}
       >
@@ -375,7 +398,7 @@ export default function WhyPage() {
       {/* ── The Problem ── */}
       <section className="mb-16">
         <SectionLabel text={l.problemTitle} />
-        <p className="text-[15px] leading-relaxed text-gray-400 m-0 mb-6" style={bodyFont(isJa)}>
+        <p className="text-[15px] leading-relaxed m-0 mb-6" style={bodyFont(isJa)}>
           {l.problemBody}
         </p>
         <blockquote
@@ -383,18 +406,19 @@ export default function WhyPage() {
           style={{
             borderLeft: "2px solid rgba(51,112,254,0.3)",
             fontStyle: "italic",
-            color: "#94a3b8",
-            fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+            color: "rgba(255,255,255,0.6)",
+            mixBlendMode: "plus-lighter",
+            fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
             fontSize: 15,
             lineHeight: 1.7,
           }}
         >
           {l.problemQuote}
         </blockquote>
-        <p className="text-[15px] leading-relaxed text-gray-400 m-0 mb-6" style={bodyFont(isJa)}>
+        <p className="text-[15px] leading-relaxed m-0 mb-6" style={bodyFont(isJa)}>
           {l.problemAfter}
         </p>
-        <p className="text-[15px] leading-relaxed text-gray-400 m-0" style={bodyFont(isJa)}>
+        <p className="text-[15px] leading-relaxed m-0" style={bodyFont(isJa)}>
           {l.problemBias}
         </p>
       </section>
@@ -424,13 +448,13 @@ export default function WhyPage() {
                 </div>
                 <div>
                   <h3
-                    className="text-sm font-bold text-gray-200 m-0 mb-1.5"
-                    style={bodyFont(isJa)}
+                    className="text-sm font-bold m-0 mb-1.5"
+                    style={{ ...bodyFont(isJa), color: "rgba(255,255,255,0.7)" }}
                   >
                     {b.title}
                   </h3>
                   <p
-                    className="text-[13px] leading-relaxed text-gray-500 m-0"
+                    className="text-[13px] leading-relaxed m-0"
                     style={bodyFont(isJa)}
                   >
                     {b.body}
@@ -445,10 +469,10 @@ export default function WhyPage() {
       {/* ── Origin Story ── */}
       <section className="mb-16">
         <SectionLabel text={l.originTitle} />
-        <p className="text-[15px] leading-relaxed text-gray-400 m-0 mb-5" style={bodyFont(isJa)}>
+        <p className="text-[15px] leading-relaxed m-0 mb-5" style={bodyFont(isJa)}>
           {l.originBody}
         </p>
-        <p className="text-[15px] leading-relaxed text-gray-400 m-0" style={bodyFont(isJa)}>
+        <p className="text-[15px] leading-relaxed m-0" style={bodyFont(isJa)}>
           {l.originBody2}
         </p>
       </section>
@@ -456,7 +480,7 @@ export default function WhyPage() {
       {/* ── Methodology ── */}
       <section className="mb-16">
         <SectionLabel text={l.howTitle} />
-        <p className="text-[15px] leading-relaxed text-gray-400 m-0 mb-8" style={bodyFont(isJa)}>
+        <p className="text-[15px] leading-relaxed m-0 mb-8" style={bodyFont(isJa)}>
           {l.howIntro}
         </p>
         <div className="space-y-4 mb-8">
@@ -471,7 +495,7 @@ export default function WhyPage() {
             borderLeft: "2px solid rgba(255,170,50,0.25)",
           }}
         >
-          <p className="text-[13px] leading-relaxed text-gray-500 m-0" style={bodyFont(isJa)}>
+          <p className="text-[13px] leading-relaxed m-0" style={bodyFont(isJa)}>
             {l.howLimitations}
           </p>
         </div>
@@ -480,7 +504,7 @@ export default function WhyPage() {
       {/* ── Roadmap ── */}
       <section className="mb-16">
         <SectionLabel text={l.roadmapTitle} />
-        <p className="text-[15px] leading-relaxed text-gray-400 m-0" style={bodyFont(isJa)}>
+        <p className="text-[15px] leading-relaxed m-0" style={bodyFont(isJa)}>
           {l.roadmapBody}
         </p>
       </section>
@@ -512,7 +536,7 @@ export default function WhyPage() {
           {l.contributeTitle}
         </h3>
         <p
-          className="text-sm text-gray-400 m-0 mb-6 max-w-md mx-auto"
+          className="text-sm m-0 mb-6 max-w-md mx-auto"
           style={bodyFont(isJa)}
         >
           {l.contributeBody}
@@ -523,7 +547,7 @@ export default function WhyPage() {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border text-sm font-semibold no-underline transition-all duration-200"
           style={{
-            fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+            fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
             fontSize: 13,
             background: "rgba(51,112,254,0.12)",
             borderColor: "rgba(51,112,254,0.25)",
@@ -557,17 +581,21 @@ export default function WhyPage() {
         <div className="flex flex-col items-center gap-3">
           <AidLogo className="h-6 w-auto opacity-40" />
           <div
-            className="text-[11px] text-gray-600"
+            className="text-[11px]"
             style={{
-              fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Space Mono', monospace",
+              fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Space Mono', monospace",
+              color: "rgba(255,255,255,0.45)",
+              mixBlendMode: "plus-lighter",
             }}
           >
             {l.footerLine}
           </div>
           <div
-            className="text-[10px] text-gray-700"
+            className="text-[10px]"
             style={{
-              fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+              fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
+              color: "rgba(255,255,255,0.35)",
+              mixBlendMode: "plus-lighter",
             }}
           >
             ©<a
@@ -589,7 +617,9 @@ export default function WhyPage() {
 
 function bodyFont(isJa: boolean): React.CSSProperties {
   return {
-    fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+    fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
+    color: "rgba(255,255,255,0.55)",
+    mixBlendMode: "plus-lighter",
   };
 }
 
@@ -650,13 +680,13 @@ function HowItem({
       </div>
       <div>
         <div
-          className="text-sm font-bold text-gray-300 mb-1"
-          style={bodyFont(isJa)}
+          className="text-sm font-bold mb-1"
+          style={{ ...bodyFont(isJa), color: "rgba(255,255,255,0.7)" }}
         >
           {label}
         </div>
         <div
-          className="text-[13px] leading-relaxed text-gray-500"
+          className="text-[13px] leading-relaxed"
           style={bodyFont(isJa)}
         >
           {detail}

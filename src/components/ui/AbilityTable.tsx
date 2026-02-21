@@ -44,7 +44,7 @@ export default function AbilityTable({ data, lang, colorMap, labels }: Props) {
   const abilityLabels = ABILITY_LABELS[lang] || ABILITY_LABELS.en;
   const isJa = lang === "ja";
   const headerFont = isJa
-    ? "'Noto Sans JP', sans-serif"
+    ? "'Zen Kaku Gothic New', sans-serif"
     : "'Space Mono', monospace";
 
   // Filter out fast-tagged models and compute averages
@@ -79,12 +79,14 @@ export default function AbilityTable({ data, lang, colorMap, labels }: Props) {
             {headers.map((h, idx) => (
               <th
                 key={h}
-                className="px-4 py-3 text-left text-gray-500 font-semibold tracking-wider"
+                className="px-4 py-3 text-left font-semibold tracking-wider"
                 style={{
                   fontFamily: headerFont,
                   fontSize: 10,
                   textTransform: isJa ? "none" : "uppercase",
                   textAlign: idx >= 2 ? "center" : "left",
+                  color: "rgba(255,255,255,0.35)",
+                  mixBlendMode: "plus-lighter",
                 }}
               >
                 {h}
@@ -156,7 +158,7 @@ export default function AbilityTable({ data, lang, colorMap, labels }: Props) {
                             ? "#5C8DFE"
                             : val >= 80
                               ? "#aaa"
-                              : "#666",
+                              : "rgba(255,255,255,0.3)",
                       }}
                     >
                       <div className="flex items-center justify-center gap-1.5">

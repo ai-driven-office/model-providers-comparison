@@ -496,7 +496,7 @@ export default function GlmCerebrasGuide() {
             className="text-[11px]"
             style={{
               fontFamily: isJa
-                ? "'Noto Sans JP', sans-serif"
+                ? "'Zen Kaku Gothic New', sans-serif"
                 : "'Space Mono', monospace",
               letterSpacing: isJa ? 1 : 3,
               textTransform: isJa ? "none" : "uppercase",
@@ -516,7 +516,7 @@ export default function GlmCerebrasGuide() {
             className="text-[11px] no-underline transition-colors"
             style={{
               fontFamily: isJa
-                ? "'Noto Sans JP', sans-serif"
+                ? "'Zen Kaku Gothic New', sans-serif"
                 : "'Space Mono', monospace",
               color: "#555",
             }}
@@ -543,7 +543,7 @@ export default function GlmCerebrasGuide() {
                 style={{
                   fontFamily:
                     opt.code === "ja"
-                      ? "'Noto Sans JP', sans-serif"
+                      ? "'Zen Kaku Gothic New', sans-serif"
                       : "'Inter', sans-serif",
                   fontSize: 11,
                   fontWeight: 700,
@@ -604,7 +604,7 @@ export default function GlmCerebrasGuide() {
           style={{
             letterSpacing: isJa ? 2 : -1,
             fontFamily: isJa
-              ? "'Noto Sans JP', sans-serif"
+              ? "'Zen Kaku Gothic New', sans-serif"
               : "'Inter', sans-serif",
             color: "#fff",
           }}
@@ -617,7 +617,7 @@ export default function GlmCerebrasGuide() {
           style={{
             color: "#777",
             fontFamily: isJa
-              ? "'Noto Sans JP', sans-serif"
+              ? "'Zen Kaku Gothic New', sans-serif"
               : "'Inter', sans-serif",
             lineHeight: 1.6,
           }}
@@ -640,7 +640,7 @@ export default function GlmCerebrasGuide() {
           className="text-[14px] leading-relaxed text-gray-400 m-0 mb-4"
           style={{
             fontFamily: isJa
-              ? "'Noto Sans JP', sans-serif"
+              ? "'Zen Kaku Gothic New', sans-serif"
               : "'Inter', sans-serif",
           }}
         >
@@ -650,7 +650,7 @@ export default function GlmCerebrasGuide() {
           className="text-[14px] leading-relaxed text-gray-400 m-0"
           style={{
             fontFamily: isJa
-              ? "'Noto Sans JP', sans-serif"
+              ? "'Zen Kaku Gothic New', sans-serif"
               : "'Inter', sans-serif",
           }}
         >
@@ -732,7 +732,7 @@ export default function GlmCerebrasGuide() {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             fontFamily: isJa
-              ? "'Noto Sans JP', sans-serif"
+              ? "'Zen Kaku Gothic New', sans-serif"
               : "'Inter', sans-serif",
           }}
         >
@@ -830,7 +830,7 @@ export default function GlmCerebrasGuide() {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             fontFamily: isJa
-              ? "'Noto Sans JP', sans-serif"
+              ? "'Zen Kaku Gothic New', sans-serif"
               : "'Inter', sans-serif",
           }}
         >
@@ -945,7 +945,7 @@ export default function GlmCerebrasGuide() {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             fontFamily: isJa
-              ? "'Noto Sans JP', sans-serif"
+              ? "'Zen Kaku Gothic New', sans-serif"
               : "'Inter', sans-serif",
           }}
         >
@@ -1017,7 +1017,7 @@ export default function GlmCerebrasGuide() {
                     className="text-[11px] text-gray-500 w-28 shrink-0"
                     style={{
                       fontFamily: isJa
-                        ? "'Noto Sans JP', sans-serif"
+                        ? "'Zen Kaku Gothic New', sans-serif"
                         : "'Inter', sans-serif",
                     }}
                   >
@@ -1062,7 +1062,7 @@ export default function GlmCerebrasGuide() {
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             fontFamily: isJa
-              ? "'Noto Sans JP', sans-serif"
+              ? "'Zen Kaku Gothic New', sans-serif"
               : "'Inter', sans-serif",
           }}
         >
@@ -1107,7 +1107,7 @@ export default function GlmCerebrasGuide() {
           className="text-lg font-bold m-0 mb-4 text-gray-300"
           style={{
             fontFamily: isJa
-              ? "'Noto Sans JP', sans-serif"
+              ? "'Zen Kaku Gothic New', sans-serif"
               : "'Inter', sans-serif",
           }}
         >
@@ -1168,7 +1168,7 @@ export default function GlmCerebrasGuide() {
             className="text-center text-gray-600 text-[10px]"
             style={{
               fontFamily: isJa
-                ? "'Noto Sans JP', sans-serif"
+                ? "'Zen Kaku Gothic New', sans-serif"
                 : "'Space Mono', monospace",
             }}
           >
@@ -1178,7 +1178,7 @@ export default function GlmCerebrasGuide() {
             className="text-center text-gray-700 text-[10px]"
             style={{
               fontFamily: isJa
-                ? "'Noto Sans JP', sans-serif"
+                ? "'Zen Kaku Gothic New', sans-serif"
                 : "'Inter', sans-serif",
               letterSpacing: 0.5,
             }}

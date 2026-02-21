@@ -16,9 +16,9 @@ import { getColor, type ColorMap } from "../../data/colors";
 import { formatPrice, type Lang } from "../../data/i18n";
 
 /* ─── Typography tokens ─── */
-const SANS = "'DM Sans', sans-serif";
+const SANS = "'Inter', system-ui, sans-serif";
 const MONO = "'Space Mono', monospace";
-const JP = "'Noto Sans JP', sans-serif";
+const JP = "'Zen Kaku Gothic New', sans-serif";
 
 /* ─── Ability keys ─── */
 const ABILITY_KEYS = [
@@ -270,7 +270,7 @@ function WinnerCard({
           {/* Metric subtitle */}
           <div
             className="text-[9px] mb-2"
-            style={{ color: "#555", fontFamily: MONO }}
+            style={{ color: "rgba(255,255,255,0.3)", fontFamily: MONO, mixBlendMode: "plus-lighter" }}
           >
             {subtitle1}
           </div>
@@ -290,20 +290,20 @@ function WinnerCard({
                 />
                 <span
                   className="text-[10px] truncate"
-                  style={{ color: "#666", fontFamily: SANS }}
+                  style={{ color: "rgba(255,255,255,0.3)", fontFamily: SANS, mixBlendMode: "plus-lighter" }}
                 >
                   {second.model.name}
                 </span>
                 <span
                   className="text-[10px] shrink-0 font-semibold"
-                  style={{ color: "#555", fontFamily: MONO }}
+                  style={{ color: "rgba(255,255,255,0.3)", fontFamily: MONO, mixBlendMode: "plus-lighter" }}
                 >
                   {second.score}
                 </span>
               </div>
               <div
                 className="text-[8px] ml-[10px]"
-                style={{ color: "#444", fontFamily: MONO }}
+                style={{ color: "rgba(255,255,255,0.2)", fontFamily: MONO, mixBlendMode: "plus-lighter" }}
               >
                 {subtitle2}
               </div>

@@ -220,7 +220,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       </div>
 
       {/* Top Bar — Logo + Badge + Lang Switcher */}
-      <div className="flex items-center justify-between gap-3 mb-8 sm:mb-10 flex-wrap">
+      <div className="flex items-center justify-between gap-3 mb-2 sm:mb-2.5 flex-wrap">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <AidLogo className="h-7 sm:h-8 w-auto shrink-0" />
           <div
@@ -231,7 +231,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             className="text-[10px] sm:text-[11px] hdr-glow truncate"
             style={{
               fontFamily: isJa
-                ? "'Noto Sans JP', sans-serif"
+                ? "'Zen Kaku Gothic New', sans-serif"
                 : "'Space Mono', monospace",
               letterSpacing: isJa ? 1 : 3,
               textTransform: isJa ? "none" : "uppercase",
@@ -289,17 +289,38 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           </svg>
         </a>
         <div className="flex items-center gap-0.5 rounded-lg p-[3px] border" style={{ background: "rgba(51,112,254,0.06)", borderColor: "rgba(51,112,254,0.12)" }}>
+          <div className="relative group/fx">
           <button
             onClick={() => setReduceMotion(!reduceMotion)}
             className="px-2 py-1 rounded-md border-none cursor-pointer transition-all duration-200"
             style={{
-              background: reduceMotion ? "transparent" : "rgba(51,112,254,0.15)",
-              color: reduceMotion ? "rgba(255,255,255,0.3)" : "#5C8DFE",
+              background: reduceMotion ? "transparent" : "rgba(255,255,255,0.12)",
+              color: reduceMotion ? "rgba(255,255,255,0.3)" : "#fff",
             }}
-            title={reduceMotion ? (isJa ? "エフェクトON" : "Enable effects") : (isJa ? "エフェクトOFF" : "Disable effects")}
           >
             <Sparkles className="w-3 h-3" />
           </button>
+          <div
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 rounded-lg text-[10px] font-medium whitespace-nowrap opacity-0 group-hover/fx:opacity-100 transition-opacity duration-200 pointer-events-none"
+            style={{
+              background: "rgba(10,10,18,0.95)",
+              border: "1px solid rgba(51,112,254,0.2)",
+              color: "rgba(255,255,255,0.7)",
+              fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            }}
+          >
+            {reduceMotion ? (isJa ? "エフェクトON" : "Turn on effects") : (isJa ? "エフェクトOFF" : "Turn off effects")}
+            <div
+              className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0"
+              style={{
+                borderLeft: "4px solid transparent",
+                borderRight: "4px solid transparent",
+                borderTop: "4px solid rgba(10,10,18,0.95)",
+              }}
+            />
+          </div>
+        </div>
           <div className="w-px h-3.5 self-center" style={{ background: "rgba(51,112,254,0.15)" }} />
           {(
             [
@@ -314,7 +335,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               style={{
                 fontFamily:
                   opt.code === "ja"
-                    ? "'Noto Sans JP', sans-serif"
+                    ? "'Zen Kaku Gothic New', sans-serif"
                     : "'Inter', sans-serif",
                 fontSize: 11,
                 fontWeight: 700,
@@ -334,31 +355,24 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         </div>
       </div>
 
-      {/* Title */}
+      {/* Title + tagline — compact */}
       <h1
-        className="text-2xl sm:text-4xl font-black m-0 mb-3 sm:mb-4 hdr-text"
+        className="text-xl sm:text-[28px] font-black m-0 mb-1 hdr-text"
         style={{
           color: "#fff",
-          letterSpacing: isJa ? 1 : -1,
-          fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+          letterSpacing: isJa ? 1 : -0.5,
+          fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
+          lineHeight: 1.2,
         }}
       >
         {l.title}
       </h1>
       <p
-        className="text-xs sm:text-sm m-0 mb-5 sm:mb-6 max-w-[520px]"
-        style={{ color: "rgba(255,255,255,0.45)", mixBlendMode: "plus-lighter" }}
+        className="text-[11px] sm:text-xs m-0 mb-4 sm:mb-5 max-w-[580px] leading-relaxed"
+        style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter", fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif" }}
       >
         {l.subtitle}
-      </p>
-
-      {/* Why brief */}
-      <p className="text-[11px] sm:text-xs m-0 mb-7 sm:mb-9 max-w-[520px] leading-relaxed" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter", fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif" }}>
-        {isJa
-          ? "各社が自社に有利なベンチマークだけを打ち出す中、全体像は見えにくい。独立した比較データで、その死角を埋める。"
-          : "AI labs cherry-pick the benchmarks they win. We fill the blind spots with independent data."
-        }
-        {" "}
+        <span style={{ color: "rgba(255,255,255,0.15)", margin: "0 6px" }}>·</span>
         <a
           href={`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}why`}
           className="no-underline transition-colors duration-200"
@@ -366,12 +380,12 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           onMouseEnter={(e) => { e.currentTarget.style.color = "#7BAAFF"; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = "#5C8DFE"; }}
         >
-          {isJa ? "詳しく →" : "Why we built this →"}
+          {isJa ? "なぜ作ったか →" : "Why →"}
         </a>
       </p>
 
       {/* News Ticker — latest headline, links to #news */}
-      <div className="mb-8 sm:mb-10">
+      <div className="mb-4 sm:mb-5">
         <NewsTicker
           variant="dashboard"
           text={news.length > 0
@@ -383,7 +397,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
 
       {/* Tabs */}
       <div
-        className="flex gap-0 mb-8 sm:mb-10 overflow-x-auto scrollbar-hide -mx-6 px-6 sm:mx-0 sm:px-0"
+        className="flex gap-0 mb-5 sm:mb-6 overflow-x-auto scrollbar-hide -mx-6 px-6 sm:mx-0 sm:px-0"
         style={{
           borderBottom: "1px solid rgba(255,255,255,0.06)",
           WebkitOverflowScrolling: "touch",
@@ -398,7 +412,8 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-2.5 border-none cursor-pointer text-[11px] sm:text-[13px] font-medium transition-all duration-200 relative whitespace-nowrap shrink-0"
               style={{
                 background: "transparent",
-                color: isActive ? "#fff" : "#555",
+                color: isActive ? "#fff" : "rgba(255,255,255,0.35)",
+                mixBlendMode: isActive ? undefined : "plus-lighter" as any,
               }}
             >
               <span style={{ color: isActive ? "#5C8DFE" : "inherit" }}>
@@ -455,7 +470,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
                   className="text-[10px] sm:text-[11px]"
                   style={{
                     fontFamily: isJa
-                      ? "'Noto Sans JP', sans-serif"
+                      ? "'Zen Kaku Gothic New', sans-serif"
                       : "'Space Mono', monospace",
                     letterSpacing: isJa ? 1 : 2,
                     textTransform: isJa ? "none" : "uppercase",
@@ -468,7 +483,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               <div className="flex items-center gap-2 text-base sm:text-[22px] font-extrabold flex-wrap">
                 <ModelIcon modelName={heroModel.name} size={20} className="shrink-0 opacity-80" />
                 <span className="truncate">{heroModel.name}</span>
-                <span className="text-gray-500 font-normal text-xs sm:text-sm">
+                <span className="font-normal text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
                   {isJa
                     ? `（${heroModel.provider.replace(" (Direct)", "")}）`
                     : `on ${heroModel.provider}`}
@@ -490,7 +505,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               >
                 {heroModel.tps.toLocaleString()}
               </div>
-              <div className="text-gray-500 text-xs">{l.heroUnit}</div>
+              <div className="text-xs" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>{l.heroUnit}</div>
             </div>
           </div>
         )}
@@ -530,7 +545,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
                   className="text-[10px] sm:text-[11px]"
                   style={{
                     fontFamily: isJa
-                      ? "'Noto Sans JP', sans-serif"
+                      ? "'Zen Kaku Gothic New', sans-serif"
                       : "'Space Mono', monospace",
                     letterSpacing: isJa ? 1 : 2,
                     textTransform: isJa ? "none" : "uppercase",
@@ -543,7 +558,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               <div className="flex items-center gap-2 text-base sm:text-[22px] font-extrabold flex-wrap">
                 <ModelIcon modelName={priceHero.name} size={20} className="shrink-0 opacity-80" />
                 <span className="truncate">{priceHero.name}</span>
-                <span className="text-gray-500 font-normal text-xs sm:text-sm">
+                <span className="font-normal text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
                   {isJa
                     ? `（${priceHero.provider.replace(" (Direct)", "")}）`
                     : `on ${priceHero.provider}`}
@@ -565,7 +580,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               >
                 {formatPrice(priceHero.output, lang)}
               </div>
-              <div className="text-gray-500 text-xs">{l.priceHeroUnit}</div>
+              <div className="text-xs" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>{l.priceHeroUnit}</div>
             </div>
           </div>
         )}
@@ -601,9 +616,9 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "throughput" && (
             <div>
               <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-sm sm:text-base font-bold m-0 text-gray-200 hdr-text">
+                <h2 className="text-sm sm:text-base font-bold m-0 hdr-text">
                   {l.tpsTitle}{" "}
-                  <span className="text-gray-600 font-normal text-xs sm:text-[13px]">
+                  <span className="font-normal text-xs sm:text-[13px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
                     {l.tpsUnit}
                   </span>
                 </h2>
@@ -615,9 +630,9 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "pricing" && (
             <div>
               <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-sm sm:text-base font-bold m-0 text-gray-200 hdr-text">
+                <h2 className="text-sm sm:text-base font-bold m-0 hdr-text">
                   {l.priceTitle}{" "}
-                  <span className="text-gray-600 font-normal text-xs sm:text-[13px]">
+                  <span className="font-normal text-xs sm:text-[13px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
                     {l.priceUnit}
                   </span>
                 </h2>
@@ -640,10 +655,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "scatter" && (
             <div>
               <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-sm sm:text-base font-bold m-0 text-gray-200 hdr-text">
+                <h2 className="text-sm sm:text-base font-bold m-0 hdr-text">
                   {l.scatterTitle}
                 </h2>
-                <p className="text-gray-600 text-[10px] sm:text-xs m-0 mt-1">{l.scatterSub}</p>
+                <p className="text-[10px] sm:text-xs m-0 mt-1" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>{l.scatterSub}</p>
               </div>
               <Suspense fallback={<ChartSkeleton />}>
                 <ScatterPlot
@@ -663,10 +678,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "abilities" && (
             <div>
               <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-sm sm:text-base font-bold m-0 text-gray-200 hdr-text">
+                <h2 className="text-sm sm:text-base font-bold m-0 hdr-text">
                   {l.abilityTitle}
                 </h2>
-                <p className="text-gray-600 text-[10px] sm:text-xs m-0 mt-1">{l.abilitySub}</p>
+                <p className="text-[10px] sm:text-xs m-0 mt-1" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>{l.abilitySub}</p>
               </div>
               <Suspense fallback={<ChartSkeleton height={580} />}>
                 <AbilityRadar
@@ -690,10 +705,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           {activeTab === "recommendations" && (
             <div>
               <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-sm sm:text-base font-bold m-0 text-gray-200 hdr-text">
+                <h2 className="text-sm sm:text-base font-bold m-0 hdr-text">
                   {l.resultsTitle}
                 </h2>
-                <p className="text-gray-600 text-[10px] sm:text-xs m-0 mt-1 max-w-[580px]">
+                <p className="text-[10px] sm:text-xs m-0 mt-1 max-w-[580px]" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>
                   {l.resultsSub}
                 </p>
               </div>
@@ -730,12 +745,12 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
                 boxShadow: `0 0 6px ${p.color}44`,
               }}
             />
-            <span className="text-gray-500 text-[11px]">{p.name}</span>
+            <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>{p.name}</span>
           </div>
         ))}
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(255,170,50,0.27)]" />
-          <span className="text-gray-500 text-[11px]">Fast Mode</span>
+          <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>Fast Mode</span>
         </div>
       </div>
 
@@ -784,17 +799,17 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             <Zap className="w-4 h-4 text-white" />
           </div>
           <div className="min-w-0">
-            <div className="text-xs sm:text-[13px] font-bold text-gray-200">
+            <div className="text-xs sm:text-[13px] font-bold" style={{ color: "rgba(255,255,255,0.6)", mixBlendMode: "plus-lighter" }}>
               {isJa ? "GLM 4.7 × Cerebras ガイド" : "GLM 4.7 × Cerebras Guide"}
             </div>
-            <div className="text-[10px] sm:text-[11px] text-gray-500 truncate">
+            <div className="text-[10px] sm:text-[11px] truncate" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
               {isJa
                 ? "1,000 tps でAIコーディング — OpenCodeセットアップガイド"
                 : "AI coding at 1,000 tps — OpenCode setup & recommended workflow"}
             </div>
           </div>
         </div>
-        <span className="text-gray-600 group-hover:text-gray-400 transition-colors text-sm shrink-0">→</span>
+        <span className="transition-colors text-sm shrink-0" style={{ color: "rgba(255,255,255,0.25)", mixBlendMode: "plus-lighter" }}>→</span>
       </a>
 
       {/* Taalas HC1 Speed Record Link */}
@@ -844,17 +859,17 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             <Trophy className="w-4 h-4 text-white" />
           </div>
           <div className="min-w-0">
-            <div className="text-xs sm:text-[13px] font-bold text-gray-200">
+            <div className="text-xs sm:text-[13px] font-bold" style={{ color: "rgba(255,255,255,0.6)", mixBlendMode: "plus-lighter" }}>
               {isJa ? "Taalas HC1 — 速度新記録" : "Taalas HC1 — New Speed Record"}
             </div>
-            <div className="text-[10px] sm:text-[11px] text-gray-500 truncate">
+            <div className="text-[10px] sm:text-[11px] truncate" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
               {isJa
                 ? "16,960 tps — モデルをトランジスタに直接実装するカスタムシリコン"
                 : "16,960 tps — custom silicon that hardwires the model into transistors"}
             </div>
           </div>
         </div>
-        <span className="text-gray-600 group-hover:text-gray-400 transition-colors text-sm shrink-0">→</span>
+        <span className="transition-colors text-sm shrink-0" style={{ color: "rgba(255,255,255,0.25)", mixBlendMode: "plus-lighter" }}>→</span>
       </a>
 
       {/* Data Table — switch to ability ranking when on abilities tab */}
@@ -890,11 +905,13 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       <div className="mt-14 sm:mt-20 mb-10 sm:mb-14 flex items-center gap-4 sm:gap-6 hdr-vivid">
         <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(51,112,254,0.15), rgba(138,60,184,0.1))" }} />
         <div
-          className="text-[10px] tracking-widest text-gray-600 shrink-0"
+          className="text-[10px] tracking-widest shrink-0"
           style={{
             fontFamily: "'Space Mono', monospace",
             textTransform: "uppercase",
             letterSpacing: 3,
+            color: "rgba(255,255,255,0.25)",
+            mixBlendMode: "plus-lighter",
           }}
         >
           {isJa ? "ニュース & コミュニティ" : "News & Community"}
@@ -958,7 +975,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               border: "1px solid rgba(51,112,254,0.2)",
             }}
           >
-            <svg viewBox="0 0 16 16" fill="currentColor" className="w-5 h-5 text-gray-300">
+            <svg viewBox="0 0 16 16" fill="currentColor" className="w-5 h-5" style={{ color: "rgba(255,255,255,0.45)", mixBlendMode: "plus-lighter" }}>
               <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
             </svg>
           </div>
@@ -966,15 +983,17 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             <h3
               className="text-sm font-bold text-white m-0 mb-1"
               style={{
-                fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+                fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
               }}
             >
               {l.ctaTitle}
             </h3>
             <p
-              className="text-xs text-gray-400 m-0 leading-relaxed max-w-lg"
+              className="text-xs m-0 leading-relaxed max-w-lg"
               style={{
-                fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+                fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
+                color: "rgba(255,255,255,0.4)",
+                mixBlendMode: "plus-lighter",
               }}
             >
               {l.ctaBody}
@@ -986,7 +1005,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             rel="noopener noreferrer"
             className="group shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-semibold no-underline transition-all duration-200"
             style={{
-              fontFamily: isJa ? "'Noto Sans JP', sans-serif" : "'Inter', sans-serif",
+              fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
               fontSize: 12,
               background: "rgba(51,112,254,0.1)",
               borderColor: "rgba(51,112,254,0.25)",
@@ -1057,7 +1076,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             <span
               style={{
                 fontFamily: isJa
-                  ? "'Noto Sans JP', sans-serif"
+                  ? "'Zen Kaku Gothic New', sans-serif"
                   : "'Space Mono', monospace",
               }}
             >
@@ -1091,7 +1110,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             className="text-center text-[10px]"
             style={{
               fontFamily: isJa
-                ? "'Noto Sans JP', sans-serif"
+                ? "'Zen Kaku Gothic New', sans-serif"
                 : "'Space Mono', monospace",
               color: "rgba(255,255,255,0.4)",
               mixBlendMode: "plus-lighter" as any,
@@ -1105,7 +1124,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             className="text-center text-[10px]"
             style={{
               fontFamily: isJa
-                ? "'Noto Sans JP', sans-serif"
+                ? "'Zen Kaku Gothic New', sans-serif"
                 : "'Inter', sans-serif",
               letterSpacing: 0.5,
               color: "rgba(255,255,255,0.35)",

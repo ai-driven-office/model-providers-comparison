@@ -318,25 +318,27 @@ export function ShareCta({
             border: "1px solid rgba(51,112,254,0.2)",
           }}
         >
-          <Share2 className="w-5 h-5 text-gray-300" />
+          <Share2 className="w-5 h-5" style={{ color: "rgba(255,255,255,0.45)", mixBlendMode: "plus-lighter" }} />
         </div>
         <div className="flex-1 text-center sm:text-left">
           <h3
             className="text-sm font-bold text-white m-0 mb-1"
             style={{
               fontFamily: isJa
-                ? "'Noto Sans JP', sans-serif"
+                ? "'Zen Kaku Gothic New', sans-serif"
                 : "'Inter', sans-serif",
             }}
           >
             {labels.shareCtaTitle}
           </h3>
           <p
-            className="text-xs text-gray-400 m-0 leading-relaxed max-w-lg"
+            className="text-xs m-0 leading-relaxed max-w-lg"
             style={{
               fontFamily: isJa
-                ? "'Noto Sans JP', sans-serif"
+                ? "'Zen Kaku Gothic New', sans-serif"
                 : "'Inter', sans-serif",
+              color: "rgba(255,255,255,0.4)",
+              mixBlendMode: "plus-lighter",
             }}
           >
             {labels.shareCtaBody}
@@ -350,7 +352,7 @@ export function ShareCta({
               className="group flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer text-sm font-semibold no-underline transition-all duration-200"
               style={{
                 fontFamily: isJa
-                  ? "'Noto Sans JP', sans-serif"
+                  ? "'Zen Kaku Gothic New', sans-serif"
                   : "'Inter', sans-serif",
                 fontSize: 12,
                 background: "rgba(51,112,254,0.1)",
@@ -379,7 +381,7 @@ export function ShareCta({
             className="group flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer text-sm font-semibold no-underline transition-all duration-200"
             style={{
               fontFamily: isJa
-                ? "'Noto Sans JP', sans-serif"
+                ? "'Zen Kaku Gothic New', sans-serif"
                 : "'Inter', sans-serif",
               fontSize: 12,
               background: "rgba(255,255,255,0.05)",
@@ -407,7 +409,7 @@ export function ShareCta({
             className="group flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer text-sm font-semibold no-underline transition-all duration-200"
             style={{
               fontFamily: isJa
-                ? "'Noto Sans JP', sans-serif"
+                ? "'Zen Kaku Gothic New', sans-serif"
                 : "'Inter', sans-serif",
               fontSize: 12,
               background: copied

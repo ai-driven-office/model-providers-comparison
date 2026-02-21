@@ -16,7 +16,7 @@ import { formatPrice, formatPriceAxis, type Lang } from "../../data/i18n";
 import { ModelIcon } from "./ProviderIcon";
 
 const MONO = "'Space Mono', monospace";
-const SANS = "'DM Sans', sans-serif";
+const SANS = "'Inter', system-ui, sans-serif";
 
 function ScatterTooltip({ active, payload, lang, colorMap }: any) {
   if (!active || !payload?.length) return null;

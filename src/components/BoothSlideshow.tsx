@@ -36,7 +36,7 @@ const JPY_RATE = 150; // $1 = ¥150
 const AID_GRADIENT = ["#3370FE", "#8A3CB8", "#E0247A", "#FF0413"] as const;
 const BG = "#08121a";
 const MONO = "'Space Mono', monospace";
-const SANS = "'Noto Sans JP', sans-serif";
+const SANS = "'Zen Kaku Gothic New', sans-serif";
 
 const ABILITY_KEYS: (keyof Abilities)[] = ["planning", "coding", "image", "research", "creative"];
 const ABILITY_LABELS: Record<keyof Abilities, string> = {

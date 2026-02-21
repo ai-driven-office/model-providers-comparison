@@ -15,7 +15,7 @@ import type { Lang } from "../../data/i18n";
 import { ModelIcon } from "./ProviderIcon";
 
 const MONO = "'Space Mono', monospace";
-const SANS = "'DM Sans', sans-serif";
+const SANS = "'Inter', system-ui, sans-serif";
 
 const ABILITY_KEYS = ["planning", "coding", "image", "research", "creative"] as const;
 
@@ -176,7 +176,7 @@ function CustomAxisTick(props: any) {
 
   if (typeof cx !== "number" || typeof cy !== "number") {
     return (
-      <text x={x} y={y} textAnchor="middle" fill="#888" fontSize={12} fontFamily={SANS}>
+      <text x={x} y={y} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize={12} fontFamily={SANS}>
         {label}
       </text>
     );
@@ -235,7 +235,7 @@ function CustomAxisTick(props: any) {
         y={iy + textDy}
         textAnchor={textAnchor}
         dominantBaseline={textBaseline}
-        fill="#bbb"
+        fill="rgba(255,255,255,0.5)"
         fontSize={11}
         fontWeight={600}
         fontFamily={SANS}
@@ -274,7 +274,7 @@ function RadarTooltipContent({ active, payload, lang }: any) {
             className="w-2 h-2 rounded-full"
             style={{ background: p.stroke || p.fill }}
           />
-          <span className="text-gray-400">{p.dataKey}:</span>
+          <span style={{ color: "rgba(255,255,255,0.4)", mixBlendMode: "plus-lighter" }}>{p.dataKey}:</span>
           <span className="text-white font-semibold">{p.value}</span>
         </div>
       ))}
@@ -352,7 +352,7 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
       {/* Model selector chips */}
       <div className="px-6 mb-4">
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-gray-500 text-[11px]" style={{ fontFamily: MONO }}>
+          <span className="text-[11px]" style={{ fontFamily: MONO, color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
             {labels.selectModels}
           </span>
           <button
@@ -362,11 +362,11 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
           >
             {labels.selectAll}
           </button>
-          <span className="text-gray-700 text-[10px]">|</span>
+          <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.15)" }}>|</span>
           <button
             onClick={deselectAll}
-            className="text-[10px] text-gray-500 hover:text-gray-400 bg-transparent border-none cursor-pointer"
-            style={{ fontFamily: MONO }}
+            className="text-[10px] bg-transparent border-none cursor-pointer"
+            style={{ fontFamily: MONO, color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}
           >
             {labels.deselectAll}
           </button>
@@ -386,7 +386,7 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
                     fontFamily: SANS,
                     background: isSelected ? `${color}18` : "transparent",
                     borderColor: isSelected ? `${color}55` : "rgba(255,255,255,0.08)",
-                    color: isSelected ? color : "#555",
+                    color: isSelected ? color : "rgba(255,255,255,0.3)",
                     boxShadow: isSelected ? `0 0 12px ${color}15` : "none",
                   }}
                 >
@@ -416,7 +416,7 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
             <PolarRadiusAxis
               angle={90}
               domain={[domainFloor, 100]}
-              tick={{ fill: "#444", fontSize: 9, fontFamily: MONO }}
+              tick={{ fill: "rgba(255,255,255,0.2)", fontSize: 9, fontFamily: MONO }}
               tickCount={5}
               stroke="rgba(255,255,255,0.04)"
             />
@@ -453,14 +453,14 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
       {/* Benchmark Sources */}
       <div className="px-6 mt-4 mb-2">
         <h3
-          className="text-[13px] font-bold text-gray-400 mb-1"
-          style={{ fontFamily: SANS }}
+          className="text-[13px] font-bold mb-1"
+          style={{ fontFamily: SANS, color: "rgba(255,255,255,0.45)", mixBlendMode: "plus-lighter" }}
         >
           {labels.benchmarkTitle}
         </h3>
         <p
-          className="text-[11px] text-gray-600 m-0 mb-3"
-          style={{ fontFamily: SANS }}
+          className="text-[11px] m-0 mb-3"
+          style={{ fontFamily: SANS, color: "rgba(255,255,255,0.25)", mixBlendMode: "plus-lighter" }}
         >
           {labels.benchmarkSub}
         </p>
@@ -499,7 +499,7 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
                   <span
                     className="text-[11px] font-bold"
                     style={{
-                      color: isHovered ? iconColor : "#888",
+                      color: isHovered ? iconColor : "rgba(255,255,255,0.4)",
                       fontFamily: SANS,
                       transition: "color 0.3s ease",
                     }}
@@ -511,8 +511,8 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
                   {benchmarks[key].map((b) => (
                     <li
                       key={b}
-                      className="text-[10px] text-gray-600 leading-relaxed"
-                      style={{ fontFamily: MONO }}
+                      className="text-[10px] leading-relaxed"
+                      style={{ fontFamily: MONO, color: "rgba(255,255,255,0.25)", mixBlendMode: "plus-lighter" }}
                     >
                       {b}
                     </li>
