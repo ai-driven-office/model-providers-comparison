@@ -86,7 +86,7 @@ export default function PricingChart({ data, lang, colorMap, labels }: Props) {
   const X_CAP = 35;
 
   const chartData = [...data]
-    .sort((a, b) => a.output - b.output)
+    .sort((a, b) => (a.output ?? 0) - (b.output ?? 0))
     .map((m) => {
       const clamped = m.output > X_CAP;
       return {

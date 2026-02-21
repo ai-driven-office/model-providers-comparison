@@ -21,6 +21,11 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    optimizeDeps: {
+      // This package frequently gets re-optimized in dev, which can yield
+      // stale /node_modules/.vite/deps URLs and 504 "Outdated Optimize Dep".
+      exclude: ["@paper-design/shaders-react", "@paper-design/shaders"],
+    },
     ssr: {
       noExternal: [/@lobehub\//],
     },

@@ -7,15 +7,17 @@ import {
   Brain,
   Sparkles,
 } from "lucide-react";
-import type { Model, Provider } from "../data/types";
+import type { Model, Provider, NewsPost } from "../data/types";
 import { formatPrice, useLang, type Lang } from "../data/i18n";
 import { buildColorMap } from "../data/colors";
 import { ModelIcon, ProviderIcon } from "./ui/ProviderIcon";
 import ThroughputChart from "./ui/ThroughputChart";
 import DataTable from "./ui/DataTable";
 import AbilityTable from "./ui/AbilityTable";
+import NewsTimeline from "./ui/NewsTimeline";
 import { MeshGradient, Dithering, NeuroNoise } from "@paper-design/shaders-react";
 import { sfxTab, sfxLang, sfxClick } from "../data/sfx";
+import NewsTicker from "./ui/NewsTicker";
 
 const pricingImport = () => import("./ui/PricingChart");
 const scatterImport = () => import("./ui/ScatterPlot");
@@ -30,6 +32,7 @@ const ResultsPanel = lazy(resultsImport);
 interface Props {
   models: Model[];
   providers: Provider[];
+  news: NewsPost[];
   i18n: Record<string, Record<string, string>>;
   buildDate: string;
 }
@@ -91,7 +94,7 @@ function useInView(rootMargin = "200px") {
   return { ref, inView };
 }
 
-export default function ModelDashboard({ models, providers, i18n, buildDate }: Props) {
+export default function ModelDashboard({ models, providers, news, i18n, buildDate }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("throughput");
   const [lang, setLang] = useLang("ja");
   const fallbackCopy =
@@ -111,12 +114,16 @@ export default function ModelDashboard({ models, providers, i18n, buildDate }: P
 
   const colorMap = useMemo(() => buildColorMap(providers), [providers]);
   const heroModel = models.find((m) => m.hero);
+  const pricedModels = useMemo(
+    () => models.filter((m) => m.input != null && m.output != null),
+    [models],
+  );
   const priceHero = useMemo(
     () =>
-      [...models]
+      [...pricedModels]
         .filter((m) => m.tag !== "fast")
-        .sort((a, b) => a.output - b.output)[0],
-    [models],
+        .sort((a, b) => (a.output ?? 0) - (b.output ?? 0))[0],
+    [pricedModels],
   );
 
   const tabs: { id: Tab; label: string; icon: ReactNode }[] = [
@@ -272,9 +279,24 @@ export default function ModelDashboard({ models, providers, i18n, buildDate }: P
       >
         {l.title}
       </h1>
-      <p className="text-gray-500 text-sm m-0 mb-7 max-w-[520px]">
+      <p className="text-gray-500 text-sm m-0 mb-5 max-w-[520px]">
         {l.subtitle}
       </p>
+
+      {/* News Ticker */}
+      <div className="mb-5">
+        <NewsTicker
+          variant="dashboard"
+          items={[
+            { text: l.tickerHeadline ?? "NEW SPEED RECORD", highlight: true },
+            { text: l.tickerModel ?? "Llama 3.1 8B on Taalas HC1 — 16,960 tokens/sec" },
+            { text: l.tickerDetail ?? "Custom silicon: 17x faster than Cerebras, 28x faster than Groq" },
+            { text: l.tickerTry ?? "Try it free", href: "https://chatjimmy.ai/" },
+            { text: l.tickerLearn ?? "How it works: model hardwired into transistors", href: "https://taalas.com/the-path-to-ubiquitous-ai/" },
+            { text: l.tickerUseCase ?? "Use cases: real-time chat, edge AI, coding assistants, multilingual agents" },
+          ]}
+        />
+      </div>
 
       {/* Tabs */}
       <div
@@ -516,7 +538,7 @@ export default function ModelDashboard({ models, providers, i18n, buildDate }: P
               </div>
               <Suspense fallback={<ChartSkeleton />}>
                 <PricingChart
-                  data={models}
+                  data={pricedModels}
                   lang={lang}
                   colorMap={colorMap}
                   labels={{
@@ -539,7 +561,7 @@ export default function ModelDashboard({ models, providers, i18n, buildDate }: P
               </div>
               <Suspense fallback={<ChartSkeleton />}>
                 <ScatterPlot
-                  data={models}
+                  data={pricedModels}
                   lang={lang}
                   colorMap={colorMap}
                   labels={{
@@ -714,6 +736,22 @@ export default function ModelDashboard({ models, providers, i18n, buildDate }: P
             colOutput: l.colOutput,
             colInputLong: l.colInputLong,
             colOutputLong: l.colOutputLong,
+          }}
+        />
+      )}
+
+      {/* News Timeline */}
+      {news.length > 0 && (
+        <NewsTimeline
+          posts={news}
+          lang={lang}
+          labels={{
+            newsTitle: l.newsTitle ?? "News & Updates",
+            newsSub: l.newsSub ?? "Latest developments in AI model performance and infrastructure",
+            fasterThan: l.fasterThan ?? "faster than",
+            tryFree: l.tryFree ?? "Try it free",
+            useCases: l.useCases ?? "Use cases",
+            speedComparisons: l.speedComparisons ?? "Speed Comparisons",
           }}
         />
       )}

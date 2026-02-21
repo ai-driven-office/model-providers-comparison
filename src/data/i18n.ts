@@ -25,7 +25,8 @@ export function useLang(fallback: Lang = "ja"): [Lang, (l: Lang) => void] {
 
 export const USD_JPY_RATE = 150;
 
-export function formatPrice(value: number, lang: Lang): string {
+export function formatPrice(value: number | null | undefined, lang: Lang): string {
+  if (value == null) return "—";
   if (lang === "ja") {
     const yen = Math.round(value * USD_JPY_RATE);
     return `${yen.toLocaleString()}円`;

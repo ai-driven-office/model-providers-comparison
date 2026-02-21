@@ -64,7 +64,7 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
               style={{
                 background: m.hero
                   ? "rgba(0,229,160,0.04)"
-                  : m.tag === "fast"
+                  : m.tag === "fast" || m.tag === "record"
                     ? "rgba(255,170,50,0.04)"
                     : "transparent",
               }}
@@ -75,7 +75,7 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
                   style={{
                     color: m.hero
                       ? "#00E5A0"
-                      : m.tag === "fast"
+                      : m.tag === "fast" || m.tag === "record"
                         ? "#FFAA32"
                         : "#ccc",
                   }}
@@ -89,13 +89,28 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
                     FAST
                   </span>
                 )}
+                {m.link && (
+                  <a
+                    href={m.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-1.5 inline-block px-2 py-0.5 rounded text-[9px] font-bold tracking-wide no-underline transition-opacity hover:opacity-80"
+                    style={{
+                      background: "rgba(255,106,0,0.12)",
+                      color: "#FF6A00",
+                      border: "1px solid rgba(255,106,0,0.3)",
+                    }}
+                  >
+                    {isJa ? "無料体験 →" : "Try free →"}
+                  </a>
+                )}
               </td>
               <td className="px-4 py-2.5">
                 <span
                   className="inline-flex items-center gap-1.5"
                   style={{
                     color:
-                      m.tag === "fast"
+                      m.tag === "fast" || m.tag === "record"
                         ? "#FFAA32"
                         : getColor(m.provider, colorMap),
                   }}
@@ -109,7 +124,7 @@ export default function DataTable({ data, lang, colorMap, labels }: Props) {
                 style={{
                   color: m.hero
                     ? "#00E5A0"
-                    : m.tag === "fast"
+                    : m.tag === "fast" || m.tag === "record"
                       ? "#FFAA32"
                       : "#fff",
                 }}

@@ -3,7 +3,7 @@ provider: cerebras
 tps: 1000
 input: 2.25
 output: 2.75
-hero: true
+hero: false
 abilities:
   planning: 76
   coding: 80

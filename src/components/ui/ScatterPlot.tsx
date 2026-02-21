@@ -81,17 +81,24 @@ interface Props {
 
 export default function ScatterPlot({ data, lang, colorMap, labels }: Props) {
   const Y_CAP = 35;
+  const X_CAP = 1200;
 
   const scatterData = data.map((m) => {
-    const clamped = m.output > Y_CAP;
+    const yClamp = (m.output ?? 0) > Y_CAP;
+    const xClamp = m.tps > X_CAP;
+    const clamped = yClamp || xClamp;
+    const nameParts = [m.name];
+    if (xClamp) nameParts.push(`${m.tps.toLocaleString()} tps`);
+    if (yClamp) nameParts.push(formatPrice(m.output, lang));
     return {
       ...m,
-      x: m.tps,
-      y: clamped ? Y_CAP - 2 : m.output,
-      z: Math.min(m.input, 10) * 10 + 20,
+      x: xClamp ? X_CAP - 40 : m.tps,
+      y: yClamp ? Y_CAP - 2 : (m.output ?? 0),
+      z: Math.min(m.input ?? 0, 10) * 10 + 20,
       clamped,
+      xClamped: xClamp,
       clampedLabel: clamped
-        ? `${m.name} (${formatPrice(m.output, lang)})`
+        ? `${nameParts[0]} (${nameParts.slice(1).join(", ")})`
         : m.name,
     };
   });
@@ -102,10 +109,10 @@ export default function ScatterPlot({ data, lang, colorMap, labels }: Props) {
     }
 
     const fill =
-      payload.tag === "fast"
+      payload.tag === "fast" || payload.tag === "record"
         ? "#FFAA32"
         : getColor(payload.provider, colorMap);
-    const isHighlighted = payload.hero || payload.tag === "fast";
+    const isHighlighted = payload.hero || payload.tag === "fast" || payload.tag === "record";
 
     return (
       <circle
@@ -140,7 +147,8 @@ export default function ScatterPlot({ data, lang, colorMap, labels }: Props) {
             fill: "#555",
             fontSize: 11,
           }}
-          domain={[0, 1100]}
+          domain={[0, X_CAP]}
+          allowDataOverflow
         />
         <YAxis
           dataKey="y"
@@ -182,24 +190,26 @@ export default function ScatterPlot({ data, lang, colorMap, labels }: Props) {
               const entry = scatterData[index];
               if (!entry) return null;
               if (entry.clamped) {
+                const labelFill = entry.xClamped ? "#FF6A00" : "#FFAA32";
                 return (
                   <g>
                     <text
                       x={x}
                       y={(y ?? 0) - 12}
                       textAnchor="middle"
-                      fill="#FFAA32"
+                      fill={labelFill}
                       fontSize={9}
                       fontFamily={SANS}
+                      fontWeight={entry.xClamped ? 700 : 400}
                     >
-                      ⋯ {value}
+                      {entry.xClamped ? "⫸ " : "⋯ "}{value}
                     </text>
                     <line
                       x1={x}
                       y1={(y ?? 0) - 4}
                       x2={x}
                       y2={(y ?? 0) + 4}
-                      stroke="#FFAA32"
+                      stroke={labelFill}
                       strokeWidth={1}
                       strokeDasharray="2 2"
                       opacity={0.6}

@@ -165,12 +165,17 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
   const abilityLabels = ABILITY_LABELS[lang] || ABILITY_LABELS.en;
   const benchmarks = BENCHMARKS[lang] || BENCHMARKS.en;
 
+  /* dynamic radar floor: drops below 60 if any selected model scores low */
+  const selectedData = data.filter((m) => selectedModels.has(m.name));
+  const allScores = selectedData.flatMap((m) => Object.values(m.abilities));
+  const minScore = allScores.length ? Math.min(...allScores) : 60;
+  const domainFloor = minScore < 55 ? 0 : 60;
+
   const radarData = ABILITY_KEYS.map((key) => {
     const point: Record<string, any> = {
       ability: key,
       label: abilityLabels[key],
       fullMark: 100,
-      domainMin: 60,
     };
     data.forEach((m) => {
       if (selectedModels.has(m.name)) {
@@ -256,7 +261,7 @@ export default function AbilityRadar({ data, lang, colorMap, labels }: Props) {
           />
           <PolarRadiusAxis
             angle={90}
-            domain={[60, 100]}
+            domain={[domainFloor, 100]}
             tick={{ fill: "#444", fontSize: 9, fontFamily: MONO }}
             tickCount={5}
             stroke="rgba(255,255,255,0.04)"

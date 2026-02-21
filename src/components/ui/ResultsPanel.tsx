@@ -441,7 +441,7 @@ export default function ResultsPanel({ data, lang, colorMap, labels, reduceMotio
       key,
       absolute: findTopTwo(data, key, (m) => m.abilities[key]),
       value: findTopTwo(data, key, (m) =>
-        m.output > 0 ? m.abilities[key] / m.output : 0,
+        m.output != null && m.output > 0 ? m.abilities[key] / m.output : 0,
       ),
       speed: findTopTwo(data, key, (m) => m.abilities[key] * m.tps),
     }));

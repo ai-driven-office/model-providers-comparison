@@ -20,6 +20,7 @@ import {
 import type { Model, Provider, Abilities } from "../data/types";
 import { buildColorMap, getColor, type ColorMap } from "../data/colors";
 import { ModelIcon, ProviderIcon } from "./ui/ProviderIcon";
+import NewsTicker from "./ui/NewsTicker";
 
 /* ═══════════════════════════════════════════════════════
    CONFIG
@@ -46,7 +47,8 @@ const ABILITY_LABELS: Record<keyof Abilities, string> = {
   creative: "創造性",
 };
 
-function toJpy(usd: number): string {
+function toJpy(usd: number | null | undefined): string {
+  if (usd == null) return "—";
   const yen = Math.round(usd * JPY_RATE);
   return `¥${yen.toLocaleString()}`;
 }
@@ -432,8 +434,8 @@ function SlideTitle() {
         <div style={{ display: "flex", gap: 100, marginTop: 72 }}>
           {[
             { val: "2026.02", label: "データ更新" },
-            { val: "7", label: "プロバイダー" },
-            { val: "11", label: "AIモデル" },
+            { val: "8", label: "プロバイダー" },
+            { val: "12", label: "AIモデル" },
           ].map((item, i) => (
             <div key={i} style={{ textAlign: "center" }}>
               <div style={{
@@ -552,7 +554,7 @@ function SlideThroughput({ models, colorMap }: { models: Model[]; colorMap: Colo
 
 function SlidePricing({ models, colorMap }: { models: Model[]; colorMap: ColorMap }) {
   const sorted = useMemo(() =>
-    [...models].filter(m => m.tag !== "fast").sort((a, b) => a.output - b.output),
+    [...models].filter(m => m.tag !== "fast" && m.output != null).sort((a, b) => (a.output ?? 0) - (b.output ?? 0)),
     [models]
   );
   const cheapest = sorted[0];
@@ -628,7 +630,7 @@ function SlidePricing({ models, colorMap }: { models: Model[]; colorMap: ColorMa
           background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)",
           borderRadius: 24, padding: "28px 8px 20px 0",
         }}>
-          <BarChart width={1720} height={740} data={sorted.map(m => ({ ...m, outputJpy: Math.round(m.output * JPY_RATE) }))} layout="vertical" margin={{ left: 30, right: 100, top: 5, bottom: 5 }}>
+          <BarChart width={1720} height={740} data={sorted.map(m => ({ ...m, outputJpy: Math.round((m.output ?? 0) * JPY_RATE) }))} layout="vertical" margin={{ left: 30, right: 100, top: 5, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" horizontal={false} />
               <XAxis type="number" tick={{ fill: "#444", fontSize: 16, fontFamily: MONO }} axisLine={{ stroke: "rgba(255,255,255,0.04)" }} tickLine={false} />
               <YAxis dataKey="name" type="category" width={220} tick={{ fill: "#888", fontSize: 20, fontFamily: SANS }} axisLine={false} tickLine={false} />
@@ -768,8 +770,8 @@ function SlideAbilities({ models, colorMap }: { models: Model[]; colorMap: Color
 
 function SlideScatter({ models, colorMap }: { models: Model[]; colorMap: ColorMap }) {
   const plotData = useMemo(() =>
-    models.filter(m => m.tag !== "fast").map(m => ({
-      ...m, x: m.tps, y: Math.round(m.output * JPY_RATE),
+    models.filter(m => m.tag !== "fast" && m.output != null).map(m => ({
+      ...m, x: m.tps, y: Math.round((m.output ?? 0) * JPY_RATE),
       z: Object.values(m.abilities).reduce((a, b) => a + b, 0) / 5,
     })),
     [models]
@@ -1375,6 +1377,21 @@ export default function BoothSlideshow({ models, providers }: Props) {
 
         {/* Persistent branding on ALL slides */}
         <PersistentBranding />
+
+        {/* News ticker — persistent above progress bar */}
+        <div style={{ position: "absolute", bottom: 28, left: 0, right: 0, zIndex: 95 }}>
+          <NewsTicker
+            variant="booth"
+            items={[
+              { text: "NEW SPEED RECORD", highlight: true },
+              { text: "Llama 3.1 8B on Taalas HC1 \u2014 16,960 tokens/sec" },
+              { text: "Custom silicon: 17x faster than Cerebras, 28x faster than Groq" },
+              { text: "chatjimmy.ai \u2014 Try it free NOW", highlight: true },
+              { text: "Model hardwired into transistors \u2014 no SRAM, no HBM, 10x less power" },
+              { text: "Use cases: real-time chat, edge AI, coding assistants, multilingual agents" },
+            ]}
+          />
+        </div>
 
         <ProgressBar current={currentSlide} total={TOTAL_SLIDES} />
       </div>

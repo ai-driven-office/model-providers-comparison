@@ -1,0 +1,12 @@
+name: Llama 3.1 8B
+provider: taalas
+tps: 16960
+hero: true
+link: https://chatjimmy.ai
+tag: record
+abilities:
+  planning: 45
+  coding: 55
+  image: 10
+  research: 42
+  creative: 40

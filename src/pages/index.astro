@@ -27,9 +27,21 @@ const providers = providerEntries.map((p) => ({
   ...p.data,
 }));
 
+const newsEntries = await getCollection("news");
+const news = newsEntries
+  .map((e) => e.data)
+  .sort((a, b) => b.timestamp - a.timestamp);
+
 const buildDate = new Date().toISOString().split("T")[0];
 ---
 
 <BaseLayout title="AI Model Comparison">
-  <ModelDashboard models={models} providers={providers} i18n={i18n} buildDate={buildDate} client:load />
+  <ModelDashboard
+    models={models}
+    providers={providers}
+    news={news}
+    i18n={i18n}
+    buildDate={buildDate}
+    client:only="react"
+  />
 </BaseLayout>

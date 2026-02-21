@@ -64,11 +64,13 @@ export const GET: APIRoute = async () => {
 
   const sorted = [...models].sort((a, b) => b.tps - a.tps);
   for (const m of sorted) {
-    const tag = m.hero ? " ★" : m.tag === "fast" ? " ⚡" : "";
+    const tag = m.hero ? " ★" : m.tag === "fast" ? " ⚡" : m.tag === "record" ? " 🏆" : "";
+    const inp = m.input != null ? `$${m.input}` : "N/A";
+    const out = m.output != null ? `$${m.output}` : "N/A";
     const iL = m.inputLong != null ? `$${m.inputLong}` : "—";
     const oL = m.outputLong != null ? `$${m.outputLong}` : "—";
     md.push(
-      `| ${m.name}${tag} | ${m.provider} | ${m.tps.toLocaleString()} | $${m.input} | $${m.output} | ${iL} | ${oL} |`,
+      `| ${m.name}${tag} | ${m.provider} | ${m.tps.toLocaleString()} | ${inp} | ${out} | ${iL} | ${oL} |`,
     );
   }
   md.push("");
@@ -130,7 +132,7 @@ export const GET: APIRoute = async () => {
       const bA = b.abilities;
       const aAvg = (aA.planning + aA.coding + aA.image + aA.research + aA.creative) / 5;
       const bAvg = (bA.planning + bA.coding + bA.image + bA.research + bA.creative) / 5;
-      return bAvg / b.output - aAvg / a.output;
+      return (b.output ? bAvg / b.output : 0) - (a.output ? aAvg / a.output : 0);
     },
   )[0];
   if (bestValue) {
@@ -148,7 +150,7 @@ export const GET: APIRoute = async () => {
   }
 
   // Cheapest
-  const cheapest = [...nonFast].sort((a, b) => a.output - b.output)[0];
+  const cheapest = [...nonFast].filter(m => m.output != null).sort((a, b) => (a.output ?? 0) - (b.output ?? 0))[0];
   if (cheapest) {
     md.push(
       `- **Cheapest output:** ${cheapest.name} (${cheapest.provider}) — $${cheapest.output}/M tokens`,
@@ -156,6 +158,49 @@ export const GET: APIRoute = async () => {
   }
 
   md.push("");
+
+  // --- News & Updates ---
+  const newsEntries = await getCollection("news");
+  const newsPosts = [...newsEntries]
+    .map((e) => e.data)
+    .sort((a, b) => b.timestamp - a.timestamp);
+
+  if (newsPosts.length > 0) {
+    md.push("## News & Updates");
+    md.push("");
+
+    for (const post of newsPosts) {
+      md.push(`### ${post.title.en}`);
+      md.push("");
+      md.push(`**${post.date}**${post.featured ? " ★ Featured" : ""}`);
+      md.push("");
+      md.push(post.body.en);
+      md.push("");
+
+      if (post.comparisons.length > 0) {
+        md.push("**Speed Comparisons:**");
+        md.push("");
+        md.push("| vs Model | TPS | Factor |");
+        md.push("| -------- | --: | -----: |");
+        for (const c of post.comparisons) {
+          md.push(`| ${c.model} | ${c.tps.toLocaleString()} | ${c.factor}x |`);
+        }
+        md.push("");
+      }
+
+      if (post.specs.length > 0) {
+        md.push(
+          `**Specs:** ${post.specs.map((s) => `${s.label.en}: ${s.value}`).join(" · ")}`,
+        );
+        md.push("");
+      }
+
+      if (post.link) {
+        md.push(`**→ [${post.link.label.en}](${post.link.url})**`);
+        md.push("");
+      }
+    }
+  }
 
   // --- Footer ---
   md.push("---");

@@ -31,8 +31,12 @@ export const GET: APIRoute = async () => {
     "## Models tracked",
     "",
     ...models.map(
-      (m) =>
-        `- ${m.name} (${m.provider}): ${m.tps} tps, $${m.input}/$${m.output} per M tokens`,
+      (m) => {
+        const price = m.input != null && m.output != null
+          ? `$${m.input}/$${m.output} per M tokens`
+          : "pricing not published";
+        return `- ${m.name} (${m.provider}): ${m.tps} tps, ${price}`;
+      },
     ),
     "",
     "## Pages",
@@ -49,6 +53,25 @@ export const GET: APIRoute = async () => {
     "The Markdown version contains full model data tables, ability scores, and provider information.",
     "",
   ];
+
+  // --- Recent News ---
+  const newsEntries = await getCollection("news");
+  const newsPosts = [...newsEntries]
+    .map((e) => e.data)
+    .sort((a, b) => b.timestamp - a.timestamp);
+
+  if (newsPosts.length > 0) {
+    lines.push("## Recent News");
+    lines.push("");
+    for (const post of newsPosts) {
+      const topComp = post.comparisons[0];
+      const compStr = topComp
+        ? ` — ${topComp.factor}x faster than ${topComp.model}`
+        : "";
+      lines.push(`- ${post.date}: ${post.title.en}${compStr}`);
+    }
+    lines.push("");
+  }
 
   return new Response(lines.join("\n"), {
     headers: {

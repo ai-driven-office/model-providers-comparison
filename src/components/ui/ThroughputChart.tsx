@@ -59,15 +59,100 @@ interface Props {
   colorMap: ColorMap;
 }
 
+/* ── axis-break: bars beyond this value are visually capped ── */
+const X_CAP = 1200;
+
+type BarRow = Model & { displayTps: number; isCapped: boolean };
+
+/** Custom bar shape – draws ⫽ break marks when the bar is truncated. */
+function TruncatedBarShape(props: any) {
+  const { x, y, width, height, payload } = props;
+  if (typeof x !== "number" || typeof y !== "number" || !width || !height)
+    return null;
+
+  const row = payload as BarRow;
+  const isAccent = row.tag === "fast" || row.tag === "record";
+  const fill = row.hero
+    ? "url(#heroGrad)"
+    : isAccent
+      ? "#FFAA32"
+      : getColor(row.provider, props.colorMap);
+  const opacity = row.hero || isAccent ? 1 : 0.75;
+
+  if (!row.isCapped) {
+    return (
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill={fill}
+        fillOpacity={opacity}
+        rx={6}
+        ry={6}
+      />
+    );
+  }
+
+  /* capped bar: solid portion + diagonal break lines + faded tail */
+  const solidW = width - 18;
+  const bx = x + solidW; // break zone start
+  return (
+    <g>
+      <rect
+        x={x}
+        y={y}
+        width={solidW}
+        height={height}
+        fill={fill}
+        fillOpacity={opacity}
+      />
+      {/* two diagonal "break" slashes */}
+      <line
+        x1={bx + 2}
+        y1={y + 1}
+        x2={bx + 6}
+        y2={y + height - 1}
+        stroke="rgba(255,255,255,0.55)"
+        strokeWidth={1.5}
+      />
+      <line
+        x1={bx + 7}
+        y1={y + 1}
+        x2={bx + 11}
+        y2={y + height - 1}
+        stroke="rgba(255,255,255,0.55)"
+        strokeWidth={1.5}
+      />
+      {/* faded continuation nub */}
+      <rect
+        x={bx + 13}
+        y={y + 2}
+        width={4}
+        height={height - 4}
+        fill={fill}
+        fillOpacity={opacity * 0.35}
+        rx={2}
+      />
+    </g>
+  );
+}
+
 export default function ThroughputChart({ data, lang, colorMap }: Props) {
-  const sorted = [...data].sort((a, b) => b.tps - a.tps);
+  const sorted: BarRow[] = [...data]
+    .sort((a, b) => b.tps - a.tps)
+    .map((m) => ({
+      ...m,
+      displayTps: Math.min(m.tps, X_CAP),
+      isCapped: m.tps > X_CAP,
+    }));
 
   return (
     <ResponsiveContainer width="100%" height={470}>
       <BarChart
         data={sorted}
         layout="vertical"
-        margin={{ left: 20, right: 50, top: 5, bottom: 5 }}
+        margin={{ left: 20, right: 80, top: 5, bottom: 5 }}
       >
         <CartesianGrid
           strokeDasharray="3 3"
@@ -79,7 +164,7 @@ export default function ThroughputChart({ data, lang, colorMap }: Props) {
           tick={{ fill: "#555", fontSize: 11, fontFamily: MONO }}
           axisLine={{ stroke: "rgba(255,255,255,0.06)" }}
           tickLine={false}
-          domain={[0, 1100]}
+          domain={[0, X_CAP]}
         />
         <YAxis
           dataKey="name"
@@ -94,10 +179,13 @@ export default function ThroughputChart({ data, lang, colorMap }: Props) {
           cursor={{ fill: "rgba(255,255,255,0.02)" }}
         />
         <Bar
-          dataKey="tps"
+          dataKey="displayTps"
           radius={[0, 6, 6, 0]}
           barSize={26}
           isAnimationActive={false}
+          shape={(props: any) => (
+            <TruncatedBarShape {...props} colorMap={colorMap} />
+          )}
         >
           {sorted.map((entry, i) => (
             <Cell
@@ -105,26 +193,36 @@ export default function ThroughputChart({ data, lang, colorMap }: Props) {
               fill={
                 entry.hero
                   ? "url(#heroGrad)"
-                  : entry.tag === "fast"
+                  : entry.tag === "fast" || entry.tag === "record"
                     ? "#FFAA32"
                     : getColor(entry.provider, colorMap)
               }
-              fillOpacity={entry.hero || entry.tag === "fast" ? 1 : 0.75}
+              fillOpacity={entry.hero || entry.tag === "fast" || entry.tag === "record" ? 1 : 0.75}
             />
           ))}
           <LabelList
             dataKey="tps"
             position="right"
-            formatter={(value) =>
-              typeof value === "number"
-                ? value.toLocaleString()
-                : String(value ?? "")
-            }
-            style={{
-              fill: "#aaa",
-              fontSize: 11,
-              fontFamily: MONO,
-              fontWeight: 600,
+            content={({ x, y, width: _w, height: h, value, index }: any) => {
+              const row = sorted[index as number];
+              if (!row) return null;
+              const label =
+                typeof value === "number"
+                  ? value.toLocaleString()
+                  : String(value ?? "");
+              const labelColor = row.isCapped ? "#FF6A00" : "#aaa";
+              return (
+                <text
+                  x={(x ?? 0) + (_w ?? 0) + 6}
+                  y={(y ?? 0) + (h ?? 0) / 2 + 4}
+                  fill={labelColor}
+                  fontSize={11}
+                  fontFamily={MONO}
+                  fontWeight={row.isCapped ? 700 : 600}
+                >
+                  {label}
+                </text>
+              );
             }}
           />
         </Bar>
