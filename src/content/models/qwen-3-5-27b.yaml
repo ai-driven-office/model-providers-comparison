@@ -1,0 +1,11 @@
+name: Qwen 3.5 27B
+provider: alibaba
+tps: 88
+input: 0.30
+output: 2.40
+abilities:
+  planning: 86
+  coding: 85
+  image: 82
+  research: 86
+  creative: 82
