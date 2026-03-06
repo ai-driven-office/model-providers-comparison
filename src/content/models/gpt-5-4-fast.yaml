@@ -1,0 +1,15 @@
+name: GPT-5.4 Fast
+provider: openai
+tps: 116
+input: 5
+output: 30
+inputLong: 10
+outputLong: 45
+tag: fast
+link: https://developers.openai.com/api/docs/guides/priority-processing/
+abilities:
+  planning: 93
+  coding: 90
+  image: 84
+  research: 93
+  creative: 85

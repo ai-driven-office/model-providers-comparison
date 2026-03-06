@@ -1,0 +1,82 @@
+title:
+  en: "GPT-5.4 — OpenAI's 1M Context Unified Model Replaces Codex Line"
+  ja: "GPT-5.4 — OpenAIの100万トークンコンテキスト統合モデル、Codexラインを置き換え"
+
+body:
+  en: >-
+    OpenAI has released GPT-5.4, their most ambitious model consolidation yet. It merges the previously
+    separate Codex coding line, reasoning capabilities, and general knowledge into a single model — and adds
+    native computer-use as a first for OpenAI's mainline models. The headline feature is a 1,050,000-token
+    context window, but there's a catch: input beyond 272K tokens costs 2x ($5/M input, $22.50/M output vs
+    standard $2.50/$15), and long-context performance degrades significantly. While GPT-4.1 scored 100% on
+    needle-in-haystack at 1M tokens, real-world agentic tasks show diminishing returns as context grows —
+    models lose track of earlier instructions, hallucinate references, and exhibit attention drift. OpenAI
+    acknowledges this by training GPT-5.4 with "compaction" to compress trajectories, but independent
+    evaluations are still pending. For most use cases, the sweet spot remains under 256K tokens.
+    The biggest wins are in agentic benchmarks: OSWorld jumps to 75% (surpassing the 72.4% human baseline),
+    GDPval hits 83% across 44 professions, and ARC-AGI-2 reaches 73.3%. On coding, it matches GPT-5.3-Codex
+    on SWE-Bench Pro (57.7% vs 56.8%) while adding much stronger general knowledge. GPT-5.2 Thinking is
+    scheduled for deprecation on June 5, 2026 — GPT-5.4 is the successor. The Codex product continues to
+    exist with GPT-5.4 as its engine, offering a /fast mode at ~116 tok/s. At 78 tok/s standard throughput and
+    $2.50/$15 pricing, it sits between Claude Opus 4.6 ($5/$25) and Gemini 3.1 Pro ($2/$12) on the
+    price-performance curve. Not yet ranked on LMSYS Chatbot Arena, but expected to compete for top-5.
+  ja: >-
+    OpenAIがGPT-5.4をリリースしました。これまで別々だったCodexコーディングライン、推論機能、汎用知識を
+    1つのモデルに統合し、OpenAIメインラインモデルとして初のネイティブPC操作機能を追加しました。
+    注目の機能は1,050,000トークンのコンテキストウィンドウですが、注意点があります：272Kトークンを超える
+    入力は2倍のコスト（入力$5/M、出力$22.50/M、標準は$2.50/$15）で、長いコンテキストでの性能は大幅に低下します。
+    GPT-4.1は1Mトークンでのneedle-in-haystackテストで100%を記録しましたが、実際のエージェントタスクでは
+    コンテキストが長くなるほど性能が低下し、以前の指示を見失い、参照をハルシネーションし、注意が拡散します。
+    OpenAIはGPT-5.4に「コンパクション」トレーニングを施してトラジェクトリを圧縮していますが、独立評価は保留中です。
+    ほとんどのユースケースでは256Kトークン以下が最適です。
+    最大の進歩はエージェント系ベンチマーク：OSWorldが75%（人間の72.4%を超過）、GDPvalが44職種で83%、
+    ARC-AGI-2が73.3%に到達。コーディングではSWE-Bench ProでGPT-5.3-Codexに匹敵（57.7% vs 56.8%）しつつ、
+    汎用知識が大幅に強化されています。GPT-5.2 Thinkingは2026年6月5日に廃止予定で、GPT-5.4が後継です。
+    78 tok/sの標準スループットと$2.50/$15の価格設定で、Claude Opus 4.6（$5/$25）と
+    Gemini 3.1 Pro（$2/$12）の間に位置します。LMSYS Chatbot Arenaにはまだランクインしていませんが、
+    トップ5争いが期待されています。
+
+date: "2026-03-05"
+timestamp: 1741161600000
+
+tags:
+  - release
+  - openai
+  - computer-use
+  - long-context
+  - codex-replacement
+
+featured: true
+
+link:
+  url: https://openai.com/index/introducing-gpt-5-4/
+  label:
+    en: "Read announcement"
+    ja: "発表を見る"
+
+models:
+  - gpt-5-4
+  - gpt-5-3-codex
+  - gpt-5-2-codex
+
+providers:
+  - openai
+
+comparisons:
+  - { model: "GPT-5.4", tps: 78, factor: 1 }
+  - { model: "GPT-5.3-Codex", tps: 53, factor: 0.68 }
+  - { model: "Claude Opus 4.6", tps: 37, factor: 0.47 }
+
+specs:
+  - label: { en: "Context", ja: "コンテキスト" }
+    value: "1.05M tokens"
+  - label: { en: "Max output", ja: "最大出力" }
+    value: "128K tokens"
+  - label: { en: "Input price", ja: "入力価格" }
+    value: "$2.50/M"
+  - label: { en: "Output price", ja: "出力価格" }
+    value: "$15/M"
+  - label: { en: "OSWorld", ja: "OSWorld" }
+    value: "75% (>human)"
+  - label: { en: "SWE-Bench Pro", ja: "SWE-Bench Pro" }
+    value: "57.7%"

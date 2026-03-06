@@ -1,0 +1,11 @@
+name: Kimi K2.5
+provider: moonshot
+tps: 44
+input: 0.60
+output: 3
+abilities:
+  planning: 87
+  coding: 88
+  image: 90
+  research: 92
+  creative: 80
