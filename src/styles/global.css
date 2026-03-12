@@ -101,6 +101,26 @@ code, code *,
   display: none;
 }
 
+.code-annotation-hit {
+  position: relative;
+  border-radius: 4px;
+  background: rgba(125, 211, 252, 0.08);
+  box-shadow: inset 0 -1px 0 rgba(125, 211, 252, 0.55);
+  cursor: help;
+  transition: background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.code-annotation-hit:hover,
+.code-annotation-hit:focus-visible,
+.code-annotation-hit-active {
+  background: rgba(125, 211, 252, 0.16);
+  box-shadow:
+    inset 0 -1px 0 rgba(125, 211, 252, 0.9),
+    0 0 0 1px rgba(125, 211, 252, 0.18),
+    0 0 18px rgba(125, 211, 252, 0.12);
+  outline: none;
+}
+
 /* ─── Tab indicator animation ─── */
 @keyframes tab-indicator-in {
   from {

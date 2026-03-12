@@ -27,11 +27,13 @@ const {
 const ogLocale = lang === "ja" ? "ja_JP" : "en_US";
 const altLocale = lang === "ja" ? "en_US" : "ja_JP";
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
-const canonicalUrl = new URL(base, Astro.site).href;
-const ogImageUrl = new URL(`${base}og.jpg`, Astro.site).href;
-const mdUrl = new URL(`${base}data.md`, Astro.site).href;
-const llmsTxtUrl = new URL(`${base}llms.txt`, Astro.site).href;
+const siteUrl = Astro.site ?? Astro.url;
+const canonicalUrl = new URL(base, siteUrl).href;
+const ogImageUrl = new URL(`${base}og.jpg`, siteUrl).href;
+const mdUrl = new URL(`${base}data.md`, siteUrl).href;
+const llmsTxtUrl = new URL(`${base}llms.txt`, siteUrl).href;
 const buildDate = new Date().toISOString().split("T")[0];
+const analyticsEnabled = import.meta.env.PROD;
 ---
 
 <!doctype html>
@@ -171,18 +173,22 @@ const buildDate = new Date().toISOString().split("T")[0];
       })();
     </script>
 
-    <!-- Google Analytics 4 -->
-    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-MNPRWQE87B"></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-MNPRWQE87B', {
-        send_page_view: true,
-        cookie_flags: 'SameSite=None;Secure',
-      });
-      window.gtag = gtag;
-    </script>
+    {analyticsEnabled && (
+      <>
+        <!-- Google Analytics 4 -->
+        <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-MNPRWQE87B"></script>
+        <script is:inline>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-MNPRWQE87B', {
+            send_page_view: true,
+            cookie_flags: 'SameSite=None;Secure',
+          });
+          window.gtag = gtag;
+        </script>
+      </>
+    )}
 
     <ClientRouter />
   </head>
@@ -191,16 +197,17 @@ const buildDate = new Date().toISOString().split("T")[0];
       <slot />
     </main>
 
-    <!-- Re-fire GA4 page_view on Astro view transitions (SPA navigations) -->
-    <script is:inline>
-      document.addEventListener('astro:page-load', function () {
-        if (typeof gtag === 'function') {
-          gtag('config', 'G-MNPRWQE87B', {
-            page_path: window.location.pathname,
-            page_title: document.title,
-          });
-        }
-      });
-    </script>
+    {analyticsEnabled && (
+      <script is:inline>
+        document.addEventListener('astro:page-load', function () {
+          if (typeof gtag === 'function') {
+            gtag('config', 'G-MNPRWQE87B', {
+              page_path: window.location.pathname,
+              page_title: document.title,
+            });
+          }
+        });
+      </script>
+    )}
   </body>
 </html>
