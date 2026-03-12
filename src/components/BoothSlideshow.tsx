@@ -1384,10 +1384,10 @@ export default function BoothSlideshow({ models, providers }: Props) {
             variant="booth"
             items={[
               { text: "NEW SPEED RECORD", highlight: true },
-              { text: "Llama 3.1 8B on Taalas HC1 \u2014 16,960 tokens/sec" },
-              { text: "Custom silicon: 17x faster than Cerebras, 28x faster than Groq" },
-              { text: "chatjimmy.ai \u2014 Try it free NOW", highlight: true },
-              { text: "Model hardwired into transistors \u2014 no SRAM, no HBM, 10x less power" },
+              { text: "Llama 3.1 8B on Taalas HC1 \u2014 17,000 tokens/sec" },
+              { text: "Custom silicon: 32x faster than Cerebras direct" },
+              { text: "taalas.com \u2014 Learn how it works", highlight: true },
+              { text: "Model hardwired into transistors \u2014 mixed 3-bit and 6-bit quantization" },
               { text: "Use cases: real-time chat, edge AI, coding assistants, multilingual agents" },
             ]}
           />

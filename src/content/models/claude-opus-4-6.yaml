@@ -1,8 +1,9 @@
 name: Claude Opus 4.6
 provider: anthropic
-tps: 37
+tps: 41
 input: 5
 output: 25
+link: https://www.anthropic.com/claude/opus
 abilities:
   planning: 92
   coding: 88

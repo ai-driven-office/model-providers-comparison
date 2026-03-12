@@ -3,6 +3,7 @@ provider: moonshot
 tps: 44
 input: 0.60
 output: 3
+link: https://forum.moonshot.ai/t/an-update-on-new-k2-models-and-new-pricing/104
 abilities:
   planning: 87
   coding: 88

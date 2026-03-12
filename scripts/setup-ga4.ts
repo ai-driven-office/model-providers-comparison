@@ -14,9 +14,13 @@
  *     → https://console.cloud.google.com/apis/library/analyticsadmin.googleapis.com
  */
 
-import { $ } from "bun";
-import { existsSync } from "fs";
-import { join } from "path";
+import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { readFile, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { stdin as input, stdout as output } from "node:process";
+import { createInterface } from "node:readline";
+import { fileURLToPath } from "node:url";
 
 const API = "https://analyticsadmin.googleapis.com/v1beta";
 const SITE_URL = "https://ai-driven-office.github.io/model-providers-comparison/";
@@ -44,11 +48,16 @@ function heading(msg: string) {
 }
 
 async function prompt(question: string): Promise<string> {
-  process.stdout.write(`  ? ${question} `);
-  for await (const line of console) {
-    return line.trim();
+  const rl = createInterface({ input, output });
+  try {
+    return await new Promise((resolve) => {
+      rl.question(`  ? ${question} `, (answer) => {
+        resolve(answer.trim());
+      });
+    });
+  } finally {
+    rl.close();
   }
-  return "";
 }
 
 async function api(
@@ -85,8 +94,11 @@ async function getToken(): Promise<string> {
   info("No --token flag; trying gcloud CLI...");
 
   try {
-    const result = await $`gcloud auth print-access-token --scopes=${SCOPE}`.quiet();
-    const token = result.text().trim();
+    const token = execFileSync(
+      "gcloud",
+      ["auth", "print-access-token", `--scopes=${SCOPE}`],
+      { encoding: "utf8" },
+    ).trim();
     if (token && !token.includes("ERROR")) {
       success("Got access token from gcloud");
       return token;
@@ -195,36 +207,36 @@ async function main() {
 
   // 4. Write to .env
   heading("Writing Configuration");
-  const rootDir = join(import.meta.dir, "..");
+  const rootDir = join(dirname(fileURLToPath(import.meta.url)), "..");
   const envPath = join(rootDir, ".env");
   const envLine = `PUBLIC_GA_ID=${measurementId}`;
 
   if (existsSync(envPath)) {
-    const content = await Bun.file(envPath).text();
+    const content = await readFile(envPath, "utf8");
     if (content.includes("PUBLIC_GA_ID=")) {
       const updated = content.replace(/^PUBLIC_GA_ID=.*$/m, envLine);
-      await Bun.write(envPath, updated);
+      await writeFile(envPath, updated, "utf8");
       success(`Updated PUBLIC_GA_ID in .env`);
     } else {
-      await Bun.write(envPath, content.trimEnd() + "\n" + envLine + "\n");
+      await writeFile(envPath, content.trimEnd() + "\n" + envLine + "\n", "utf8");
       success(`Appended PUBLIC_GA_ID to .env`);
     }
   } else {
-    await Bun.write(envPath, envLine + "\n");
+    await writeFile(envPath, envLine + "\n", "utf8");
     success(`Created .env with PUBLIC_GA_ID`);
   }
 
   // 5. Patch deploy workflow if needed
   const workflowPath = join(rootDir, ".github/workflows/deploy.yml");
   if (existsSync(workflowPath)) {
-    const wf = await Bun.file(workflowPath).text();
+    const wf = await readFile(workflowPath, "utf8");
     if (!wf.includes("PUBLIC_GA_ID")) {
       const patched = wf.replace(
         /(\s+- name: Build\n\s+run: bun run build)/,
         `$1\n        env:\n          PUBLIC_GA_ID: \${{ secrets.GA_MEASUREMENT_ID }}`,
       );
       if (patched !== wf) {
-        await Bun.write(workflowPath, patched);
+        await writeFile(workflowPath, patched, "utf8");
         success("Patched deploy.yml → Build step now reads GA_MEASUREMENT_ID secret");
       } else {
         info("Could not auto-patch deploy.yml — add the env var manually (see below)");

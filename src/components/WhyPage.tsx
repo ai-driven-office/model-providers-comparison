@@ -1,14 +1,11 @@
 import { useState, useEffect, useRef, type ReactNode } from "react";
 import {
-  ArrowLeft,
-  Sparkles,
   Eye,
   GitPullRequest,
   Users,
   Gauge,
   Globe,
   HeartHandshake,
-  ChevronDown,
 } from "lucide-react";
 import { useLang, type Lang } from "../data/i18n";
 import { sfxLang } from "../data/sfx";
@@ -76,7 +73,7 @@ const content = {
     howItems: [
       {
         label: "Throughput & pricing",
-        detail: "Throughput and pricing data are primarily sourced from OpenRouter, which aggregates models across multiple infrastructure providers. For each model, we report the fastest available endpoint. This is not always the model creator's own service — a model built by one lab may run fastest on Cerebras, AWS Bedrock, Google Cloud, or Azure, depending on the provider's hardware and optimization. We track whoever delivers the best real-world throughput, because that is what matters in practice.",
+        detail: "Throughput and pricing data come from a mix of official provider documentation, OpenRouter metadata, and third-party benchmarking. When a row is tied to a specific provider, we prefer that provider's current public pricing and direct throughput measurements when they are available. When the source landscape disagrees, we cross-check aggregator data and public benchmarks and choose the most defensible current figure instead of blindly taking the fastest claim.",
       },
       {
         label: "Ability scores",
@@ -155,7 +152,7 @@ const content = {
     howItems: [
       {
         label: "スループットと価格",
-        detail: "スループットおよび価格データは、複数のインフラプロバイダーにまたがるモデルを集約しているOpenRouterを主な情報源としています。各モデルについて、最も高速なエンドポイントの数値を掲載しています。最速のエンドポイントはモデル開発元のサービスとは限りません。あるラボが開発したモデルが、Cerebras、AWS Bedrock、Google Cloud、Azureなど、別のプロバイダーのハードウェア上で最も高いスループットを出すことは珍しくありません。実務で重要なのは実際に利用可能な最速の数値であるため、提供元を問わず最も速い結果を追跡しています。",
+        detail: "スループットと価格は、各プロバイダーの公式ドキュメント、OpenRouterのメタデータ、サードパーティのベンチマークを組み合わせて更新しています。特定のプロバイダーに紐づく行では、そのプロバイダー自身の公開価格と直結APIの計測値を優先します。ソース間で数値が食い違う場合は、アグリゲータ情報と公開ベンチマークを突き合わせ、単純に最速の主張を採用するのではなく、現時点で最も妥当な数値を選びます。",
       },
       {
         label: "能力スコア",

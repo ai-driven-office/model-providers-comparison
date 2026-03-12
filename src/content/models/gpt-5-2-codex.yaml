@@ -1,8 +1,10 @@
 name: GPT-5.2-Codex
 provider: openai
-tps: 42
+tps: 94
 input: 1.75
 output: 14
+hidden: true
+link: https://openai.com/index/introducing-gpt-5-2-codex/
 abilities:
   planning: 80
   coding: 88

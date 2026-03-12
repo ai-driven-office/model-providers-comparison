@@ -1,9 +1,10 @@
 name: Gemini 3.1 Flash-Lite
 provider: google-ai-studio
-tps: 317
+tps: 318
 input: 0.25
 output: 1.50
 tag: new
+link: https://ai.google.dev/gemini-api/docs/changelog
 abilities:
   planning: 78
   coding: 76

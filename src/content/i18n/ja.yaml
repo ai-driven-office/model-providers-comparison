@@ -1,4 +1,4 @@
-badge: 最新データ · 2026年2月
+badge: 最新データ · 2026年3月
 title: AIモデル比較
 subtitle: AIモデルプロバイダーの速度・価格・能力・おすすめを比較
 tabThroughput: スループット
@@ -31,21 +31,21 @@ tabAbilities: 能力スコア
 abilityTitle: モデル能力スコア
 abilitySub: "各スコアは目安です — 以下の公開ベンチマークを0〜100に正規化した推定値"
 benchmarkTitle: ベンチマーク出典
-benchmarkSub: "これらのスコアは以下の公開ベンチマーク（2026年2月時点）から算出した概算値です"
+benchmarkSub: "これらのスコアは以下の公開ベンチマーク（2026年3月時点）から算出した概算値です"
 selectModels: "モデル選択："
 selectAll: 全選択
 deselectAll: 解除
 tabRecommendations: おすすめ
 resultsTitle: おすすめモデル
 resultsSub: "どのモデルを使うべき？ 各能力を「品質」「コスパ（スコア÷価格）」「速度（スコア×スループット）」の3軸で比較。すべてのスコアは目安です — 参考程度にお使いください。"
-resultsDisclaimer: "これらの推薦は、2026年2月時点の公開ベンチマークから算出した概算スコア（0〜100）に基づいています。あくまで目安であり、実際のワークロードでは異なる場合があります。ご自身のデータでの検証をお勧めします。"
+resultsDisclaimer: "これらの推薦は、2026年3月時点の公開ベンチマークから算出した概算スコア（0〜100）に基づいています。あくまで目安であり、実際のワークロードでは異なる場合があります。ご自身のデータでの検証をお勧めします。"
 bestAbsolute: 最高品質
 bestValue: コスパ最強
 bestSpeed: 最速
 ctaTitle: 正確なデータを一緒に作りましょう
 ctaBody: "価格の間違い・未掲載モデル・古いベンチマークを見つけたら、Issue や Pull Request をお送りください。皆さんの修正がコミュニティの力になります。"
 ctaButton: Issue / PR を送る
-footer: "データ出典: OpenRouter · 100万トークンあたりの価格 · $1 = ¥150換算"
+footer: "データ出典: 公式ドキュメント・OpenRouter・公開ベンチマーク · 100万トークンあたりの価格 · $1 = ¥150換算"
 copyright: "©CyberAgent, Inc. · AIドリブン推進室（AI Driven Office）"
 tokSec: トークン/秒
 speed: 速度
@@ -57,8 +57,8 @@ colAverage: 平均
 lastUpdated: 最終更新
 downloadMd: Markdownでダウンロード
 tickerHeadline: 速度新記録
-tickerModel: "Llama 3.1 8B × Taalas HC1 — 16,960 トークン/秒 — Cerebrasの17倍"
-tickerDetail: "専用シリコンチップがモデルをトランジスタに直接実装 — SRAM不要・HBM不要・消費電力1/10"
+tickerModel: "Llama 3.1 8B × Taalas HC1 — 17,000 トークン/秒 — Cerebrasの32倍"
+tickerDetail: "専用シリコンにモデルを直接実装 — ただし公開版は強い量子化を伴います"
 tickerTry: "chatjimmy.ai で無料体験"
 tickerLearn: "仕組み: ユビキタスAIへの道"
 tickerUseCase: "活用例: リアルタイムチャット・エッジAI・コーディング支援・多言語エージェント・即時要約"

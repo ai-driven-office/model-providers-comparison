@@ -18,13 +18,13 @@ import { sfxLang, sfxSuccess, sfxClick } from "../data/sfx";
 /* ─────────────────── i18n content ─────────────────── */
 const content = {
   en: {
-    badge: "Guide · Feb 2026",
+    badge: "Guide · Mar 2026",
     backLabel: "← Back to Benchmark",
     title: "GLM 4.7 × Cerebras",
     subtitle:
-      "Blazing-fast AI coding at 1,000 tokens/sec — for a fraction of the cost",
+      "Officially up to ~1,000 tokens/sec — with enough speed to make coding loops feel instant",
     introP1:
-      "Cerebras serves GLM 4.7 at roughly 1,000 tokens per second — that's 10-25× faster than typical cloud inference. Combined with strong coding benchmarks and a generous free tier, it's the best-kept secret for developers who want instant AI feedback.",
+      "Cerebras positions GLM 4.7 at roughly 1,000 tokens per second on its own stack, with third-party measurements landing lower but still very fast versus typical cloud inference. Combined with strong coding benchmarks and a generous free tier, it's still one of the best options for developers who want fast iteration.",
     introP2:
       "This guide walks you through the recommended two-phase workflow: use a frontier planning model for architecture and design, then switch to GLM 4.7 on Cerebras for the actual code generation at lightning speed.",
     statSpeed: "~1,000",
@@ -46,7 +46,7 @@ const content = {
     whyTitle: "The Two-Phase Workflow",
     whySub: "Top-tier planning + instant execution — the best of both worlds",
     phase1Title: "Phase 1 — Plan",
-    phase1Model: "Gemini 3.1 Pro or Claude Opus 4.7",
+    phase1Model: "Gemini 3.1 Pro or Claude Opus 4.6",
     phase1Desc:
       "Use a frontier model for architecture decisions, task decomposition, file planning, and edge-case analysis. These models excel at reasoning through ambiguity and producing structured plans.",
     phase1Points: [
@@ -139,16 +139,16 @@ const content = {
     ],
     footer: "©CyberAgent, Inc. · AI Driven Office (AIドリブン推進室)",
     dataNote:
-      "Benchmark scores from public benchmarks · Pricing from Cerebras, Feb 2026",
+      "Benchmark scores from public benchmarks · Pricing from Cerebras, Mar 2026",
   },
 
   ja: {
-    badge: "ガイド · 2026年2月",
+    badge: "ガイド · 2026年3月",
     backLabel: "← ベンチマークに戻る",
     title: "GLM 4.7 × Cerebras",
-    subtitle: "1,000トークン/秒の超高速AIコーディング — 低コストで実現",
+    subtitle: "公式には最大約1,000トークン/秒 — コーディング反復をほぼ即時化する速度",
     introP1:
-      "CerebrasはGLM 4.7を約1,000トークン/秒で提供しています。これは一般的なクラウド推論の10〜25倍の速さです。高いコーディングベンチマークと無料枠を組み合わせると、即座にAIフィードバックを得たい開発者にとって最高のツールです。",
+      "Cerebrasは自社スタック上でGLM 4.7を約1,000トークン/秒と案内しています。サードパーティ計測はそれより低めですが、それでも一般的なクラウド推論よりかなり高速です。高いコーディング性能と無料枠を考えると、高速な反復を重視する開発者にとって依然として有力な選択肢です。",
     introP2:
       "このガイドでは、推奨される2フェーズワークフローを紹介します。まず設計にはフロンティアプランニングモデルを使い、次に実際のコード生成にはCerebras上のGLM 4.7を使って超高速で実行します。",
     statSpeed: "約1,000",
@@ -170,7 +170,7 @@ const content = {
     whyTitle: "2フェーズワークフロー",
     whySub: "最高の計画力 + 最速の実行力",
     phase1Title: "フェーズ1 — 計画",
-    phase1Model: "Gemini 3.1 Pro または Claude Opus 4.7",
+    phase1Model: "Gemini 3.1 Pro または Claude Opus 4.6",
     phase1Desc:
       "フロンティアモデルでアーキテクチャの決定、タスク分解、ファイル計画、エッジケース分析を行います。これらのモデルは曖昧さを推論し、構造化されたプランを生成するのに優れています。",
     phase1Points: [
@@ -263,7 +263,7 @@ const content = {
     ],
     footer: "©CyberAgent, Inc. · AIドリブン推進室（AI Driven Office）",
     dataNote:
-      "ベンチマークスコアは公開ベンチマーク · 価格はCerebras（2026年2月時点）",
+      "ベンチマークスコアは公開ベンチマーク · 価格はCerebras（2026年3月時点）",
   },
 } as const;
 

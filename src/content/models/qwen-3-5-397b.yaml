@@ -1,8 +1,8 @@
 name: Qwen 3.5 397B
 provider: alibaba
-tps: 68
-input: 0.26
-output: 2.08
+tps: 55
+input: 0.60
+output: 3.60
 abilities:
   planning: 88
   coding: 88

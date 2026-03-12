@@ -1,0 +1,12 @@
+name: GPT-5.3-Codex-Spark
+provider: openai
+tps: 965
+input: 1.75
+output: 14
+link: https://openai.com/codex/
+abilities:
+  planning: 90
+  coding: 93
+  image: 10
+  research: 82
+  creative: 75

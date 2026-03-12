@@ -1,10 +1,10 @@
 name: Mercury 2
 provider: inception
-tps: 660
+tps: 655
 input: 0.25
 output: 0.75
 tag: fast
-link: https://inceptionlabs.ai/blog/introducing-mercury
+link: https://www.inceptionlabs.ai/blog/introducing-mercury-2
 abilities:
   planning: 70
   coding: 75

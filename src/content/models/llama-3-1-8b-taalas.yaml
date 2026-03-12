@@ -1,8 +1,8 @@
 name: Llama 3.1 8B
 provider: taalas
-tps: 16960
+tps: 17000
 hero: true
-link: https://chatjimmy.ai
+link: https://taalas.com/the-path-to-ubiquitous-ai/
 tag: record
 abilities:
   planning: 45

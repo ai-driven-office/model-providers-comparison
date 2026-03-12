@@ -1,30 +1,28 @@
 title:
-  en: "Taalas HC1 Sets New Speed Record — 16,960 tokens/sec"
-  ja: "Taalas HC1が速度新記録を樹立 — 16,960トークン/秒"
+  en: "Taalas HC1 Pushes Silicon Llama to ~17K tokens/sec"
+  ja: "Taalas HC1がSilicon Llamaで約17Kトークン/秒を達成"
 
 body:
   en: >-
-    Taalas has shattered the AI inference speed record with their HC1 chip, delivering 16,960 tokens per second
-    running Llama 3.1 8B. Unlike GPU-based inference, the HC1 hardwires the model directly into custom silicon —
-    no SRAM, no HBM, consuming 10x less power than conventional hardware. Built on TSMC 6nm process with
-    815mm² die size and 53 billion transistors, the chip was developed by a 24-person team with $169–219M in funding.
-    This isn't just an incremental improvement — it's 458x faster than Claude Opus 4.6, 320x faster than
-    GPT-5.3-Codex, and still 17x faster than Cerebras GLM running on wafer-scale hardware. At this speed, real-time conversational AI with zero perceptible latency becomes reality.
-    New use cases unlock: edge AI without cloud dependency, instant document summarization, live coding
-    completions as fast as you type, real-time multilingual translation, and agentic workflows where speed
-    compounds across chained LLM calls.
+    Taalas says its HC1 chip can run Silicon Llama 3.1 8B at about 17K tokens per second per user, which is still far
+    beyond GPU-class direct inference. The design hardwires the model into custom silicon instead of relying on HBM-heavy
+    accelerator stacks, and Taalas claims roughly 10x lower power than conventional hardware. The public hardware details
+    remain striking: TSMC 6nm, 815mm² die size, 53B transistors, a 24-person team, and about $169M raised. The key caveat
+    is quality: Taalas explicitly says the first-generation Silicon Llama is aggressively quantized with mixed 3-bit and
+    6-bit weights, so it does not match full-precision GPU baselines on quality. Even with that caveat, the speed headroom
+    is unusual enough to make near-zero-latency chat, instant summarization, and multi-step agent loops practical in ways
+    general cloud inference still struggles to match.
 
   ja: >-
-    TaalasがHC1チップでAI推論速度の世界記録を更新しました。Llama 3.1 8Bで16,960トークン/秒を達成。
-    GPU推論とは異なり、HC1はモデルをカスタムシリコンに直接実装 — SRAM不要・HBM不要・消費電力は従来の1/10。
-    TSMC 6nmプロセス、815mm²のダイサイズ、530億トランジスタで構成され、24人のチームが$169〜219Mの資金で開発。
-    単なる改良ではありません — Claude Opus 4.6の458倍、GPT-5.3-Codexの320倍、ウェーハスケールのCerebras GLMと比べても17倍の速度です。
-    この速度で、体感遅延ゼロのリアルタイム会話AIが現実になります。
-    新しいユースケース: クラウド不要のエッジAI、瞬時のドキュメント要約、タイピングと同速のライブコーディング補完、
-    リアルタイム多言語翻訳、連鎖LLM呼び出しで速度が累積するエージェントワークフロー。
+    Taalasは、HC1チップ上でSilicon Llama 3.1 8Bをユーザーあたり約17Kトークン/秒で動かせると公表しました。
+    GPU推論と異なり、HC1はモデルを専用シリコンに焼き込み、HBM中心の構成に頼らない設計を取っています。
+    公開されているハードウェア仕様もかなり攻めています。TSMC 6nm、815mm²、530億トランジスタ、24人のチーム、
+    調達額は約$169Mです。ただし品質面の注意点もあり、Taalas自身が初代Silicon Llamaは3-bitと6-bitを混ぜた
+    強い量子化を使っているため、フル精度のGPU実装と同等品質ではないと明記しています。それでも速度面の余裕は非常に大きく、
+    体感遅延のほぼない会話AI、即時要約、高頻度なエージェントループを現実的にする水準です。
 
 date: "2026-02-20"
-timestamp: 1740067200000
+timestamp: 1771545600000
 
 tags:
   - speed-record
@@ -34,10 +32,10 @@ tags:
 featured: true
 
 link:
-  url: https://chatjimmy.ai
+  url: https://taalas.com/the-path-to-ubiquitous-ai/
   label:
-    en: "Try it free"
-    ja: "無料で試す"
+    en: "Read how it works"
+    ja: "仕組みを読む"
 
 models:
   - llama-3-1-8b-taalas
@@ -46,9 +44,9 @@ providers:
   - taalas
 
 comparisons:
-  - { model: "Claude Opus 4.6", tps: 37, factor: 458 }
-  - { model: "GPT-5.3-Codex", tps: 53, factor: 320 }
-  - { model: "GLM 4.7 (Cerebras)", tps: 1000, factor: 17 }
+  - { model: "Claude Opus 4.6", tps: 41, factor: 415 }
+  - { model: "GPT-5.3-Codex", tps: 62, factor: 274 }
+  - { model: "GLM 4.7 (Cerebras)", tps: 538, factor: 31.6 }
 
 specs:
   - label: { en: "Process", ja: "プロセス" }
@@ -57,7 +55,9 @@ specs:
     value: "815mm²"
   - label: { en: "Transistors", ja: "トランジスタ" }
     value: "53B"
+  - label: { en: "Quantization", ja: "量子化" }
+    value: "Mixed 3-bit + 6-bit"
   - label: { en: "Team", ja: "チーム" }
     value: "24"
   - label: { en: "Funding", ja: "資金" }
-    value: "$169-219M"
+    value: "$169M"

@@ -36,7 +36,7 @@ Everything is bilingual — toggle between **English** and **日本語** in real
 
 ## Providers Tracked
 
-OpenAI · Anthropic · Google (AI Studio & Vertex) · xAI · Cerebras · SiliconFlow
+OpenAI · Anthropic · Google (AI Studio & Vertex) · xAI · Cerebras · SiliconFlow · Alibaba Cloud · Moonshot · Inception · Taalas
 
 ## Tech Stack
 
@@ -110,7 +110,40 @@ bun run build
 
 # Preview production build
 bun run preview
+
+# Live TPS benchmark CLI
+npm run benchmark:tps -- --models minimax-m2-5,qwen-3-5-397b --runs 2
 ```
+
+## Live TPS Benchmark CLI
+
+The repo includes a small CLI for measuring real streamed completion throughput against the current catalog rows.
+
+```bash
+# Fastest OpenRouter route where available, plus direct Cerebras for glm-4-7
+npm run benchmark:tps -- --runs 1
+
+# Narrow to a few rows and write JSON
+npm run benchmark:tps -- --models gpt-5-4-pro,minimax-m2-5,glm-4-7 --out tmp/tps.json
+
+# Patch measured medians back into src/content/models/*.yaml
+npm run benchmark:tps -- --models minimax-m2-5,qwen-3-5-397b --write-tps
+```
+
+Required env vars:
+
+- local `codex` CLI for the direct `gpt-5-3-codex-spark` preview path when available
+- `OPENAI_API_KEY` for the direct `gpt-5-3-codex-spark` preview path on the OpenAI Responses API
+- `OPENROUTER_API_KEY` for OpenRouter-backed models
+- `CEREBRAS_API_KEY` for the direct `glm-4-7` Cerebras path
+
+Notes:
+
+- `gpt-5-3-codex-spark` tries local `codex exec -m gpt-5.3-codex-spark-preview` first, then the direct OpenAI Responses API, then OpenRouter if needed.
+- The Codex CLI route reports end-to-end wall-clock TPS because Codex JSON mode exposes final usage but not token-by-token deltas.
+- OpenRouter requests are pinned to the fastest provider route via `provider.sort = "throughput"` with fallbacks disabled.
+- The CLI reports streamed completion TPS from first emitted token to last emitted token, plus TTFT and wall-clock TPS.
+- Rows that are service tiers or lack a public benchmarkable API route are skipped with an explicit reason.
 
 ## Adding a Model
 
@@ -180,7 +213,7 @@ Please keep PRs focused — one model or one fix per PR makes review fast.
 
 ## License
 
-This project is open source under the MIT License. Data is sourced from [OpenRouter](https://openrouter.ai/) and provider documentation.
+This project is open source under the MIT License. Data is sourced from provider documentation, [OpenRouter](https://openrouter.ai/), and public benchmarks such as [Artificial Analysis](https://artificialanalysis.ai/).
 
 ---
 

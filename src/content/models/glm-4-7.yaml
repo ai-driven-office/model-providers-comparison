@@ -1,9 +1,10 @@
 name: GLM 4.7
 provider: cerebras
-tps: 1000
+tps: 538
 input: 2.25
 output: 2.75
 hero: false
+link: https://inference-docs.cerebras.ai/models/zai-glm-47
 abilities:
   planning: 76
   coding: 80

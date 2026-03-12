@@ -1,8 +1,9 @@
 name: Gemini 3 Flash
 provider: google-ai-studio
-tps: 56
+tps: 132
 input: 0.50
 output: 3
+link: https://ai.google.dev/gemini-api/docs/changelog
 abilities:
   planning: 82
   coding: 84

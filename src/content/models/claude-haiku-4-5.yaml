@@ -1,8 +1,9 @@
 name: Claude Haiku 4.5
 provider: anthropic
-tps: 64
+tps: 88
 input: 1
 output: 5
+link: https://www.anthropic.com/claude/haiku
 abilities:
   planning: 72
   coding: 75

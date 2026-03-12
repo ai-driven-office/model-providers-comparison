@@ -196,8 +196,8 @@ function CustomAxisTick(props: any) {
   const iconSize = 18;
 
   let textDx = 0, textDy = 0;
-  let textAnchor = "middle";
-  let textBaseline = "central";
+  let textAnchor: "middle" | "start" | "end" = "middle";
+  let textBaseline: "auto" | "central" | "hanging" = "central";
 
   if (absNx < 0.2) {
     textDy = ny < 0 ? -(badgeR + 8) : (badgeR + 14);

@@ -87,6 +87,7 @@ const buildDate = new Date().toISOString().split("T")[0];
     <!-- Fonts: preconnect → preload CSS → non-blocking stylesheet
          - Inter variable (opsz + wght): optical sizing adapts stroke contrast
            to rendered size; single file replaces 6 static weights
+         - JetBrains Mono: code font with ligatures (=> != >= === |> etc.)
          - Zen Kaku Gothic New: geometric JP sans by Yoshimichi Ohira;
            Google Fonts auto-subsets by unicode-range (~120 small slices)
          - Space Mono: static (no variable version available) -->
@@ -95,18 +96,18 @@ const buildDate = new Date().toISOString().split("T")[0];
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap"
     />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap"
       media="print"
       onload="this.setAttribute('media','all')"
     />
     <noscript>
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap"
       />
     </noscript>
 

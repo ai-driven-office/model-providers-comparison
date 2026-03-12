@@ -1,0 +1,60 @@
+title:
+  en: "Mercury 2 Brings Diffusion LLMs Back Into the Latency Race"
+  ja: "Mercury 2が拡散型LLMを再び低遅延競争に戻す"
+
+body:
+  en: >-
+    Inception launched Mercury 2 as a faster and cheaper follow-up to the original Mercury line. Officially, the
+    company says Mercury 2 reaches 1,009 tokens per second on Blackwell GPUs with 128K context and $0.25/$0.75 per
+    million token pricing. Independent tracking is more conservative but still unusually fast: Artificial Analysis'
+    latest public snapshot puts Mercury 2 around 655 tok/s, which keeps it far ahead of mainstream frontier APIs on
+    direct latency. The tradeoff is capability ceiling rather than raw speed. Mercury 2 is best read as a throughput-first
+    model for short-loop agentic work, low-latency chat, and interactive coding assistance where response speed matters
+    more than absolute benchmark leadership.
+
+  ja: >-
+    Inceptionは、初代Mercury系の後継としてMercury 2を投入しました。公式にはBlackwell GPU上で
+    1,009トークン/秒、128Kコンテキスト、価格は入力$0.25/M・出力$0.75/Mです。独立計測はそれより控えめですが、
+    それでも十分に異常値です。Artificial Analysisの最新公開スナップショットでは約655 tok/sで、
+    一般的なフロンティアAPIを大きく上回る低遅延を維持しています。強みは絶対性能より速度で、
+    短いエージェントループ、低遅延チャット、対話的なコーディング支援のように応答速度を最優先する用途で特に光ります。
+
+date: "2026-02-24"
+timestamp: 1771891200000
+
+tags:
+  - release
+  - inference
+  - latency
+  - diffusion
+
+featured: false
+
+link:
+  url: https://www.inceptionlabs.ai/blog/introducing-mercury-2
+  label:
+    en: "Read launch post"
+    ja: "発表を見る"
+
+models:
+  - mercury-2
+
+providers:
+  - inception
+
+comparisons:
+  - { model: "Gemini 3.1 Flash-Lite", tps: 318, factor: 2.06 }
+  - { model: "Grok Code Fast 1", tps: 173, factor: 3.79 }
+  - { model: "GPT-5.4", tps: 78, factor: 8.4 }
+
+specs:
+  - label: { en: "Context", ja: "コンテキスト" }
+    value: "128K tokens"
+  - label: { en: "Input price", ja: "入力価格" }
+    value: "$0.25/M"
+  - label: { en: "Output price", ja: "出力価格" }
+    value: "$0.75/M"
+  - label: { en: "Official speed", ja: "公式速度" }
+    value: "1,009 tok/s"
+  - label: { en: "AA measured speed", ja: "AA実測速度" }
+    value: "655 tok/s"

@@ -492,6 +492,44 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         />
       </div>
 
+      <a
+        href={`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}languages`}
+        onClick={() => { if (!reduceMotion) sfxClick(); }}
+        className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 mb-5 sm:mb-6 no-underline transition-all group"
+        style={{
+          background: "rgba(51,112,254,0.06)",
+          border: "1px solid rgba(92,141,254,0.12)",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = "rgba(92,141,254,0.25)";
+          e.currentTarget.style.background = "rgba(51,112,254,0.09)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = "rgba(92,141,254,0.12)";
+          e.currentTarget.style.background = "rgba(51,112,254,0.06)";
+        }}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="text-[13px] font-bold" style={{ color: "#7BAAFF", fontFamily: "'Space Mono', monospace" }}>
+            ACB
+          </span>
+          <span
+            className="text-[13px] truncate"
+            style={{
+              color: "rgba(255,255,255,0.7)",
+              fontFamily: isJa ? "'Zen Kaku Gothic New', sans-serif" : "'Inter', sans-serif",
+            }}
+          >
+            {isJa
+              ? "AutoCodeBench 言語別ランキング — 21言語のパス率を比較"
+              : "AutoCodeBench language rankings — pass rates across 21 languages"}
+          </span>
+        </div>
+        <span className="text-[12px] shrink-0" style={{ color: "rgba(255,255,255,0.4)" }}>
+          {isJa ? "開く →" : "View →"}
+        </span>
+      </a>
+
       {/* Mobile: dropdown selector */}
       <MobileTabSelect
         tabs={tabs}
@@ -965,8 +1003,8 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             </div>
             <div className="text-[11px] sm:text-[11px] truncate" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
               {isJa
-                ? "16,960 tps — モデルをトランジスタに直接実装するカスタムシリコン"
-                : "16,960 tps — custom silicon that hardwires the model into transistors"}
+                ? "17,000 tps — 量子化込みでも際立って速いカスタムシリコン"
+                : "17,000 tps — custom silicon with extreme throughput even after heavy quantization"}
             </div>
           </div>
         </div>
@@ -1024,6 +1062,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       {news.length > 0 && (
         <NewsTimeline
           posts={news}
+          providers={providers}
           lang={lang}
           labels={{
             newsTitle: l.newsTitle ?? "News & Updates",

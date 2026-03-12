@@ -1,0 +1,13 @@
+name: MiniMax M2.5
+provider: minimax
+tps: 183
+input: 0.30
+output: 1.20
+tag: new
+link: https://www.minimax.io/news/minimax-m2-5-redefining-open-source-ai-with-deep-thinking-and-industry-leading-agent-capabilities
+abilities:
+  planning: 90
+  coding: 91
+  image: 35
+  research: 89
+  creative: 80

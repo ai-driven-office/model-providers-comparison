@@ -15,7 +15,9 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      filter: (page) => !page.includes("/booth"),
+      filter: (page) =>
+        !page.includes("/booth") &&
+        !page.includes("/language-is-the-prompt"),
     }),
   ],
 
@@ -25,9 +27,6 @@ export default defineConfig({
       // This package frequently gets re-optimized in dev, which can yield
       // stale /node_modules/.vite/deps URLs and 504 "Outdated Optimize Dep".
       exclude: ["@paper-design/shaders-react", "@paper-design/shaders"],
-    },
-    ssr: {
-      noExternal: [/@lobehub\//],
     },
   },
 });

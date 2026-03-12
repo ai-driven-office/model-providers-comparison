@@ -16,10 +16,10 @@ body:
     The biggest wins are in agentic benchmarks: OSWorld jumps to 75% (surpassing the 72.4% human baseline),
     GDPval hits 83% across 44 professions, and ARC-AGI-2 reaches 73.3%. On coding, it matches GPT-5.3-Codex
     on SWE-Bench Pro (57.7% vs 56.8%) while adding much stronger general knowledge. GPT-5.2 Thinking is
-    scheduled for deprecation on June 5, 2026 — GPT-5.4 is the successor. The Codex product continues to
-    exist with GPT-5.4 as its engine, offering a /fast mode at ~116 tok/s. At 78 tok/s standard throughput and
-    $2.50/$15 pricing, it sits between Claude Opus 4.6 ($5/$25) and Gemini 3.1 Pro ($2/$12) on the
-    price-performance curve. Not yet ranked on LMSYS Chatbot Arena, but expected to compete for top-5.
+    scheduled for deprecation on June 5, 2026, with GPT-5.4 positioned as the successor. Codex continues to
+    run on the GPT-5.4 family, and OpenAI's priority tier keeps the higher-throughput path at premium pricing,
+    but the public baseline remains the standard GPT-5.4 API at roughly 78 tok/s and $2.50/$15. That leaves it
+    materially faster than Claude Opus 4.6 while staying close to Gemini 3.1 Pro on price.
   ja: >-
     OpenAIがGPT-5.4をリリースしました。これまで別々だったCodexコーディングライン、推論機能、汎用知識を
     1つのモデルに統合し、OpenAIメインラインモデルとして初のネイティブPC操作機能を追加しました。
@@ -32,12 +32,11 @@ body:
     最大の進歩はエージェント系ベンチマーク：OSWorldが75%（人間の72.4%を超過）、GDPvalが44職種で83%、
     ARC-AGI-2が73.3%に到達。コーディングではSWE-Bench ProでGPT-5.3-Codexに匹敵（57.7% vs 56.8%）しつつ、
     汎用知識が大幅に強化されています。GPT-5.2 Thinkingは2026年6月5日に廃止予定で、GPT-5.4が後継です。
-    78 tok/sの標準スループットと$2.50/$15の価格設定で、Claude Opus 4.6（$5/$25）と
-    Gemini 3.1 Pro（$2/$12）の間に位置します。LMSYS Chatbot Arenaにはまだランクインしていませんが、
-    トップ5争いが期待されています。
+    Codexは引き続きGPT-5.4系で動作し、優先処理ではより高速な経路も提供されますが、公開ベースラインとして重要なのは
+    標準APIの約78 tok/sと$2.50/$15です。この条件でもClaude Opus 4.6より明確に高速で、価格はGemini 3.1 Proに近い水準です。
 
 date: "2026-03-05"
-timestamp: 1741161600000
+timestamp: 1772668800000
 
 tags:
   - release
@@ -64,8 +63,8 @@ providers:
 
 comparisons:
   - { model: "GPT-5.4", tps: 78, factor: 1 }
-  - { model: "GPT-5.3-Codex", tps: 53, factor: 0.68 }
-  - { model: "Claude Opus 4.6", tps: 37, factor: 0.47 }
+  - { model: "GPT-5.3-Codex", tps: 62, factor: 1.26 }
+  - { model: "Claude Opus 4.6", tps: 41, factor: 1.9 }
 
 specs:
   - label: { en: "Context", ja: "コンテキスト" }

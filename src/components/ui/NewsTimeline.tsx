@@ -1,5 +1,5 @@
 import { Newspaper, ExternalLink, Cpu, Lightbulb } from "lucide-react";
-import type { NewsPost } from "../../data/types";
+import type { NewsPost, Provider } from "../../data/types";
 import type { Lang } from "../../data/i18n";
 
 const MONO = "'Space Mono', monospace";
@@ -8,6 +8,7 @@ const SANS_JA = "'Zen Kaku Gothic New', sans-serif";
 
 interface Props {
   posts: NewsPost[];
+  providers: Provider[];
   lang: Lang;
   labels: {
     newsTitle: string;
@@ -76,10 +77,12 @@ function ComparisonBar({
 
 function NewsCard({
   post,
+  providerLabel,
   lang,
   labels,
 }: {
   post: NewsPost;
+  providerLabel: string;
   lang: Lang;
   labels: Props["labels"];
 }) {
@@ -249,7 +252,7 @@ function NewsCard({
             <div className="flex items-center justify-between pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
               <div className="flex items-center gap-1.5 text-[11px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
                 <Newspaper className="w-3 h-3" />
-                <span style={{ fontFamily: sans }}>Taalas</span>
+                <span style={{ fontFamily: sans }}>{providerLabel}</span>
               </div>
               <a
                 href={post.link.url}
@@ -274,9 +277,10 @@ function NewsCard({
   );
 }
 
-export default function NewsTimeline({ posts, lang, labels }: Props) {
+export default function NewsTimeline({ posts, providers, lang, labels }: Props) {
   const isJa = lang === "ja";
   const sorted = [...posts].sort((a, b) => b.timestamp - a.timestamp);
+  const providerMap = new Map(providers.map((provider) => [provider.id, provider.name]));
 
   return (
     <section id="news" className="mt-10 mb-6 scroll-mt-6">
@@ -307,6 +311,7 @@ export default function NewsTimeline({ posts, lang, labels }: Props) {
           <NewsCard
             key={`${post.date}-${i}`}
             post={post}
+            providerLabel={post.providers.map((id) => providerMap.get(id)).find(Boolean) ?? "Source"}
             lang={lang}
             labels={labels}
           />

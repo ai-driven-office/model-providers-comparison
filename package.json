@@ -6,26 +6,32 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "benchmark:tps": "node scripts/benchmark-tps.mjs"
   },
   "dependencies": {
-    "@astrojs/react": "^4.4.2",
-    "@astrojs/sitemap": "^3.7.0",
+    "@astrojs/react": "^5.0.0",
+    "@astrojs/sitemap": "^3.7.1",
     "@paper-design/shaders-react": "^0.0.71",
     "@resvg/resvg-js": "^2.6.2",
-    "astro": "^5.17.3",
-    "lucide-react": "^0.575.0",
-    "motion": "^12.34.2",
+    "astro": "^6.0.3",
+    "lucide-react": "^0.577.0",
+    "motion": "^12.35.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "recharts": "^3.7.0",
-    "satori": "^0.19.2"
+    "recharts": "^3.8.0",
+    "satori": "^0.25.0",
+    "shiki": "^4.0.2"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.2.0",
+    "@tailwindcss/vite": "^4.2.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "tailwindcss": "^4.2.0",
+    "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "rollup": "4.59.0",
+    "svgo": "4.0.1"
   }
 }

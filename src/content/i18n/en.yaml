@@ -1,4 +1,4 @@
-badge: "Live Data · Feb 2026"
+badge: "Live Data · Mar 2026"
 title: AI Model Comparison
 subtitle: Speed, pricing, capabilities, and recommendations across AI model providers
 tabThroughput: Throughput
@@ -31,21 +31,21 @@ tabAbilities: Abilities
 abilityTitle: Model Ability Scores
 abilitySub: "Scores are approximate (目安) — normalized 0–100 from public benchmarks listed below"
 benchmarkTitle: Benchmark Sources
-benchmarkSub: "These scores are rough estimates derived from the following public benchmarks (Feb 2026)"
+benchmarkSub: "These scores are rough estimates derived from the following public benchmarks (Mar 2026)"
 selectModels: "Select models:"
 selectAll: ALL
 deselectAll: NONE
 tabRecommendations: Picks
 resultsTitle: Recommendations
 resultsSub: "Which model to use? We rank each capability by raw quality, cost-efficiency (score ÷ price), and speed (score × throughput). All scores are approximate — treat as a starting point, not gospel."
-resultsDisclaimer: "These recommendations are computed from approximate ability scores (0–100) normalized from public benchmarks as of Feb 2026. They are opinionated estimates and may not reflect your specific workload. Always test with your own data."
+resultsDisclaimer: "These recommendations are computed from approximate ability scores (0–100) normalized from public benchmarks as of Mar 2026. They are opinionated estimates and may not reflect your specific workload. Always test with your own data."
 bestAbsolute: BEST
 bestValue: VALUE
 bestSpeed: SPEED
 ctaTitle: "Help us keep this accurate"
 ctaBody: "Found a wrong price, missing model, or outdated benchmark? Open an issue or send a pull request — every fix helps the community."
 ctaButton: "Open an Issue or PR"
-footer: "Data sourced from OpenRouter · Prices per million tokens"
+footer: "Data sourced from provider docs, OpenRouter, and public benchmarks · Prices per million tokens"
 copyright: "©CyberAgent, Inc. · AI Driven Office (AIドリブン推進室)"
 tokSec: tokens/sec
 speed: Speed
@@ -57,8 +57,8 @@ colAverage: Average
 lastUpdated: "Last updated"
 downloadMd: "Download as Markdown"
 tickerHeadline: "NEW SPEED RECORD"
-tickerModel: "Llama 3.1 8B on Taalas HC1 — 16,960 tokens/sec — 17x faster than Cerebras"
-tickerDetail: "Custom silicon chip hardwires the model into transistors — no SRAM, no HBM, 10x less power"
+tickerModel: "Llama 3.1 8B on Taalas HC1 — 17,000 tokens/sec — 32x faster than Cerebras"
+tickerDetail: "Custom silicon hardwires the model into transistors — but the first public version is aggressively quantized"
 tickerTry: "Try it free at chatjimmy.ai"
 tickerLearn: "How it works: the path to ubiquitous AI"
 tickerUseCase: "Use cases: real-time chat, edge AI coding assistants, multilingual agents, instant summarization"

@@ -1,9 +1,12 @@
 name: Opus 4.6 Fast
 provider: anthropic
-tps: 93
-input: 60
-output: 225
+tps: 103
+input: 30
+output: 150
+inputLong: 60
+outputLong: 225
 tag: fast
+link: https://github.blog/changelog/2026-02-07-claude-opus-4-6-fast-is-now-in-public-preview-for-github-copilot/
 abilities:
   planning: 92
   coding: 88

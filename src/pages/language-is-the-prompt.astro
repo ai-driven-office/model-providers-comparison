@@ -1,0 +1,12 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LanguageIsThePromptPage from "../components/LanguageIsThePromptPage";
+---
+
+<BaseLayout
+  lang="ja"
+  title="The Language Is the Prompt - Why Elixir Destroys Python at Code Generation"
+  description="How Elixir achieves 87.4% Pass@1 on AutoCodeBench while Python manages 43.9%. Language design IS the prompt. Research paper explained for engineers."
+>
+  <LanguageIsThePromptPage client:load />
+</BaseLayout>

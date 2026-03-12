@@ -40,7 +40,7 @@ export const GET: APIRoute = async () => {
   md.push(`**Last updated:** ${buildDate}`);
   md.push(`**Source:** [AI Driven Office](${base}/)`);
   md.push(
-    `**Data:** [OpenRouter](https://openrouter.ai/) · Prices per million tokens`,
+    `**Data:** provider docs · [OpenRouter](https://openrouter.ai/) · public benchmarks such as [Artificial Analysis](https://artificialanalysis.ai/)`,
   );
   md.push("");
 
@@ -81,7 +81,7 @@ export const GET: APIRoute = async () => {
   md.push("## Ability Scores (0–100)");
   md.push("");
   md.push(
-    "Scores are approximate — normalized 0–100 from public benchmarks (Feb 2026).",
+    "Scores are approximate — normalized 0–100 from public benchmarks (Mar 2026).",
   );
   md.push("");
   md.push(

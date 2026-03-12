@@ -1,8 +1,11 @@
 name: Gemini 3.1 Pro
 provider: google-vertex
-tps: 81
+tps: 103
 input: 2
 output: 12
+inputLong: 4
+outputLong: 18
+link: https://cloud.google.com/vertex-ai/generative-ai/pricing
 abilities:
   planning: 93
   coding: 88

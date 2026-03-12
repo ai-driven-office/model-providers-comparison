@@ -1,8 +1,9 @@
 name: GLM 5
 provider: siliconflow
-tps: 43
+tps: 36
 input: 0.30
 output: 2.55
+link: https://www.siliconflow.com/models/glm-5
 abilities:
   planning: 83
   coding: 84

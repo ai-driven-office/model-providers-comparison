@@ -19,9 +19,10 @@ const SANS = "'Inter', system-ui, sans-serif";
 
 function PricingTooltip({ active, payload, lang, colorMap }: any) {
   if (!active || !payload?.length) return null;
-  const d = payload[0].payload as Model;
+  const d = payload[0].payload as Model & { input: number; output: number };
   const color = getColor(d.provider, colorMap);
   const isJa = lang === "ja";
+  const hasLongPricing = d.inputLong != null || d.outputLong != null;
   const labels = isJa
     ? { input: "入力", output: "出力", throughput: "スループット", longCtx: ">200K" }
     : { input: "Input", output: "Output", throughput: "Throughput", longCtx: ">200K ctx" };
@@ -49,19 +50,23 @@ function PricingTooltip({ active, payload, lang, colorMap }: any) {
         {labels.output}:{" "}
         <span className="text-white font-semibold">{formatPrice(d.output, lang)}/M</span>
       </div>
-      {d.inputLong != null && (
+      {hasLongPricing && (
         <div className="mt-1.5 pt-1.5 border-t border-white/10">
           <div className="text-orange-300/80 text-[11px] font-semibold mb-0.5">
             {labels.longCtx}
           </div>
-          <div className="text-gray-300 text-[13px]">
-            {labels.input}:{" "}
-            <span className="text-orange-200 font-semibold">{formatPrice(d.inputLong, lang)}/M</span>
-          </div>
-          <div className="text-gray-300 text-[13px]">
-            {labels.output}:{" "}
-            <span className="text-orange-200 font-semibold">{formatPrice(d.outputLong!, lang)}/M</span>
-          </div>
+          {d.inputLong != null && (
+            <div className="text-gray-300 text-[13px]">
+              {labels.input}:{" "}
+              <span className="text-orange-200 font-semibold">{formatPrice(d.inputLong, lang)}/M</span>
+            </div>
+          )}
+          {d.outputLong != null && (
+            <div className="text-gray-300 text-[13px]">
+              {labels.output}:{" "}
+              <span className="text-orange-200 font-semibold">{formatPrice(d.outputLong, lang)}/M</span>
+            </div>
+          )}
         </div>
       )}
       <div className="text-gray-300 text-[13px] mt-1">
@@ -82,11 +87,15 @@ interface Props {
 }
 
 export default function PricingChart({ data, lang, colorMap, labels }: Props) {
-  const hasLong = data.some((m) => m.outputLong != null);
+  const pricedData = data.filter(
+    (m): m is Model & { input: number; output: number } =>
+      m.input != null && m.output != null,
+  );
+  const hasLong = pricedData.some((m) => m.outputLong != null);
   const X_CAP = 35;
 
-  const chartData = [...data]
-    .sort((a, b) => (a.output ?? 0) - (b.output ?? 0))
+  const chartData = [...pricedData]
+    .sort((a, b) => a.output - b.output)
     .map((m) => {
       const clamped = m.output > X_CAP;
       return {

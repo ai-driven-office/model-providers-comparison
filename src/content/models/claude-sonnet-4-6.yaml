@@ -1,8 +1,9 @@
 name: Claude Sonnet 4.6
 provider: anthropic
-tps: 41
+tps: 43
 input: 3
 output: 15
+link: https://www.anthropic.com/news/claude-sonnet-4-6
 abilities:
   planning: 85
   coding: 86

@@ -1,0 +1,12 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LanguagesPage from "../components/LanguagesPage";
+---
+
+<BaseLayout
+  lang="ja"
+  title="GPT-5.4 Medium 言語ガイド — AIモデル比較"
+  description="GPT-5.4 Medium に限定したコーディング言語ベンチマーク。AutoCodeBenchmark fork の結果を言語別に確認できます。"
+>
+  <LanguagesPage client:load />
+</BaseLayout>

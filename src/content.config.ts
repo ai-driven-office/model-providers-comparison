@@ -6,7 +6,7 @@ const bilingualText = z.object({ en: z.string(), ja: z.string() });
 
 const i18n = defineCollection({
   loader: glob({ pattern: "**/*.yaml", base: "./src/content/i18n" }),
-  schema: z.record(z.string()),
+  schema: z.record(z.string(), z.string()),
 });
 
 const providers = defineCollection({
@@ -30,7 +30,7 @@ const models = defineCollection({
   loader: glob({ pattern: "**/*.yaml", base: "./src/content/models" }),
   schema: z.object({
     name: z.string(),
-    provider: z.string(), // references provider id (filename stem)
+    provider: z.string(),
     tps: z.number(),
     input: z.number().nullable().default(null),
     output: z.number().nullable().default(null),
@@ -49,8 +49,8 @@ const news = defineCollection({
   schema: z.object({
     title: bilingualText,
     body: bilingualText,
-    date: z.string(), // "2026-02-20"
-    timestamp: z.number(), // Unix ms for precise sort
+    date: z.string(),
+    timestamp: z.number(),
     tags: z.array(z.string()).default([]),
     featured: z.boolean().default(false),
     link: z

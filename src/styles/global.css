@@ -27,7 +27,7 @@
 
 @theme {
   --font-sans: "Inter", "Inter Fallback", system-ui, sans-serif;
-  --font-mono: "Space Mono", ui-monospace, "SFMono-Regular", monospace;
+  --font-mono: "JetBrains Mono", "Fira Code", "Space Mono", ui-monospace, "SFMono-Regular", monospace;
   --font-jp: "Zen Kaku Gothic New", "JP Fallback", system-ui, sans-serif;
 
   --color-aid-red: #FF0413;
@@ -79,8 +79,17 @@ h1, h2, h3, h4, h5, h6,
   font-kerning: normal;
 }
 
-code, kbd, samp, pre {
+kbd, samp {
   font-variant-ligatures: none;
+}
+
+/* Force monospace on code blocks — override :lang() selectors */
+pre, pre *,
+code, code *,
+.shiki-wrapper, .shiki-wrapper * {
+  font-family: var(--font-mono) !important;
+  font-variant-ligatures: common-ligatures contextual;
+  font-feature-settings: "liga" 1, "calt" 1;
 }
 
 /* ─── Scrollbar-hide utility (mobile tab bar) ─── */
