@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type ReactNode } from "react";
-import { ArrowLeft, Zap, Code2, Beaker, Shield, Layers, GitBranch, Terminal, BookOpen, Cpu, FlaskConical, Sparkles } from "lucide-react";
+import { ArrowLeft, Zap, Code2, Beaker, Shield, Layers, GitBranch, Terminal, BookOpen, Cpu, FlaskConical, Sparkles, FileCheck, Shuffle, Lock, ArrowRight, Paintbrush, FileText } from "lucide-react";
 import { createHighlighter, type Highlighter } from "shiki";
 import type { Lang } from "../data/i18n";
 
@@ -38,18 +38,18 @@ const content = {
     hypothesisTitle: "The Explicitness Hypothesis",
     hypothesisSub: "Languages that make intent, contracts, and data flow locally visible reduce the predictive burden on LLMs.",
     principles: [
-      { title: "Explicit Contracts", desc: "Tagged success/error tuples are short, explicit, and heavily repeated  - LLMs love patterns." },
-      { title: "Pattern Matching", desc: "Branching logic lives in function heads and case expressions  - no hidden if/else chains to reason about." },
-      { title: "Immutability Default", desc: "No stale state. No mutation bugs. The model never has to track what changed where." },
-      { title: "Pipe Operator", desc: "Data flows left-to-right through |> pipes  - each step is locally obvious and self-documenting." },
-      { title: "Formatter Uniformity", desc: "mix format collapses all stylistic freedom. One way to write code = less entropy for LLMs." },
-      { title: "Executable Docs", desc: "Doctests embed working examples right in the documentation. Tests, docs, and code are perfectly aligned." },
+      { title: "Explicit Contracts", desc: "Tagged success/error tuples are short, explicit, and heavily repeated  - LLMs love patterns.", icon: "contract" },
+      { title: "Pattern Matching", desc: "Branching logic lives in function heads and case expressions  - no hidden if/else chains to reason about.", icon: "pattern" },
+      { title: "Immutability Default", desc: "No stale state. No mutation bugs. The model never has to track what changed where.", icon: "lock" },
+      { title: "Pipe Operator", desc: "Data flows left-to-right through |> pipes  - each step is locally obvious and self-documenting.", icon: "pipe" },
+      { title: "Formatter Uniformity", desc: "mix format collapses all stylistic freedom. One way to write code = less entropy for LLMs.", icon: "format" },
+      { title: "Executable Docs", desc: "Doctests embed working examples right in the documentation. Tests, docs, and code are perfectly aligned.", icon: "docs" },
     ],
     difficultyTitle: "The Hard Problem Gap",
     difficultySub: "On hard tasks, Elixir barely flinches while other languages collapse.",
     difficultyNote: "Elixir barely degrades from easy to hard problems. Python collapses.",
     codeTitle: "Show Me the Code",
-    codeSub: "Elixir features side-by-side with how you'd write them in other languages. See why explicitness wins.",
+    codeSub: "Elixir stays on the left; the selected language shows the closest idiomatic equivalent, using current language features and common libraries when they matter.",
     paperLink: "Read the full paper",
     paperLinkSub: "Günther Brunner, CyberAgent Inc.",
     methodology: "Source: \"The Language Is the Prompt\" by Günther Brunner, CyberAgent Inc.",
@@ -77,18 +77,18 @@ const content = {
     hypothesisTitle: "明示性仮説",
     hypothesisSub: "意図・契約・データフローをローカルに可視化する言語は、LLMの予測負荷を減らす。",
     principles: [
-      { title: "明示的な契約", desc: "タグ付き成功/エラータプルは短く、明示的で、頻繁に繰り返される。LLMはパターンを好む。" },
-      { title: "パターンマッチ", desc: "分岐ロジックは関数ヘッドとcase式に存在する  - 隠れたif/elseチェーンを推論する必要がない。" },
-      { title: "デフォルト不変性", desc: "古い状態なし。変異バグなし。モデルはどこで何が変わったかを追跡する必要がない。" },
-      { title: "パイプ演算子", desc: "データは |> パイプを通じて左から右に流れる  - 各ステップがローカルに明白で自己文書化される。" },
-      { title: "フォーマッタ統一", desc: "mix format がすべてのスタイルの自由度を排除。コードの書き方が1つ = LLMのエントロピーが低い。" },
-      { title: "実行可能なドキュメント", desc: "Doctestはドキュメント内に動作例を埋め込む。テスト・ドキュメント・コードが完璧に整合。" },
+      { title: "明示的な契約", desc: "タグ付き成功/エラータプルは短く、明示的で、頻繁に繰り返される。LLMはパターンを好む。", icon: "contract" },
+      { title: "パターンマッチ", desc: "分岐ロジックは関数ヘッドとcase式に存在する  - 隠れたif/elseチェーンを推論する必要がない。", icon: "pattern" },
+      { title: "デフォルト不変性", desc: "古い状態なし。変異バグなし。モデルはどこで何が変わったかを追跡する必要がない。", icon: "lock" },
+      { title: "パイプ演算子", desc: "データは |> パイプを通じて左から右に流れる  - 各ステップがローカルに明白で自己文書化される。", icon: "pipe" },
+      { title: "フォーマッタ統一", desc: "mix format がすべてのスタイルの自由度を排除。コードの書き方が1つ = LLMのエントロピーが低い。", icon: "format" },
+      { title: "実行可能なドキュメント", desc: "Doctestはドキュメント内に動作例を埋め込む。テスト・ドキュメント・コードが完璧に整合。", icon: "docs" },
     ],
     difficultyTitle: "難問での差",
     difficultySub: "難しい問題では、Elixirはほぼ動じないが他の言語は崩壊する。",
     difficultyNote: "Elixirは簡単な問題から難しい問題でもほぼ劣化しない。Pythonは崩壊する。",
     codeTitle: "コードで見る",
-    codeSub: "Elixirの特徴を他の言語での書き方と並べて比較。明示性が勝つ理由がわかる。",
+    codeSub: "左にElixir、右に選択した言語での最も自然な等価表現を表示。必要に応じて最新の言語機能や定番ライブラリを使う。",
     paperLink: "論文全文を読む",
     paperLinkSub: "Günther Brunner, CyberAgent Inc.",
     methodology: "出典: 「The Language Is the Prompt」  - Günther Brunner, CyberAgent Inc.",
@@ -326,14 +326,75 @@ function LangIcon({ id, size = 16 }: { id: LangId; size?: number }) {
   }
 }
 
+function PrincipleIcon({ id, color }: { id: string; color: string }) {
+  const s = 18;
+  switch (id) {
+    case "contract":
+      return <FileCheck size={s} style={{ color }} strokeWidth={1.8} />;
+    case "pattern":
+      return <Shuffle size={s} style={{ color }} strokeWidth={1.8} />;
+    case "lock":
+      return <Lock size={s} style={{ color }} strokeWidth={1.8} />;
+    case "pipe":
+      return <ArrowRight size={s} style={{ color }} strokeWidth={1.8} />;
+    case "format":
+      return <Paintbrush size={s} style={{ color }} strokeWidth={1.8} />;
+    case "docs":
+      return <FileText size={s} style={{ color }} strokeWidth={1.8} />;
+    default:
+      return null;
+  }
+}
+
+/* small language icons for the difficulty chart (supports JS which isn't in LangId) */
+function DiffLangIcon({ lang, color }: { lang: string; color: string }) {
+  const s = 16;
+  switch (lang) {
+    case "Elixir":
+      return (
+        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C8.5 6 6 10.5 6 14.5C6 18.64 8.69 22 12 22C15.31 22 18 18.64 18 14.5C18 10.5 15.5 6 12 2Z" fill={color} fillOpacity={0.85} />
+        </svg>
+      );
+    case "Kotlin":
+      return (
+        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+          <path d="M4 4H20L12 12L20 20H4V4Z" fill={color} />
+        </svg>
+      );
+    case "C#":
+      return (
+        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+          <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-1 5h2v2h2v2h-2v2h-2v-2H9v-2h2V7zm4 4h1v2h-1v-2zm2 0h1v2h-1v-2z" fill={color} />
+        </svg>
+      );
+    case "Python":
+      return (
+        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+          <path d="M11.9 2c-1.4 0-2.6.2-3.5.5C6.4 3.2 6 4.3 6 5.7v2h6v.7H5.2C3.4 8.4 2 10 2 12.3c0 2.3 1.4 3.9 3.2 3.9H7v-2.5c0-1.8 1.5-3.4 3.3-3.4h5.4c1.5 0 2.3-1 2.3-2.5V5.7c0-1.4-.9-2.5-2.5-2.9-.9-.3-1.9-.8-3.6-.8zM9.5 4a1 1 0 110 2 1 1 0 010-2z" fill={color} />
+          <path d="M18 8.2v2.4c0 1.8-1.5 3.5-3.3 3.5H9.3c-1.5 0-2.3 1-2.3 2.5v2.1c0 1.4 1.2 2.2 2.5 2.6 1.6.4 3.1.5 5 0 1.3-.3 2.5-1 2.5-2.6v-2h-6v-.7h8.8c1.8 0 2.5-1.3 3.2-3.1.7-1.9.7-3.7 0-6.1-.5-1.7-1.4-2.6-3.2-2.6H18zm-3.5 10a1 1 0 110 2 1 1 0 010-2z" fill={color} />
+        </svg>
+      );
+    case "JavaScript":
+      return (
+        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="2" width="20" height="20" rx="3" fill={color} fillOpacity={0.15} stroke={color} strokeWidth={1.5} />
+          <text x="12" y="16.5" textAnchor="middle" fill={color} fontSize="11" fontWeight="bold" fontFamily="system-ui">JS</text>
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
+
 const codeSamples: CodeSample[] = [
   /* ── 1. Pattern Matching ── */
   {
     id: "pattern-matching",
     title: { en: "Pattern Matching", ja: "パターンマッチング" },
     description: {
-      en: "Branching logic is explicit in function heads. No hidden if/else  - the model sees every case.",
-      ja: "分岐ロジックが関数ヘッドに明示される。隠れたif/elseなし  - モデルは全ケースを見れる。",
+      en: "Same branching idea, rendered idiomatically in each language: tagged data plus the native branching construct each ecosystem actually uses.",
+      ja: "同じ分岐の考え方を各言語で素直に書く: タグ付きデータと、その言語圏で実際に使われる自然な分岐構文を組み合わせる。",
     },
     icon: <GitBranch className="w-4 h-4" />,
     snippets: {
@@ -347,142 +408,209 @@ Shape.area({:circle, 5})    # => 78.54
 Shape.area({:rect, 3, 4})   # => 12
 Shape.area({:triangle, 6, 3}) # => 9.0`,
 
-      python: `import math
-from dataclasses import dataclass
+      python: `from dataclasses import dataclass
+from math import pi
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class Circle:
-    r: float
+    radius: float
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class Rect:
-    w: float
-    h: float
+    width: float
+    height: float
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class Triangle:
-    b: float
-    h: float
+    base: float
+    height: float
 
 type Shape = Circle | Rect | Triangle
 
 def area(shape: Shape) -> float:
     match shape:
-        case Circle(r=r):
-            return math.pi * r * r
-        case Rect(w=w, h=h):
-            return w * h
-        case Triangle(b=b, h=h):
-            return 0.5 * b * h`,
+        case Circle(radius):
+            return pi * radius ** 2
+        case Rect(width, height):
+            return width * height
+        case Triangle(base, height):
+            return 0.5 * base * height
+
+area(Circle(5))         # 78.53981633974483
+area(Rect(3, 4))        # 12
+area(Triangle(6, 3))    # 9.0`,
 
       typescript: `type Shape =
-  | { kind: "circle"; r: number }
-  | { kind: "rect"; w: number; h: number }
-  | { kind: "triangle"; b: number; h: number }
+  | { kind: "circle"; radius: number }
+  | { kind: "rect"; width: number; height: number }
+  | { kind: "triangle"; base: number; height: number }
 
-function area(shape: Shape): number {
+const area = (shape: Shape): number => {
   switch (shape.kind) {
     case "circle":
-      return Math.PI * shape.r ** 2
+      return Math.PI * shape.radius ** 2
     case "rect":
-      return shape.w * shape.h
+      return shape.width * shape.height
     case "triangle":
-      return 0.5 * shape.b * shape.h
+      return 0.5 * shape.base * shape.height
+    default: {
+      const exhaustiveCheck: never = shape
+      return exhaustiveCheck
+    }
   }
-}`,
+}
 
-      typescript_effect: `import { Match } from "effect"
+area({ kind: "circle", radius: 5 }) // 78.53981633974483
+area({ kind: "rect", width: 3, height: 4 }) // 12
+area({ kind: "triangle", base: 6, height: 3 }) // 9`,
 
-type Shape =
-  | { _tag: "Circle"; r: number }
-  | { _tag: "Rect"; w: number; h: number }
-  | { _tag: "Triangle"; b: number; h: number }
+      typescript_effect: `import { Data } from "effect"
 
-const area = Match.type<Shape>().pipe(
-  Match.tag("Circle", ({ r }) => Math.PI * r ** 2),
-  Match.tag("Rect", ({ w, h }) => w * h),
-  Match.tag("Triangle", ({ b, h }) => 0.5 * b * h),
-  Match.exhaustive
-)`,
+type Shape = Data.TaggedEnum<{
+  Circle: { radius: number }
+  Rect: { width: number; height: number }
+  Triangle: { base: number; height: number }
+}>
+
+const Shape = Data.taggedEnum<Shape>()
+
+const area = Shape.$match({
+  Circle: ({ radius }) => Math.PI * radius ** 2,
+  Rect: ({ width, height }) => width * height,
+  Triangle: ({ base, height }) => 0.5 * base * height,
+})
+
+area(Shape.Circle({ radius: 5 })) // 78.53981633974483
+area(Shape.Rect({ width: 3, height: 4 })) // 12
+area(Shape.Triangle({ base: 6, height: 3 })) // 9`,
 
       go: `import "math"
 
-type Shape interface{ area() float64 }
+type Shape interface{ shape() }
 
-type Circle struct{ R float64 }
-func (c Circle) area() float64 {
-  return math.Pi * c.R * c.R
+type Circle struct{ Radius float64 }
+func (Circle) shape() {}
+
+type Rect struct {
+  Width  float64
+  Height float64
+}
+func (Rect) shape() {}
+
+type Triangle struct {
+  Base   float64
+  Height float64
+}
+func (Triangle) shape() {}
+
+func area(shape Shape) float64 {
+  switch s := shape.(type) {
+  case Circle:
+    return math.Pi * s.Radius * s.Radius
+  case Rect:
+    return s.Width * s.Height
+  case Triangle:
+    return 0.5 * s.Base * s.Height
+  }
+  panic("unreachable")
 }
 
-type Rect struct{ W, H float64 }
-func (r Rect) area() float64 {
-  return r.W * r.H
-}
-
-type Triangle struct{ B, H float64 }
-func (t Triangle) area() float64 {
-  return 0.5 * t.B * t.H
-}`,
+area(Circle{Radius: 5})          // 78.53981633974483
+area(Rect{Width: 3, Height: 4})  // 12
+area(Triangle{Base: 6, Height: 3}) // 9`,
 
       csharp: `using System;
 
 abstract record Shape;
-record Circle(double R) : Shape;
-record Rect(double W, double H) : Shape;
-record Triangle(double B, double H) : Shape;
+sealed record Circle(double Radius) : Shape;
+sealed record Rect(double Width, double Height) : Shape;
+sealed record Triangle(double BaseLength, double Height) : Shape;
 
 static double Area(Shape shape) => shape switch
 {
-    Circle(var r)          => Math.PI * r * r,
-    Rect(var w, var h)     => w * h,
-    Triangle(var b, var h) => 0.5 * b * h,
-    _ => throw new ArgumentException("Unknown shape")
-};`,
+    Circle(var radius) => Math.PI * radius * radius,
+    Rect(var width, var height) => width * height,
+    Triangle(var baseLength, var height) => 0.5 * baseLength * height,
+    _ => throw new ArgumentOutOfRangeException(nameof(shape))
+};
+
+Area(new Circle(5));          // 78.53981633974483
+Area(new Rect(3, 4));         // 12
+Area(new Triangle(6, 3));     // 9`,
 
       dart: `import 'dart:math';
 
-sealed class Shape {}
-class Circle extends Shape { final double r; Circle(this.r); }
-class Rect extends Shape { final double w, h; Rect(this.w, this.h); }
-class Triangle extends Shape { final double b, h; Triangle(this.b, this.h); }
+sealed class Shape {
+  const Shape();
+}
 
-double area(Shape s) => switch (s) {
-  Circle(r: var r) => pi * r * r,
-  Rect(w: var w, h: var h) => w * h,
-  Triangle(b: var b, h: var h) => 0.5 * b * h,
-};`,
+final class Circle extends Shape {
+  const Circle(this.radius);
+  final double radius;
+}
+
+final class Rect extends Shape {
+  const Rect(this.width, this.height);
+  final double width;
+  final double height;
+}
+
+final class Triangle extends Shape {
+  const Triangle(this.baseLength, this.height);
+  final double baseLength;
+  final double height;
+}
+
+double area(Shape shape) => switch (shape) {
+  Circle(radius: final radius) => pi * radius * radius,
+  Rect(width: final width, height: final height) => width * height,
+  Triangle(baseLength: final baseLength, height: final height) =>
+    0.5 * baseLength * height,
+};
+
+area(const Circle(5));      // 78.53981633974483
+area(const Rect(3, 4));     // 12
+area(const Triangle(6, 3)); // 9`,
 
       swift: `import Foundation
 
 enum Shape {
-  case circle(r: Double)
-  case rect(w: Double, h: Double)
-  case triangle(b: Double, h: Double)
+  case circle(radius: Double)
+  case rect(width: Double, height: Double)
+  case triangle(base: Double, height: Double)
 }
 
 func area(_ shape: Shape) -> Double {
   switch shape {
-  case .circle(let r):
-    return .pi * r * r
-  case .rect(let w, let h):
-    return w * h
-  case .triangle(let b, let h):
-    return 0.5 * b * h
+  case let .circle(radius):
+    return .pi * radius * radius
+  case let .rect(width, height):
+    return width * height
+  case let .triangle(base, height):
+    return 0.5 * base * height
   }
-}`,
+}
+
+area(.circle(radius: 5))           // 78.53981633974483
+area(.rect(width: 3, height: 4))   // 12
+area(.triangle(base: 6, height: 3)) // 9`,
 
       kotlin: `import kotlin.math.PI
 
 sealed interface Shape
-data class Circle(val r: Double) : Shape
-data class Rect(val w: Double, val h: Double) : Shape
-data class Triangle(val b: Double, val h: Double) : Shape
+data class Circle(val radius: Double) : Shape
+data class Rect(val width: Double, val height: Double) : Shape
+data class Triangle(val base: Double, val height: Double) : Shape
 
 fun area(shape: Shape): Double = when (shape) {
-  is Circle -> PI * shape.r * shape.r
-  is Rect -> shape.w * shape.h
-  is Triangle -> 0.5 * shape.b * shape.h
-}`,
+  is Circle -> PI * shape.radius * shape.radius
+  is Rect -> shape.width * shape.height
+  is Triangle -> 0.5 * shape.base * shape.height
+}
+
+area(Circle(5.0))         // 78.53981633974483
+area(Rect(3.0, 4.0))      // 12
+area(Triangle(6.0, 3.0))  // 9`,
     },
   },
 
@@ -491,8 +619,8 @@ fun area(shape: Shape): Double = when (shape) {
     id: "result-types",
     title: { en: "Result Types & Error Handling", ja: "Result型とエラーハンドリング" },
     description: {
-      en: "Tagged tuples  - the strongest portable signal across all languages tested. Explicit success/failure contracts LLMs can latch onto.",
-      ja: "タグ付きタプル  - テストされた全言語で最も強力なポータブルシグナル。LLMが活用できる明示的な成功/失敗契約。",
+      en: "Same explicit success/failure contract, but rendered in each ecosystem's native style: `Result` containers where they are common, Effect's typed error channel, and Go's standard `(value, error)` pair.",
+      ja: "同じ成功/失敗の明示的な契約を、各言語圏の自然な形で表現する: 一般的な`Result`コンテナ、Effectの型付きエラーチャネル、そしてGoの標準的な`(value, error)`。",
     },
     icon: <Shield className="w-4 h-4" />,
     snippets: {
@@ -515,185 +643,253 @@ def update_email(user_id, new_email) do
 end`,
 
       python: `from dataclasses import dataclass
-from typing import TypeVar, Generic
+from returns.result import Failure, Result, Success
 
-T = TypeVar("T")
+@dataclass(frozen=True, slots=True)
+class NotFound:
+    user_id: int
 
-@dataclass
-class Ok(Generic[T]):
-    value: T
+@dataclass(frozen=True, slots=True)
+class UpdateFailed:
+    message: str
 
-@dataclass
-class Err:
-    error: str
+type UpdateEmailError = NotFound | UpdateFailed
 
-type Result[T] = Ok[T] | Err
+def fetch_user(user_id: int) -> Result[User, UpdateEmailError]:
+    user = repo.get(user_id)
+    return Success(user) if user is not None else Failure(NotFound(user_id))
 
-def fetch_user(id: int) -> Result[User]:
-    user = repo.get(User, id)
-    if user is None:
-        return Err("not_found")
-    return Ok(user)
+def persist_email(user: User, new_email: str) -> Result[User, UpdateEmailError]:
+    return repo.update(user, email=new_email).alt(UpdateFailed)
 
-def update_email(user_id: int, new_email: str) -> Result[User]:
-    match fetch_user(user_id):
-        case Err() as e:
-            return e
-        case Ok(user):
-            match repo.update(user, email=new_email):
-                case Err() as e:
-                    return Err(f"Update failed: {e.error}")
-                case Ok(updated):
-                    return Ok(updated)`,
+def update_email(user_id: int, new_email: str) -> Result[User, UpdateEmailError]:
+    return fetch_user(user_id).bind(
+        lambda user: persist_email(user, new_email)
+    )`,
 
-      typescript: `type Result<T> =
+      typescript: `type Result<T, E> =
   | { ok: true; value: T }
-  | { ok: false; error: string }
+  | { ok: false; error: E }
 
-function fetchUser(id: number): Result<User> {
-  const user = repo.get(User, id)
-  if (!user) return { ok: false, error: "not_found" }
-  return { ok: true, value: user }
+type UpdateEmailError =
+  | { type: "not_found"; userId: number }
+  | { type: "update_failed"; message: string }
+
+const fetchUser = (userId: number): Result<User, UpdateEmailError> => {
+  const user = repo.get(userId)
+  return user
+    ? { ok: true, value: user }
+    : { ok: false, error: { type: "not_found", userId } }
 }
 
-function updateEmail(userId: number, newEmail: string): Result<User> {
+const persistEmail = (
+  user: User,
+  newEmail: string,
+): Result<User, UpdateEmailError> => {
+  const result = repo.update(user, { email: newEmail })
+  return result.ok
+    ? result
+    : { ok: false, error: { type: "update_failed", message: result.error } }
+}
+
+const updateEmail = (
+  userId: number,
+  newEmail: string,
+): Result<User, UpdateEmailError> => {
   const userResult = fetchUser(userId)
   if (!userResult.ok) return userResult
 
-  const updateResult = repo.update(userResult.value, { email: newEmail })
-  if (!updateResult.ok) return { ok: false, error: \`Update failed: \${updateResult.error}\` }
-
-  return updateResult
+  return persistEmail(userResult.value, newEmail)
 }`,
 
-      typescript_effect: `import { Effect, pipe } from "effect"
+      typescript_effect: `import { Data, Effect } from "effect"
 
-const fetchUser = (id: number) =>
+class NotFound extends Data.TaggedError("NotFound")<{ readonly userId: number }> {}
+class UpdateFailed extends Data.TaggedError("UpdateFailed")<{
+  readonly message: string
+}> {}
+
+const fetchUser = (userId: number) =>
   Effect.gen(function* () {
-    const user = yield* repo.get(User, id)
-    if (!user) return yield* Effect.fail(new NotFoundError())
+    const user = yield* repo.get(userId)
+    if (!user) {
+      return yield* Effect.fail(new NotFound({ userId }))
+    }
     return user
   })
 
-const updateEmail = (userId: number, newEmail: string) =>
-  pipe(
-    fetchUser(userId),
-    Effect.flatMap((user) =>
-      repo.update(user, { email: newEmail })
-    ),
-    Effect.mapError((e) => new UpdateError(e.message))
+const persistEmail = (user: User, newEmail: string) =>
+  repo.update(user, { email: newEmail }).pipe(
+    Effect.mapError((message) => new UpdateFailed({ message })),
   )
 
-// Caller: errors are typed, composable, and tracked
-const program = pipe(
-  updateEmail(42, "new@example.com"),
-  Effect.catchTag("NotFoundError", () => Effect.succeed(fallback))
+const updateEmail = (userId: number, newEmail: string) =>
+  Effect.gen(function* () {
+    const user = yield* fetchUser(userId)
+    return yield* persistEmail(user, newEmail)
+  })
+
+const program = updateEmail(42, "new@example.com").pipe(
+  Effect.catchTag("NotFound", () => Effect.succeed(fallback)),
 )`,
 
-      go: `import "fmt"
+      go: `import (
+  "errors"
+  "fmt"
+)
 
-func fetchUser(id int) (*User, error) {
-	user, err := repo.Get(id)
-	if err != nil {
-		return nil, fmt.Errorf("not found: %w", err)
-	}
-	return user, nil
+var ErrNotFound = errors.New("user not found")
+
+func fetchUser(userID int) (User, error) {
+  user, ok := repo.Get(userID)
+  if !ok {
+    return User{}, ErrNotFound
+  }
+  return user, nil
 }
 
-func updateEmail(userID int, newEmail string) (*User, error) {
-	user, err := fetchUser(userID)
-	if err != nil {
-		return nil, err
-	}
+func updateEmail(userID int, newEmail string) (User, error) {
+  user, err := fetchUser(userID)
+  if err != nil {
+    return User{}, err
+  }
 
-	updated, err := repo.Update(user, map[string]any{"email": newEmail})
-	if err != nil {
-		return nil, fmt.Errorf("update failed: %w", err)
-	}
-	return updated, nil
+  updated, err := repo.Update(user, newEmail)
+  if err != nil {
+    return User{}, fmt.Errorf("update email: %w", err)
+  }
+  return updated, nil
+}
+
+if _, err := updateEmail(42, "new@example.com"); errors.Is(err, ErrNotFound) {
+  log.Println("missing user")
 }`,
 
-      csharp: `// C#: nullable return or custom Result<T>
-public record Result<T>(bool IsOk, T? Value = default, string? Error = null)
+      csharp: `public readonly record struct Result<TValue, TError>(
+    TValue? Value,
+    TError? Error
+)
 {
-    public static Result<T> Ok(T value) => new(true, Value: value);
-    public static Result<T> Err(string error) => new(false, Error: error);
+    public bool IsOk => Error is null;
+    public static Result<TValue, TError> Ok(TValue value) => new(value, default);
+    public static Result<TValue, TError> Fail(TError error) => new(default, error);
 }
 
-Result<User> FetchUser(int id)
+public abstract record UpdateEmailError
 {
-    var user = repo.Get(id);
-    return user is null
-        ? Result<User>.Err("not_found")
-        : Result<User>.Ok(user);
+    public sealed record NotFound(int UserId) : UpdateEmailError;
+    public sealed record UpdateFailed(string Message) : UpdateEmailError;
 }
 
-Result<User> UpdateEmail(int userId, string newEmail) =>
+static Result<User, UpdateEmailError> FetchUser(int userId) =>
+    repo.Get(userId) is { } user
+        ? Result<User, UpdateEmailError>.Ok(user)
+        : Result<User, UpdateEmailError>.Fail(new UpdateEmailError.NotFound(userId));
+
+static Result<User, UpdateEmailError> PersistEmail(User user, string newEmail) =>
+    repo.Update(user, newEmail) switch
+    {
+        { IsOk: true, Value: var updated } => Result<User, UpdateEmailError>.Ok(updated!),
+        { Error: var message } => Result<User, UpdateEmailError>.Fail(
+            new UpdateEmailError.UpdateFailed(message!)
+        ),
+    };
+
+static Result<User, UpdateEmailError> UpdateEmail(int userId, string newEmail) =>
     FetchUser(userId) switch
     {
-        { IsOk: false } r => r,
-        { Value: var user } => repo.Update(user, newEmail) switch
-        {
-            { IsOk: false, Error: var e } => Result<User>.Err($"Update failed: {e}"),
-            var ok => ok,
-        },
+        { IsOk: false, Error: var error } => Result<User, UpdateEmailError>.Fail(error!),
+        { Value: var user } => PersistEmail(user!, newEmail),
     };`,
 
-      dart: `sealed class Result<T> {}
-class Ok<T> extends Result<T> { final T value; Ok(this.value); }
-class Err<T> extends Result<T> { final String error; Err(this.error); }
-
-Result<User> fetchUser(int id) {
-  final user = repo.get(User, id);
-  if (user == null) return Err('not_found');
-  return Ok(user);
+      dart: `sealed class UpdateEmailError {
+  const UpdateEmailError();
 }
+
+final class NotFound extends UpdateEmailError {
+  const NotFound(this.userId);
+  final int userId;
+}
+
+final class UpdateFailed extends UpdateEmailError {
+  const UpdateFailed(this.message);
+  final String message;
+}
+
+sealed class Result<T> {
+  const Result();
+}
+
+final class Ok<T> extends Result<T> {
+  const Ok(this.value);
+  final T value;
+}
+
+final class Err<T> extends Result<T> {
+  const Err(this.error);
+  final UpdateEmailError error;
+}
+
+Result<User> fetchUser(int userId) {
+  final user = repo.get(userId);
+  return user == null ? Err(NotFound(userId)) : Ok(user);
+}
+
+Result<User> persistEmail(User user, String newEmail) =>
+  switch (repo.update(user, email: newEmail)) {
+    Ok(:final value) => Ok(value),
+    Err(:final error) => Err(UpdateFailed(error)),
+  };
 
 Result<User> updateEmail(int userId, String newEmail) =>
   switch (fetchUser(userId)) {
     Err(:final error) => Err(error),
-    Ok(:final value) => switch (repo.update(value, email: newEmail)) {
-      Err(:final error) => Err('Update failed: \$error'),
-      Ok() && final result => result,
-    },
+    Ok(:final value) => persistEmail(value, newEmail),
   };`,
 
-      swift: `enum AppError: Error {
-  case notFound
-  case updateFailed(String)
+      swift: `enum UpdateEmailError: Error {
+  case notFound(userId: Int)
+  case updateFailed(message: String)
 }
 
-func fetchUser(id: Int) -> Result<User, AppError> {
+func fetchUser(id: Int) -> Result<User, UpdateEmailError> {
   guard let user = repo.get(id) else {
-    return .failure(.notFound)
+    return .failure(.notFound(userId: id))
   }
   return .success(user)
 }
 
-func updateEmail(userId: Int, newEmail: String) -> Result<User, AppError> {
+func persistEmail(_ user: User, newEmail: String) -> Result<User, UpdateEmailError> {
+  repo.update(user, email: newEmail)
+    .mapError { .updateFailed(message: $0.localizedDescription) }
+}
+
+func updateEmail(userId: Int, newEmail: String) -> Result<User, UpdateEmailError> {
   fetchUser(id: userId).flatMap { user in
-    repo.update(user, email: newEmail)
-      .mapError { .updateFailed($0.localizedDescription) }
+    persistEmail(user, newEmail: newEmail)
   }
 }`,
 
-      kotlin: `sealed interface Result<out T>
-data class Ok<T>(val value: T) : Result<T>
-data class Err(val error: String) : Result<Nothing>
+      kotlin: `import arrow.core.Either
+import arrow.core.mapLeft
+import arrow.core.raise.either
+import arrow.core.raise.ensureNotNull
 
-fun fetchUser(id: Int): Result<User> {
-  val user = repo.get(id) ?: return Err("not_found")
-  return Ok(user)
+sealed interface UpdateEmailError
+data class NotFound(val userId: Int) : UpdateEmailError
+data class UpdateFailed(val message: String) : UpdateEmailError
+
+fun fetchUser(userId: Int): Either<UpdateEmailError, User> = either {
+  ensureNotNull(repo.get(userId)) { NotFound(userId) }
 }
 
-fun updateEmail(userId: Int, newEmail: String): Result<User> =
-  when (val result = fetchUser(userId)) {
-    is Err -> result
-    is Ok -> when (val updated = repo.update(result.value, email = newEmail)) {
-      is Err -> Err("Update failed: \${updated.error}")
-      is Ok -> updated
-    }
-  }`,
+fun persistEmail(user: User, newEmail: String): Either<UpdateEmailError, User> =
+  repo.update(user, email = newEmail).mapLeft(::UpdateFailed)
+
+fun updateEmail(userId: Int, newEmail: String): Either<UpdateEmailError, User> = either {
+  val user = fetchUser(userId).bind()
+  persistEmail(user, newEmail).bind()
+}`,
     },
   },
 
@@ -702,8 +898,8 @@ fun updateEmail(userId: Int, newEmail: String): Result<User> =
     id: "pipe-operator",
     title: { en: "Pipe Operator & Data Pipelines", ja: "パイプ演算子とデータパイプライン" },
     description: {
-      en: "Data flows left-to-right. Each step is locally obvious. No nested function calls to untangle.",
-      ja: "データが左から右に流れる。各ステップがローカルに明白。解きほぐす必要のあるネストされた関数呼び出しなし。",
+      en: "Same left-to-right transformation, rendered with each ecosystem's real pipeline style: native `|>` where it exists, fluent chains where they are idiomatic, and helper-based `pipe()` for TypeScript / Effect because today's Node and Bun do not natively ship the TC39 proposal.",
+      ja: "同じ左から右への変換を、各言語圏の実際の流儀で表現する: ネイティブ`|>`、自然なメソッドチェーン、そしてTypeScript / Effectでは、現行のNodeとBunがTC39提案をネイティブ実装していないため helper ベースの`pipe()`。",
     },
     icon: <Layers className="w-4 h-4" />,
     snippets: {
@@ -725,51 +921,64 @@ orders
 |> Enum.join("-")
 # => "hello-world"`,
 
-      python: `# Python: nested calls or intermediate variables
-from functools import reduce
+      python: `import re
+from operator import attrgetter
+from toolz.curried import filter, map, pipe
 
-completed = [o for o in orders if o.status == "completed"]
-totals = [o.total for o in completed]
-revenue = round(sum(totals) * 1.1, 2)
+revenue = pipe(
+    orders,
+    filter(lambda o: o.status == "completed"),
+    map(attrgetter("total")),
+    sum,
+    lambda total: round(total * 1.1, 2),
+)
 print(f"Revenue: {revenue}")
 
 # More complex pipeline
-import re
-result = "-".join(
-    re.sub(r"[^a-z0-9\\s]", "",
-        "  Hello, World!  ".strip().lower()
-    ).split()
+result = pipe(
+    "  Hello, World!  ",
+    str.strip,
+    str.lower,
+    lambda s: re.sub(r"[^a-z0-9\\s]", "", s),
+    str.split,
+    "-".join,
 )
 # => "hello-world"`,
 
-      typescript: `// TypeScript: chain methods or nest
-const revenue = orders
-  .filter((o) => o.status === "completed")
-  .map((o) => o.total)
-  .reduce((a, b) => a + b, 0)
+      typescript: `import { filter, map, pipe } from "remeda"
 
-const withTax = Math.round(revenue * 1.1 * 100) / 100
-console.log(\`Revenue: \${withTax}\`)
+// Runs today in Node/Bun. Native |> is still a proposal.
+const revenue = pipe(
+  orders,
+  filter((o) => o.status === "completed"),
+  map((o) => o.total),
+  (totals) => totals.reduce((sum, total) => sum + total, 0),
+  (sum) => Math.round(sum * 1.1 * 100) / 100,
+)
+console.log(\`Revenue: \${revenue}\`)
 
 // More complex pipeline
-const result = "  Hello, World!  "
-  .trim()
-  .toLowerCase()
-  .replace(/[^a-z0-9\\s]/g, "")
-  .split(/\\s+/)
-  .join("-")
+const result = pipe(
+  "  Hello, World!  ",
+  (s) => s.trim(),
+  (s) => s.toLowerCase(),
+  (s) => s.replace(/[^a-z0-9\\s]/g, ""),
+  (s) => s.split(/\\s+/),
+  (parts) => parts.join("-"),
+)
 // => "hello-world"`,
 
       typescript_effect: `import { pipe, Array, String } from "effect"
 
-// Effect: pipe() gives you Elixir-style composition
+// Effect's pipe() is the idiomatic today-runnable choice.
 const revenue = pipe(
   orders,
   Array.filter((o) => o.status === "completed"),
   Array.map((o) => o.total),
-  Array.reduce(0, (a, b) => a + b),
+  Array.reduce(0, (sum, total) => sum + total),
   (sum) => Math.round(sum * 1.1 * 100) / 100
 )
+console.log(\`Revenue: \${revenue}\`)
 
 // More complex pipeline
 const result = pipe(
@@ -781,49 +990,57 @@ const result = pipe(
   Array.join("-")
 )`,
 
-      go: `// Go: explicit loops, no built-in pipe
+      go: `import (
+    "fmt"
+    "math"
+    "regexp"
+    "strings"
+)
+
 var total float64
-for _, o := range orders {
-    if o.Status == "completed" {
-        total += o.Total
+for _, order := range orders {
+    if order.Status == "completed" {
+        total += order.Total
     }
 }
 revenue := math.Round(total*1.1*100) / 100
 fmt.Printf("Revenue: %.2f\\n", revenue)
 
-// More complex pipeline
-s := strings.TrimSpace("  Hello, World!  ")
-s = strings.ToLower(s)
-re := regexp.MustCompile(\`[^a-z0-9\\s]\`)
-s = re.ReplaceAllString(s, "")
-result := strings.Join(strings.Fields(s), "-")
+slugSource := strings.TrimSpace("  Hello, World!  ")
+slugSource = strings.ToLower(slugSource)
+slugSource = regexp.MustCompile(\`[^a-z0-9\\s]\`).ReplaceAllString(slugSource, "")
+result := strings.Join(strings.Fields(slugSource), "-")
 // => "hello-world"`,
 
-      csharp: `// C#: LINQ chains
+      csharp: `using System.Linq;
 using System.Text.RegularExpressions;
 
 var revenue = Math.Round(
     orders
         .Where(o => o.Status == "completed")
-        .Sum(o => o.Total) * 1.1, 2);
+        .Select(o => o.Total)
+        .Sum() * 1.1,
+    2
+);
 Console.WriteLine($"Revenue: {revenue}");
 
 // More complex pipeline
-var result = string.Join("-",
-    Regex.Replace(
-        "  Hello, World!  ".Trim().ToLower(),
-        @"[^a-z0-9\\s]", "")
-    .Split(' ', StringSplitOptions.RemoveEmptyEntries));
+var result = string.Join(
+    "-",
+    Regex
+        .Replace("  Hello, World!  ".Trim().ToLowerInvariant(), @"[^a-z0-9\\s]", "")
+        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+);
 // => "hello-world"`,
 
-      dart: `// Dart: cascade or chained
-final revenue = orders
-    .where((o) => o.status == OrderStatus.completed)
-    .map((o) => o.total)
-    .fold<double>(0, (a, b) => a + b);
-
-final withTax = (revenue * 1.1).roundToDouble();
-print('Revenue: \$withTax');
+      dart: `final revenue = (
+  orders
+      .where((o) => o.status == OrderStatus.completed)
+      .map((o) => o.total)
+      .fold<double>(0, (sum, total) => sum + total) *
+  1.1
+).toStringAsFixed(2);
+print('Revenue: \$revenue');
 
 // More complex pipeline
 final result = '  Hello, World!  '
@@ -834,27 +1051,34 @@ final result = '  Hello, World!  '
     .join('-');
 // => "hello-world"`,
 
-      swift: `// Swift: method chaining where available
-let revenue = orders
-    .filter { $0.status == .completed }
-    .map(\\.total)
-    .reduce(0, +)
+      swift: `import Foundation
 
-let withTax = (revenue * 1.1).rounded(.toNearestOrEven)
-print("Revenue: \\(withTax)")
+let revenue = (
+    orders
+        .filter { $0.status == .completed }
+        .map(\\.total)
+        .reduce(0, +) * 1.1 * 100
+).rounded() / 100
+print("Revenue: \\(revenue)")
 
-// More complex pipeline  - no built-in pipe
-let trimmed = "  Hello, World!  ".trimmingCharacters(in: .whitespaces)
-let lowered = trimmed.lowercased()
-let cleaned = lowered.replacing(/[^a-z0-9\\s]/, with: "")
-let result = cleaned.split(separator: " ").joined(separator: "-")
+let cleaned = String(
+    "  Hello, World!  "
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .lowercased()
+        .filter { $0.isLetter || $0.isNumber || $0.isWhitespace }
+)
+let result = cleaned
+    .split(whereSeparator: \\.isWhitespace)
+    .joined(separator: "-")
 // => "hello-world"`,
 
-      kotlin: `// Kotlin: scope functions help but no pipe
+      kotlin: `import kotlin.math.round
+
 val revenue = orders
+    .asSequence()
     .filter { it.status == Status.COMPLETED }
     .sumOf { it.total }
-    .let { (it * 1.1).roundTo(2) }
+    .let { round(it * 1.1 * 100) / 100 }
     .also { println("Revenue: $it") }
 
 // More complex pipeline
@@ -873,8 +1097,8 @@ val result = "  Hello, World!  "
     id: "with-statement",
     title: { en: "Happy Path Chaining (with)", ja: "ハッピーパスの連鎖（with文）" },
     description: {
-      en: "Chain multiple operations that can fail. Each step pattern-matches on success. Failures short-circuit cleanly.",
-      ja: "失敗する可能性のある複数の操作を連鎖。各ステップで成功をパターンマッチ。失敗は綺麗にショートサーキット。",
+      en: "Same happy-path flow, rendered with each ecosystem's short-circuiting idiom: do/generator DSLs where they exist, fluent binds in result libraries, and early returns where the language leans imperative.",
+      ja: "同じハッピーパスの流れを、各言語圏のショートサーキット手法で表現する: do / generator DSL、Resultライブラリの fluent bind、そして命令型寄りの言語では早期return。",
     },
     icon: <Sparkles className="w-4 h-4" />,
     snippets: {
@@ -893,174 +1117,256 @@ val result = "  Hello, World!  "
   end
 end`,
 
-      python: `def create_order(params: OrderParams) -> Result[Order]:
-    # Python: nested match or early returns
-    match authenticate(params.token):
-        case Err(e):
-            return Err("Please log in")
-        case Ok(user):
-            pass
+      python: `from dataclasses import dataclass
+from returns.result import Result
 
-    match validate_items(params.items):
-        case Err(e):
-            return Err("Invalid cart")
-        case Ok(items):
-            pass
+@dataclass(frozen=True, slots=True)
+class Unauthorized: pass
 
-    match charge_card(user, items):
-        case Err(e):
-            return Err("Payment declined")
-        case Ok(payment):
-            pass
+@dataclass(frozen=True, slots=True)
+class InvalidItems: pass
 
-    match save_order(user, items, payment):
-        case Err(e):
-            return Err(f"Order failed: {e}")
-        case Ok(order):
-            send_confirmation(user, order)
-            return Ok(order)`,
+@dataclass(frozen=True, slots=True)
+class PaymentFailed: pass
 
-      typescript: `function createOrder(params: OrderParams): Result<Order> {
-  // TypeScript: manual chaining
-  const authResult = authenticate(params.token)
-  if (!authResult.ok) return { ok: false, error: "Please log in" }
+@dataclass(frozen=True, slots=True)
+class OrderFailed:
+    message: str
+
+type CreateOrderError = Unauthorized | InvalidItems | PaymentFailed | OrderFailed
+
+def confirm(user: User, order: Order) -> Order:
+    send_confirmation(user, order)
+    return order
+
+def create_order(params: OrderParams) -> Result[Order, CreateOrderError]:
+    return Result.do(
+        confirm(user, order)
+        for user in authenticate(params.token).alt(lambda _: Unauthorized())
+        for items in validate_items(params.items).alt(lambda _: InvalidItems())
+        for payment in charge_card(user, items).alt(lambda _: PaymentFailed())
+        for order in save_order(user, items, payment).alt(
+            lambda message: OrderFailed(message)
+        )
+    )`,
+
+      typescript: `type Result<T, E> =
+  | { ok: true; value: T }
+  | { ok: false; error: E }
+
+type CreateOrderError =
+  | { type: "unauthorized" }
+  | { type: "invalid_items" }
+  | { type: "payment_failed" }
+  | { type: "order_failed"; message: string }
+
+const createOrder = (
+  params: OrderParams,
+): Result<Order, CreateOrderError> => {
+  const userResult = authenticate(params.token)
+  if (!userResult.ok) {
+    return { ok: false, error: { type: "unauthorized" } }
+  }
 
   const itemsResult = validateItems(params.items)
-  if (!itemsResult.ok) return { ok: false, error: "Invalid cart" }
+  if (!itemsResult.ok) {
+    return { ok: false, error: { type: "invalid_items" } }
+  }
 
-  const paymentResult = chargeCard(authResult.value, itemsResult.value)
-  if (!paymentResult.ok) return { ok: false, error: "Payment declined" }
+  const paymentResult = chargeCard(userResult.value, itemsResult.value)
+  if (!paymentResult.ok) {
+    return { ok: false, error: { type: "payment_failed" } }
+  }
 
   const orderResult = saveOrder(
-    authResult.value, itemsResult.value, paymentResult.value
+    userResult.value,
+    itemsResult.value,
+    paymentResult.value,
   )
-  if (!orderResult.ok) return { ok: false, error: \`Order failed: \${orderResult.error}\` }
+  if (!orderResult.ok) {
+    return {
+      ok: false,
+      error: { type: "order_failed", message: orderResult.error },
+    }
+  }
 
-  sendConfirmation(authResult.value, orderResult.value)
+  sendConfirmation(userResult.value, orderResult.value)
   return orderResult
 }`,
 
-      typescript_effect: `import { Effect, pipe } from "effect"
+      typescript_effect: `import { Data, Effect } from "effect"
 
-// Effect: gen() gives you with-like ergonomics
+class Unauthorized extends Data.TaggedError("Unauthorized") {}
+class InvalidItems extends Data.TaggedError("InvalidItems") {}
+class PaymentFailed extends Data.TaggedError("PaymentFailed") {}
+class OrderFailed extends Data.TaggedError("OrderFailed")<{
+  readonly message: string
+}> {}
+
 const createOrder = (params: OrderParams) =>
   Effect.gen(function* () {
-    const user    = yield* authenticate(params.token)
-    const items   = yield* validateItems(params.items)
-    const payment = yield* chargeCard(user, items)
-    const order   = yield* saveOrder(user, items, payment)
+    const user = yield* authenticate(params.token).pipe(
+      Effect.orElseFail(() => new Unauthorized()),
+    )
+    const items = yield* validateItems(params.items).pipe(
+      Effect.orElseFail(() => new InvalidItems()),
+    )
+    const payment = yield* chargeCard(user, items).pipe(
+      Effect.orElseFail(() => new PaymentFailed()),
+    )
+    const order = yield* saveOrder(user, items, payment).pipe(
+      Effect.mapError((message) => new OrderFailed({ message })),
+    )
+
     yield* sendConfirmation(user, order)
     return order
-  }).pipe(
-    Effect.catchTags({
-      Unauthorized: () => Effect.fail(new OrderError("Please log in")),
-      InvalidItems: () => Effect.fail(new OrderError("Invalid cart")),
-      PaymentFailed: () => Effect.fail(new OrderError("Payment declined")),
-    })
-  )`,
+  })`,
 
-      go: `func createOrder(params OrderParams) (*Order, error) {
-	user, err := authenticate(params.Token)
-	if err != nil {
-		return nil, fmt.Errorf("please log in: %w", err)
-	}
+      go: `import (
+  "errors"
+  "fmt"
+)
 
-	items, err := validateItems(params.Items)
-	if err != nil {
-		return nil, fmt.Errorf("invalid cart: %w", err)
-	}
+var (
+  ErrUnauthorized = errors.New("please log in")
+  ErrInvalidItems = errors.New("invalid cart")
+  ErrPaymentFailed = errors.New("payment declined")
+)
 
-	payment, err := chargeCard(user, items)
-	if err != nil {
-		return nil, fmt.Errorf("payment declined: %w", err)
-	}
-
-	order, err := saveOrder(user, items, payment)
-	if err != nil {
-		return nil, fmt.Errorf("order failed: %w", err)
-	}
-
-	sendConfirmation(user, order)
-	return order, nil
-}`,
-
-      csharp: `Result<Order> CreateOrder(OrderParams p)
-{
-    var auth = Authenticate(p.Token);
-    if (!auth.IsOk) return Result<Order>.Err("Please log in");
-
-    var items = ValidateItems(p.Items);
-    if (!items.IsOk) return Result<Order>.Err("Invalid cart");
-
-    var payment = ChargeCard(auth.Value!, items.Value!);
-    if (!payment.IsOk) return Result<Order>.Err("Payment declined");
-
-    var order = SaveOrder(auth.Value!, items.Value!, payment.Value!);
-    if (!order.IsOk) return Result<Order>.Err($"Order failed: {order.Error}");
-
-    SendConfirmation(auth.Value!, order.Value!);
-    return order;
-}`,
-
-      dart: `Future<Result<Order>> createOrder(OrderParams params) async {
-  return switch (await authenticate(params.token)) {
-    Err(:final error) => Err('Please log in'),
-    Ok(value: final user) => switch (await validateItems(params.items)) {
-      Err(:final error) => Err('Invalid cart'),
-      Ok(value: final items) => switch (await chargeCard(user, items)) {
-        Err(:final error) => Err('Payment declined'),
-        Ok(value: final payment) =>
-          switch (await saveOrder(user, items, payment)) {
-            Err(:final error) => Err('Order failed: \$error'),
-            Ok(value: final order) => () {
-              sendConfirmation(user, order);
-              return Ok(order);
-            }(),
-          },
-      },
-    },
-  };
-}`,
-
-      swift: `func createOrder(_ params: OrderParams) -> Result<Order, OrderError> {
-  authenticate(params.token)
-    .mapError { _ in .unauthorized("Please log in") }
-    .flatMap { user in
-      validateItems(params.items)
-        .mapError { _ in .invalidItems("Invalid cart") }
-        .flatMap { items in
-          chargeCard(user, items)
-            .mapError { _ in .paymentFailed("Payment declined") }
-            .flatMap { payment in
-              saveOrder(user, items, payment)
-                .map { order in
-                  sendConfirmation(user, order)
-                  return order
-                }
-            }
-        }
-    }
-}`,
-
-      kotlin: `fun createOrder(params: OrderParams): Result<Order> {
-  val user = when (val r = authenticate(params.token)) {
-    is Err -> return Err("Please log in")
-    is Ok -> r.value
+func createOrder(params OrderParams) (Order, error) {
+  user, err := authenticate(params.Token)
+  if err != nil {
+    return Order{}, ErrUnauthorized
   }
-  val items = when (val r = validateItems(params.items)) {
-    is Err -> return Err("Invalid cart")
-    is Ok -> r.value
+
+  items, err := validateItems(params.Items)
+  if err != nil {
+    return Order{}, ErrInvalidItems
   }
-  val payment = when (val r = chargeCard(user, items)) {
-    is Err -> return Err("Payment declined")
-    is Ok -> r.value
+
+  payment, err := chargeCard(user, items)
+  if err != nil {
+    return Order{}, ErrPaymentFailed
   }
-  val order = when (val r = saveOrder(user, items, payment)) {
-    is Err -> return Err("Order failed: \${r.error}")
-    is Ok -> r.value
+
+  order, err := saveOrder(user, items, payment)
+  if err != nil {
+    return Order{}, fmt.Errorf("order failed: %w", err)
   }
+
   sendConfirmation(user, order)
-  return Ok(order)
+  return order, nil
+}`,
+
+      csharp: `using CSharpFunctionalExtensions;
+
+Result<Order> CreateOrder(OrderParams params) =>
+    Authenticate(params.Token)
+        .MapError(_ => "Please log in")
+        .Bind(user => ValidateItems(params.Items)
+            .MapError(_ => "Invalid cart")
+            .Bind(items => ChargeCard(user, items)
+                .MapError(_ => "Payment declined")
+                .Bind(payment => SaveOrder(user, items, payment)
+                    .MapError(error => $"Order failed: {error}")
+                    .Tap(order => SendConfirmation(user, order)))));`,
+
+      dart: `import 'package:fpdart/fpdart.dart';
+
+sealed class CreateOrderError {
+  const CreateOrderError();
+}
+
+final class Unauthorized extends CreateOrderError {
+  const Unauthorized();
+}
+
+final class InvalidItems extends CreateOrderError {
+  const InvalidItems();
+}
+
+final class PaymentFailed extends CreateOrderError {
+  const PaymentFailed();
+}
+
+final class OrderFailed extends CreateOrderError {
+  const OrderFailed(this.message);
+  final String message;
+}
+
+TaskEither<CreateOrderError, Order> createOrder(OrderParams params) =>
+  TaskEither.Do((_) async {
+    final user = await _(
+      authenticate(params.token).mapLeft((_) => const Unauthorized()),
+    );
+    final items = await _(
+      validateItems(params.items).mapLeft((_) => const InvalidItems()),
+    );
+    final payment = await _(
+      chargeCard(user, items).mapLeft((_) => const PaymentFailed()),
+    );
+    final order = await _(
+      saveOrder(user, items, payment).mapLeft((message) => OrderFailed(message)),
+    );
+
+    sendConfirmation(user, order);
+    return order;
+  });`,
+
+      swift: `enum CreateOrderError: Error {
+  case unauthorized
+  case invalidItems
+  case paymentFailed
+  case orderFailed(String)
+}
+
+func createOrder(_ params: OrderParams) throws(CreateOrderError) -> Order {
+  let user = try authenticate(params.token)
+    .mapError { _ in .unauthorized }
+    .get()
+
+  let items = try validateItems(params.items)
+    .mapError { _ in .invalidItems }
+    .get()
+
+  let payment = try chargeCard(user, items)
+    .mapError { _ in .paymentFailed }
+    .get()
+
+  let order = try saveOrder(user, items, payment)
+    .mapError { .orderFailed($0.localizedDescription) }
+    .get()
+
+  sendConfirmation(user, order)
+  return order
+}`,
+
+      kotlin: `import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.withError
+
+sealed interface CreateOrderError
+data object Unauthorized : CreateOrderError
+data object InvalidItems : CreateOrderError
+data object PaymentFailed : CreateOrderError
+data class OrderFailed(val message: String) : CreateOrderError
+
+fun createOrder(params: OrderParams): Either<CreateOrderError, Order> = either {
+  val user = withError({ Unauthorized }) {
+    authenticate(params.token).bind()
+  }
+  val items = withError({ InvalidItems }) {
+    validateItems(params.items).bind()
+  }
+  val payment = withError({ PaymentFailed }) {
+    chargeCard(user, items).bind()
+  }
+  val order = withError(::OrderFailed) {
+    saveOrder(user, items, payment).bind()
+  }
+
+  sendConfirmation(user, order)
+  order
 }`,
     },
   },
@@ -1070,8 +1376,8 @@ const createOrder = (params: OrderParams) =>
     id: "concurrency",
     title: { en: "Concurrency & State", ja: "並行処理と状態管理" },
     description: {
-      en: "GenServer  - isolated processes with explicit message contracts. No shared mutable state, no locks, no data races.",
-      ja: "GenServer  - 明示的なメッセージ契約を持つ分離プロセス。共有ミュータブル状態なし、ロックなし、データ競合なし。",
+      en: "Same single-owner state machine idea, rendered with each platform's real concurrency primitive: processes, actors, channels, mailboxes, isolates, and async tasks.",
+      ja: "同じ『単一オーナーの状態機械』という考え方を、各プラットフォームの実際の並行プリミティブで表現する: プロセス、actor、channel、mailbox、isolate、async task。",
     },
     icon: <Cpu className="w-4 h-4" />,
     snippets: {
@@ -1104,143 +1410,311 @@ Counter.increment() # => 2
 Counter.get()       # => 2`,
 
       python: `import asyncio
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+
+@dataclass(frozen=True, slots=True)
+class Increment:
+    reply: asyncio.Future[int]
+
+@dataclass(frozen=True, slots=True)
+class Get:
+    reply: asyncio.Future[int]
+
+type Command = Increment | Get
 
 class Counter:
-    """Python: manual locking required for thread safety"""
     def __init__(self, initial: int = 0):
-        self._count = initial
-        self._lock = asyncio.Lock()
+        self._mailbox: asyncio.Queue[Command] = asyncio.Queue()
+        self._task = asyncio.create_task(self._run(initial))
+
+    async def _run(self, count: int) -> None:
+        while True:
+            command = await self._mailbox.get()
+            match command:
+                case Increment(reply):
+                    count += 1
+                    reply.set_result(count)
+                case Get(reply):
+                    reply.set_result(count)
 
     async def increment(self) -> int:
-        async with self._lock:
-            self._count += 1
-            return self._count
+        reply = asyncio.get_running_loop().create_future()
+        await self._mailbox.put(Increment(reply))
+        return await reply
 
     async def get(self) -> int:
-        async with self._lock:
-            return self._count
+        reply = asyncio.get_running_loop().create_future()
+        await self._mailbox.put(Get(reply))
+        return await reply
 
-# Usage
 counter = Counter(0)
 await counter.increment()  # => 1
 await counter.increment()  # => 2
 await counter.get()        # => 2`,
 
-      typescript: `// TypeScript: no built-in actor model
+      typescript: `type Command =
+  | { type: "increment"; reply: (value: number) => void }
+  | { type: "get"; reply: (value: number) => void }
+
 class Counter {
-  private count: number
+  #count: number
+  #mailbox: Command[] = []
+  #scheduled = false
 
   constructor(initial = 0) {
-    this.count = initial
+    this.#count = initial
   }
 
-  increment(): number {
-    return ++this.count
-    // ⚠️ Not thread-safe in worker threads
+  #ask(type: Command["type"]): Promise<number> {
+    return new Promise((resolve) => {
+      this.#mailbox.push({ type, reply: resolve })
+      this.#drain()
+    })
   }
 
-  get(): number {
-    return this.count
+  #drain(): void {
+    if (this.#scheduled) return
+    this.#scheduled = true
+
+    queueMicrotask(() => {
+      while (this.#mailbox.length > 0) {
+        const command = this.#mailbox.shift()!
+        switch (command.type) {
+          case "increment":
+            command.reply(++this.#count)
+            break
+          case "get":
+            command.reply(this.#count)
+            break
+        }
+      }
+      this.#scheduled = false
+    })
+  }
+
+  increment(): Promise<number> {
+    return this.#ask("increment")
+  }
+
+  get(): Promise<number> {
+    return this.#ask("get")
   }
 }
 
-// For concurrency, you'd need worker_threads + MessagePort
-// or a library like comlink`,
+// For CPU-parallel isolation, run the mailbox loop inside a Worker.
+const counter = new Counter(0)
+await counter.increment() // 1
+await counter.increment() // 2
+await counter.get() // 2`,
 
-      typescript_effect: `import { Effect, Ref } from "effect"
+      typescript_effect: `import { Data, Deferred, Effect, Mailbox, Stream } from "effect"
 
-// Effect: Ref provides safe concurrent state
+type Command = Data.TaggedEnum<{
+  Increment: { reply: Deferred.Deferred<number> }
+  Get: { reply: Deferred.Deferred<number> }
+}>
+
+const Command = Data.taggedEnum<Command>()
+
+const makeCounter = (initial = 0) =>
+  Effect.scoped(
+    Effect.gen(function* () {
+      const mailbox = yield* Mailbox.make<Command>()
+
+      yield* Effect.addFinalizer(() => mailbox.end)
+
+      yield* Mailbox.toStream(mailbox).pipe(
+        Stream.runFoldEffect(initial, (count, command) =>
+          Command.$match(command, {
+            Increment: ({ reply }) => {
+              const next = count + 1
+              return Deferred.succeed(reply, next).pipe(Effect.as(next))
+            },
+            Get: ({ reply }) =>
+              Deferred.succeed(reply, count).pipe(Effect.as(count)),
+          }),
+        ),
+        Effect.forkScoped,
+      )
+
+      const ask = (build: (reply: Deferred.Deferred<number>) => Command) =>
+        Effect.gen(function* () {
+          const reply = yield* Deferred.make<number>()
+          yield* mailbox.offer(build(reply))
+          return yield* Deferred.await(reply)
+        })
+
+      return {
+        increment: ask((reply) => Command.Increment({ reply })),
+        get: ask((reply) => Command.Get({ reply })),
+      } as const
+    }),
+  )
+
 const program = Effect.gen(function* () {
-  const counter = yield* Ref.make(0)
-
-  const increment = Ref.updateAndGet(counter, (n) => n + 1)
-  const get = Ref.get(counter)
-
-  // Concurrent operations are safe by design
-  yield* increment  // => 1
-  yield* increment  // => 2
-  const value = yield* get  // => 2
-  return value
+  const counter = yield* makeCounter(0)
+  yield* counter.increment // => 1
+  yield* counter.increment // => 2
+  return yield* counter.get // => 2
 })`,
 
-      go: `// Go: channels or mutex for concurrent state
+      go: `type command interface{ isCommand() }
+
+type increment struct{ reply chan int }
+func (increment) isCommand() {}
+
+type get struct{ reply chan int }
+func (get) isCommand() {}
+
 type Counter struct {
-	mu    sync.Mutex
-	count int
+  mailbox chan command
 }
 
 func NewCounter(initial int) *Counter {
-	return &Counter{count: initial}
+  mailbox := make(chan command)
+
+  go func() {
+    count := initial
+    for command := range mailbox {
+      switch msg := command.(type) {
+      case increment:
+        count++
+        msg.reply <- count
+      case get:
+        msg.reply <- count
+      }
+    }
+  }()
+
+  return &Counter{mailbox: mailbox}
 }
 
 func (c *Counter) Increment() int {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.count++
-	return c.count
+  reply := make(chan int)
+  c.mailbox <- increment{reply: reply}
+  return <-reply
 }
 
 func (c *Counter) Get() int {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	return c.count
+  reply := make(chan int)
+  c.mailbox <- get{reply: reply}
+  return <-reply
 }
 
-// Or use channels for actor-like pattern
-// but significantly more boilerplate`,
+counter := NewCounter(0)
+counter.Increment() // => 1
+counter.Increment() // => 2
+counter.Get()       // => 2`,
 
-      csharp: `// C#: lock or SemaphoreSlim for thread safety
-class Counter
+      csharp: `using System.Threading.Channels;
+
+abstract record Command;
+sealed record Increment(TaskCompletionSource<int> Reply) : Command;
+sealed record Get(TaskCompletionSource<int> Reply) : Command;
+
+sealed class Counter
 {
-    private int _count;
-    private readonly object _lock = new();
+    private readonly Channel<Command> _mailbox = Channel.CreateUnbounded<Command>();
 
-    public Counter(int initial = 0) => _count = initial;
-
-    public int Increment()
+    public Counter(int initial = 0)
     {
-        lock (_lock) { return ++_count; }
+        _ = Run(initial);
     }
 
-    public int Get()
+    private async Task Run(int count)
     {
-        lock (_lock) { return _count; }
+        await foreach (var command in _mailbox.Reader.ReadAllAsync())
+        {
+            switch (command)
+            {
+                case Increment(var reply):
+                    reply.SetResult(++count);
+                    break;
+                case Get(var reply):
+                    reply.SetResult(count);
+                    break;
+            }
+        }
+    }
+
+    public async ValueTask<int> IncrementAsync()
+    {
+        var reply = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        await _mailbox.Writer.WriteAsync(new Increment(reply));
+        return await reply.Task;
+    }
+
+    public async ValueTask<int> GetAsync()
+    {
+        var reply = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        await _mailbox.Writer.WriteAsync(new Get(reply));
+        return await reply.Task;
     }
 }
 
-// Usage
 var counter = new Counter(0);
-counter.Increment();  // => 1
-counter.Increment();  // => 2
-counter.Get();        // => 2`,
+await counter.IncrementAsync(); // => 1
+await counter.IncrementAsync(); // => 2
+await counter.GetAsync();       // => 2`,
 
-      dart: `// Dart: Isolates for concurrency (similar to actors)
-import 'dart:isolate';
+      dart: `import 'dart:isolate';
 
-class Counter {
-  int _count;
-  Counter(this._count);
-
-  int increment() => ++_count;
-  int get() => _count;
+sealed class CounterCommand {
+  const CounterCommand(this.replyTo);
+  final SendPort replyTo;
 }
 
-// For true concurrency, use Isolates:
-Future<void> main() async {
-  final receivePort = ReceivePort();
-  await Isolate.spawn(_counterIsolate, receivePort.sendPort);
-  // More boilerplate for message passing...
+final class Increment extends CounterCommand {
+  const Increment(super.replyTo);
 }
 
-void _counterIsolate(SendPort sendPort) {
-  final counter = Counter(0);
-  final receivePort = ReceivePort();
-  sendPort.send(receivePort.sendPort);
-  receivePort.listen((message) {
-    // Handle messages...
+final class Get extends CounterCommand {
+  const Get(super.replyTo);
+}
+
+Future<SendPort> startCounter([int initial = 0]) async {
+  final ready = ReceivePort();
+  await Isolate.spawn(_counterLoop, (initial, ready.sendPort));
+  return await ready.first as SendPort;
+}
+
+void _counterLoop((int, SendPort) args) {
+  final (initial, readyTo) = args;
+  var count = initial;
+  final mailbox = ReceivePort();
+  readyTo.send(mailbox.sendPort);
+
+  mailbox.listen((message) {
+    switch (message) {
+      case Increment(replyTo: final replyTo):
+        count += 1;
+        replyTo.send(count);
+      case Get(replyTo: final replyTo):
+        replyTo.send(count);
+    }
   });
-}`,
+}
+
+Future<int> increment(SendPort counter) async {
+  final reply = ReceivePort();
+  counter.send(Increment(reply.sendPort));
+  final value = await reply.first as int;
+  reply.close();
+  return value;
+}
+
+Future<int> get(SendPort counter) async {
+  final reply = ReceivePort();
+  counter.send(Get(reply.sendPort));
+  final value = await reply.first as int;
+  reply.close();
+  return value;
+}
+
+final counter = await startCounter(0);
+await increment(counter); // => 1
+await increment(counter); // => 2
+await get(counter);       // => 2`,
 
       swift: `// Swift: actor keyword (closest to GenServer)
 actor Counter {
@@ -1266,29 +1740,50 @@ await counter.increment()  // => 1
 await counter.increment()  // => 2
 await counter.get()        // => 2`,
 
-      kotlin: `// Kotlin: coroutines + Mutex or actors
-import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+      kotlin: `import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
-class Counter(initial: Int = 0) {
-    private var count = initial
-    private val mutex = Mutex()
+sealed interface Command
+data class Increment(val reply: CompletableDeferred<Int>) : Command
+data class Get(val reply: CompletableDeferred<Int>) : Command
 
-    suspend fun increment(): Int = mutex.withLock {
-        ++count
+class Counter(scope: CoroutineScope, initial: Int = 0) {
+    private val mailbox = Channel<Command>(Channel.UNLIMITED)
+
+    init {
+        scope.launch {
+            var count = initial
+            for (command in mailbox) {
+                when (command) {
+                    is Increment -> command.reply.complete(++count)
+                    is Get -> command.reply.complete(count)
+                }
+            }
+        }
     }
 
-    suspend fun get(): Int = mutex.withLock {
-        count
+    suspend fun increment(): Int {
+        val reply = CompletableDeferred<Int>()
+        mailbox.send(Increment(reply))
+        return reply.await()
+    }
+
+    suspend fun get(): Int {
+        val reply = CompletableDeferred<Int>()
+        mailbox.send(Get(reply))
+        return reply.await()
     }
 }
 
-// Usage
-val counter = Counter(0)
-counter.increment()  // => 1
-counter.increment()  // => 2
-counter.get()        // => 2`,
+coroutineScope {
+    val counter = Counter(this, 0)
+    counter.increment() // => 1
+    counter.increment() // => 2
+    counter.get()       // => 2
+}`,
     },
   },
 
@@ -1297,18 +1792,15 @@ counter.get()        // => 2`,
     id: "doctests",
     title: { en: "Executable Documentation", ja: "実行可能なドキュメント" },
     description: {
-      en: "Tests live inside your docs. Documentation is always correct because it's executed. Perfect alignment for LLMs.",
-      ja: "テストがドキュメント内に存在。実行されるのでドキュメントは常に正しい。LLMにとって完璧な整合性。",
+      en: "Same goal everywhere: keep examples honest. Some ecosystems ship doctests, others execute docs through test runners, and others publish snippets straight from real sample files.",
+      ja: "目標は同じ: サンプルを嘘にしないこと。doctestを標準搭載する言語もあれば、テストランナーでドキュメントを実行する言語、実サンプルファイルから公開用スニペットを取り込む言語もある。",
     },
     icon: <BookOpen className="w-4 h-4" />,
     snippets: {
-      elixir: `defmodule Math do
-  @moduledoc """
-  Basic math operations with overflow protection.
-  """
-
+      elixir: `# Native executable docs: ExUnit runs @doc examples via doctest.
+defmodule Math do
   @doc """
-  Safely adds two integers, returning an error on overflow.
+  Safely adds two integers.
 
   ## Examples
 
@@ -1317,10 +1809,6 @@ counter.get()        // => 2`,
 
       iex> Math.safe_add(9_999_999_999, 1)
       {:error, :overflow}
-
-      iex> Math.safe_add(-1, -2)
-      {:ok, -3}
-
   """
   @spec safe_add(integer(), integer()) :: {:ok, integer()} | {:error, :overflow}
   def safe_add(a, b) when is_integer(a) and is_integer(b) do
@@ -1329,123 +1817,154 @@ counter.get()        // => 2`,
   end
 end
 
-# Run: mix test
-# Doctests are automatically extracted and executed as tests!`,
+# math_test.exs
+doctest Math
+# Run: mix test`,
 
-      python: `def safe_add(a: int, b: int) -> tuple[str, int] | tuple[str, str]:
-    """Safely adds two integers, returning an error on overflow.
+      python: `# Native executable docs: doctest runs these examples directly.
+from typing import Literal
+
+type SafeAddResult = tuple[Literal["ok"], int] | tuple[Literal["error"], Literal["overflow"]]
+
+def safe_add(a: int, b: int) -> SafeAddResult:
+    """Safely adds two integers.
 
     >>> safe_add(1, 2)
     ('ok', 3)
     >>> safe_add(9_999_999_999, 1)
     ('error', 'overflow')
-    >>> safe_add(-1, -2)
-    ('ok', -3)
     """
     result = a + b
     if abs(result) > 9_999_999_999:
         return ("error", "overflow")
     return ("ok", result)
 
-# Run: python -m doctest module.py
-# ⚠️ Doctests exist but are rarely used in practice
-# ⚠️ No integration with type hints or test frameworks`,
+# Run: pytest --doctest-modules
+# Or: python -m doctest -v math.py`,
 
-      typescript: `// TypeScript: no built-in doctest support
-// Use JSDoc comments + separate test files
+      typescript: `// Tooling-based executable docs: doc-vitest turns @example blocks into Vitest tests.
+
+type Result<T, E> =
+  | { ok: true; value: T }
+  | { ok: false; error: E }
 
 /**
- * Safely adds two integers, returning an error on overflow.
+ * Safely adds two integers.
  *
  * @example
- * safeAdd(1, 2) // => { ok: true, value: 3 }
- * safeAdd(9_999_999_999, 1) // => { ok: false, error: "overflow" }
+ * \`\`\`ts @import.meta.vitest
+ * expect(safeAdd(1, 2)).toEqual({ ok: true, value: 3 })
+ * expect(safeAdd(9_999_999_999, 1)).toEqual({ ok: false, error: "overflow" })
+ * \`\`\`
  */
-function safeAdd(a: number, b: number): Result<number> {
+export const safeAdd = (a: number, b: number): Result<number, "overflow"> => {
   const result = a + b
-  if (Math.abs(result) > 9_999_999_999)
-    return { ok: false, error: "overflow" }
-  return { ok: true, value: result }
+  return Math.abs(result) > 9_999_999_999
+    ? { ok: false, error: "overflow" }
+    : { ok: true, value: result }
 }
 
-// Tests must live in a separate file:
-// safeAdd.test.ts
-// ⚠️ Examples in JSDoc can go stale - they're never executed`,
+// vitest.config.ts -> plugins: [doctest()], test: {
+//   globals: true,
+//   setupFiles: ["./vitest.setup.ts"],
+//   includeSource: ["src/**/*.ts"],
+// }`,
 
-      typescript_effect: `import { Effect } from "effect"
+      typescript_effect: `// Tooling-based executable docs: doc-vitest runs the example, Effect stays in the implementation.
+import { Data, Effect } from "effect"
 
-// TS Effect: same limitation - no executable docs
-// But Effect's type system helps keep contracts explicit
+class Overflow extends Data.TaggedError("Overflow") {}
 
-class OverflowError {
-  readonly _tag = "OverflowError"
-}
-
+/**
+ * Safely adds two integers.
+ *
+ * @example
+ * \`\`\`ts @import.meta.vitest
+ * await expect(runEffect(safeAdd(1, 2))).resolves.toBe(3)
+ * await expect(runEffect(safeAdd(9_999_999_999, 1))).rejects.toBeInstanceOf(Overflow)
+ * \`\`\`
+ */
 const safeAdd = (a: number, b: number) =>
-  Effect.gen(function* () {
-    const result = a + b
-    if (Math.abs(result) > 9_999_999_999) {
-      return yield* Effect.fail(new OverflowError())
-    }
-    return result
-  })
+  Effect.succeed(a + b).pipe(
+    Effect.filterOrFail(
+      (result) => Math.abs(result) <= 9_999_999_999,
+      () => new Overflow(),
+    ),
+  )
 
-// At least errors are tracked in the type system:
-// Effect<number, OverflowError, never>`,
+// vitest.setup.ts
+// import { Effect } from "effect"
+// globalThis.runEffect = Effect.runPromise
+// // addEqualityTesters() is useful when you compare Effect data structures directly`,
 
-      go: `// Go: Example functions serve as executable docs
+      go: `// Native executable docs: Example... functions run under go test.
 package math
 
-import "errors"
+import (
+  "errors"
+  "fmt"
+)
 
 var ErrOverflow = errors.New("overflow")
 
 // SafeAdd safely adds two integers.
-func SafeAdd(a, b int) (int, error) {
-	result := a + b
-	if result > 9_999_999_999 || result < -9_999_999_999 {
-		return 0, ErrOverflow
-	}
-	return result, nil
+func SafeAdd(a, b int64) (int64, error) {
+  result := a + b
+  if result > 9_999_999_999 || result < -9_999_999_999 {
+    return 0, ErrOverflow
+  }
+  return result, nil
 }
 
-// In math_test.go  - Example functions run as tests:
 func ExampleSafeAdd() {
-	result, _ := SafeAdd(1, 2)
-	fmt.Println(result)
-	// Output: 3
+  result, _ := SafeAdd(1, 2)
+  fmt.Println(result)
+  // Output: 3
 }
-// ✅ Go's Example tests are closest to Elixir doctests`,
 
-      csharp: `// C#: no built-in doctest
-// XML doc comments + separate test project
+func ExampleSafeAdd_overflow() {
+  _, err := SafeAdd(9_999_999_999, 1)
+  fmt.Println(err)
+  // Output: overflow
+}`,
 
-/// <summary>
-/// Safely adds two integers, returning an error on overflow.
-/// </summary>
-/// <example>
-/// SafeAdd(1, 2)        // => (true, 3, null)
-/// SafeAdd(9999999999, 1) // => (false, 0, "overflow")
-/// </example>
-static (bool Ok, long Value, string? Error) SafeAdd(long a, long b)
+      csharp: `// Source-backed docs: DocFX publishes snippets from real tested files.
+using System;
+using Xunit;
+
+public readonly record struct Result<T>(bool Ok, T Value, string? Error);
+
+public static Result<long> SafeAdd(long a, long b)
 {
     var result = a + b;
     return Math.Abs(result) > 9_999_999_999
-        ? (false, 0, "overflow")
-        : (true, result, null);
+        ? new(false, 0, "overflow")
+        : new(true, result, null);
 }
 
-// ⚠️ XML doc examples are NOT executed
-// Must maintain separate xUnit/NUnit test project`,
+// docs/articles/safe-add.md
+// [!code-csharp[](../../tests/MathExamples.cs#safe-add)]
 
-      dart: `// Dart: no built-in doctest
-// Use doc comments + separate test files
+public sealed class MathExamples
+{
+    [Fact]
+    public void SafeAdd_docs()
+    {
+#region safe-add
+        Assert.Equal(new Result<long>(true, 3, null), SafeAdd(1, 2));
+        Assert.Equal(new Result<long>(false, 0, "overflow"), SafeAdd(9_999_999_999, 1));
+#endregion
+    }
+}`,
 
-/// Safely adds two integers, returning an error on overflow.
+      dart: `// Checked doc examples: dartdoc_test validates examples under dart test.
+import 'package:dartdoc_test/dartdoc_test.dart';
+
+/// Safely adds two integers.
 ///
 /// \`\`\`dart
 /// safeAdd(1, 2);  // => Ok(3)
-/// safeAdd(9999999999, 1);  // => Err('overflow')
+/// safeAdd(9_999_999_999, 1);  // => Err('overflow')
 /// \`\`\`
 Result<int> safeAdd(int a, int b) {
   final result = a + b;
@@ -1453,50 +1972,55 @@ Result<int> safeAdd(int a, int b) {
   return Ok(result);
 }
 
-// ⚠️ Code examples in /// comments are NOT executed
-// Must maintain separate test/math_test.dart`,
+// test/dartdoc_test.dart
+void main() {
+  runDartdocTest();
+}`,
 
-      swift: `// Swift: no built-in doctest
-// DocC supports code snippets but doesn't execute them
+      swift: `// Source-backed docs: DocC publishes snippets from real files, not inline doctests.
+// Documentation.docc/SafeAdd.md
+// @Snippet(path: "SafeAddSnippet")
 
-/// Safely adds two integers.
-///
-/// \`\`\`swift
-/// safeAdd(1, 2)  // .success(3)
-/// safeAdd(9_999_999_999, 1)  // .failure(.overflow)
-/// \`\`\`
-func safeAdd(_ a: Int, _ b: Int) -> Result<Int, MathError> {
-    let result = a + b
-    guard abs(result) <= 9_999_999_999 else {
-        return .failure(.overflow)
-    }
-    return .success(result)
+// Snippets/SafeAddSnippet.swift
+import MathKit
+
+let ok = safeAdd(1, 2)
+let overflow = safeAdd(9_999_999_999, 1)
+
+print(ok)        // .success(3)
+print(overflow)  // .failure(.overflow)
+
+// DocC publishes the example from this real file in Snippets/`,
+
+      kotlin: `// Source-backed docs: KDoc @sample pulls in real sample functions.
+sealed interface AddResult {
+    data class Ok(val value: Long) : AddResult
+    data object Overflow : AddResult
 }
-
-// ⚠️ Swift doc snippets are not executable
-// Must maintain separate XCTest file`,
-
-      kotlin: `// Kotlin: no built-in doctest
-// KDoc supports code samples but doesn't execute them
 
 /**
  * Safely adds two integers.
  *
- * \`\`\`kotlin
- * safeAdd(1, 2)  // Ok(3)
- * safeAdd(9_999_999_999, 1)  // Err("overflow")
- * \`\`\`
+ * @sample Samples.safeAddOk
+ * @sample Samples.safeAddOverflow
  */
-fun safeAdd(a: Long, b: Long): Result<Long> {
+fun safeAdd(a: Long, b: Long): AddResult {
     val result = a + b
     return if (kotlin.math.abs(result) > 9_999_999_999L)
-        Err("overflow")
+        AddResult.Overflow
     else
-        Ok(result)
+        AddResult.Ok(result)
 }
 
-// ⚠️ KDoc code samples are NOT executed
-// Must maintain separate JUnit test file`,
+object Samples {
+    fun safeAddOk() {
+        check(safeAdd(1, 2) == AddResult.Ok(3))
+    }
+
+    fun safeAddOverflow() {
+        check(safeAdd(9_999_999_999, 1) == AddResult.Overflow)
+    }
+}`,
     },
   },
 
@@ -1505,195 +2029,303 @@ fun safeAdd(a: Long, b: Long): Result<Long> {
     id: "comprehensions",
     title: { en: "Comprehensions & Generators", ja: "内包表記とジェネレータ" },
     description: {
-      en: "for comprehensions with multiple generators, filters, and into:  - expressive, flat, and obvious.",
-      ja: "複数ジェネレータ、フィルタ、into:を持つfor内包表記  - 表現力豊か、フラット、明白。",
+      en: "Same nested iteration and filtering idea, rendered as each ecosystem's natural collection syntax: comprehensions, query expressions, collection builders, or iterator / generator APIs.",
+      ja: "同じ入れ子の反復とフィルタの発想を、各言語圏で自然な収集構文に落とし込む: 内包表記、クエリ構文、コレクションビルダ、あるいはイテレータ / ジェネレータAPI。",
     },
     icon: <FlaskConical className="w-4 h-4" />,
     snippets: {
-      elixir: `# Cartesian product with filters and collection target
-for x <- 1..10,
-    y <- 1..10,
-    x + y > 12,
-    rem(x * y, 3) == 0,
-    into: MapSet.new() do
-  {x, y}
-end
-# => MapSet of tuples where x+y > 12 and x*y divisible by 3
+      elixir: `lines = ["Alice,88", "Bob,72", "Carol,91"]
 
-# Parse and transform in one shot
-for line <- File.stream!("data.csv"),
-    [name, score] = String.split(line, ","),
-    score = String.trim(score) |> String.to_integer(),
-    score > 80 do
-  %{name: String.trim(name), score: score, grade: "A"}
-end`,
+pairs =
+  for x <- 1..10,
+      y <- 1..10,
+      x + y > 12,
+      rem(x * y, 3) == 0 do
+    {x, y}
+  end
 
-      python: `# Python: list/set comprehensions
-result = {
+honor_roll =
+  for line <- lines,
+      [name, score_text] = String.split(line, ",", parts: 2),
+      {score, ""} = Integer.parse(String.trim(score_text)),
+      score > 80 do
+    %{name: String.trim(name), score: score, grade: "A"}
+  end`,
+
+      python: `from dataclasses import dataclass
+from typing import Iterable, Iterator, Literal
+
+lines = ["Alice,88", "Bob,72", "Carol,91"]
+
+type Pair = tuple[int, int]
+
+@dataclass(frozen=True, slots=True)
+class HonorRollEntry:
+    name: str
+    score: int
+    grade: Literal["A"] = "A"
+
+pairs: list[Pair] = [
     (x, y)
     for x in range(1, 11)
     for y in range(1, 11)
     if x + y > 12 and (x * y) % 3 == 0
+]
+
+def honor_roll(lines: Iterable[str]) -> Iterator[HonorRollEntry]:
+    for line in lines:
+        name, score_text = line.split(",", maxsplit=1)
+        if (score := int(score_text.strip())) > 80:
+            yield HonorRollEntry(name=name.strip(), score=score)
+
+results = list(honor_roll(lines))`,
+
+      typescript: `type Pair = readonly [x: number, y: number]
+type HonorRollEntry = {
+  name: string
+  score: number
+  grade: "A"
 }
 
-# Parse and transform
-with open("data.csv") as f:
-    results = [
-        {"name": name.strip(), "score": int(score.strip()), "grade": "A"}
-        for line in f
-        for name, score in [line.split(",")]
-        if int(score.strip()) > 80
-    ]`,
+const lines = ["Alice,88", "Bob,72", "Carol,91"]
 
-      typescript: `// TypeScript: flatMap chains or loops
-const result = new Set<string>()
-for (let x = 1; x <= 10; x++) {
-  for (let y = 1; y <= 10; y++) {
-    if (x + y > 12 && (x * y) % 3 === 0) {
-      result.add(\`\${x},\${y}\`)
+function* matchingPairs(): Generator<Pair> {
+  for (let x = 1; x <= 10; x++) {
+    for (let y = 1; y <= 10; y++) {
+      if (x + y > 12 && (x * y) % 3 === 0) {
+        yield [x, y] as const
+      }
     }
   }
 }
 
-// Parse and transform
-const lines = fs.readFileSync("data.csv", "utf8").split("\\n")
-const results = lines
-  .map((line) => line.split(","))
-  .filter(([, score]) => parseInt(score.trim()) > 80)
-  .map(([name, score]) => ({
-    name: name.trim(),
-    score: parseInt(score.trim()),
-    grade: "A",
-  }))`,
+function* honorRoll(lines: Iterable<string>): Generator<HonorRollEntry> {
+  for (const line of lines) {
+    const [name, scoreText] = line.split(",", 2)
+    const score = Number.parseInt(scoreText.trim(), 10)
 
-      typescript_effect: `import { Array, pipe } from "effect"
+    if (score > 80) {
+      yield { name: name.trim(), score, grade: "A" }
+    }
+  }
+}
 
-// Effect: functional composition
-const pairs = pipe(
-  Array.range(1, 10),
-  Array.flatMap((x) =>
-    pipe(
-      Array.range(1, 10),
-      Array.filter((y) => x + y > 12 && (x * y) % 3 === 0),
-      Array.map((y) => [x, y] as const)
-    )
-  )
+const pairs = [...matchingPairs()]
+const results = [...honorRoll(lines)]`,
+
+      typescript_effect: `import { Array, Stream, pipe } from "effect"
+
+type Pair = readonly [x: number, y: number]
+type HonorRollEntry = {
+  readonly name: string
+  readonly score: number
+  readonly grade: "A"
+}
+
+const lines = ["Alice,88", "Bob,72", "Carol,91"]
+
+const pairs: ReadonlyArray<Pair> = pipe(
+  Array.Do,
+  Array.bind("x", () => Array.range(1, 10)),
+  Array.bind("y", () => Array.range(1, 10)),
+  Array.filter(({ x, y }) => x + y > 12 && (x * y) % 3 === 0),
+  Array.map(({ x, y }) => [x, y] as const),
 )
 
-// For file processing, use Effect streams
-import { Stream } from "effect"
-const results = pipe(
-  Stream.fromReadableStream(fileStream),
-  Stream.splitLines,
-  Stream.map((line) => line.split(",")),
-  Stream.filter(([, score]) => parseInt(score) > 80),
-  Stream.map(([name, score]) => ({
-    name: name.trim(),
-    score: parseInt(score),
-    grade: "A",
-  }))
-)`,
+const honorRoll = (lines: Iterable<string>) =>
+  Stream.fromIterable(lines).pipe(
+    Stream.map((line) => {
+      const [name, scoreText] = line.split(",", 2)
+      return {
+        name: name.trim(),
+        score: Number.parseInt(scoreText.trim(), 10),
+      }
+    }),
+    Stream.filter(({ score }) => !Number.isNaN(score) && score > 80),
+    Stream.map(
+      ({ name, score }): HonorRollEntry => ({
+        name,
+        score,
+        grade: "A",
+      }),
+    ),
+  )
 
-      go: `// Go: explicit loops only
-result := make(map[[2]int]bool)
-for x := 1; x <= 10; x++ {
-    for y := 1; y <= 10; y++ {
+const program = Stream.runCollect(honorRoll(lines))`,
+
+      go: `import (
+  "iter"
+  "slices"
+  "strconv"
+  "strings"
+)
+
+type Pair = [2]int
+
+type HonorRollEntry struct {
+  Name  string
+  Score int
+  Grade string
+}
+
+func MatchingPairs() iter.Seq[Pair] {
+  return func(yield func(Pair) bool) {
+    for x := 1; x <= 10; x++ {
+      for y := 1; y <= 10; y++ {
         if x+y > 12 && (x*y)%3 == 0 {
-            result[[2]int{x, y}] = true
+          if !yield(Pair{x, y}) {
+            return
+          }
         }
+      }
+    }
+  }
+}
+
+func HonorRoll(lines []string) iter.Seq[HonorRollEntry] {
+  return func(yield func(HonorRollEntry) bool) {
+    for _, line := range lines {
+      name, scoreText, found := strings.Cut(line, ",")
+      if !found {
+        continue
+      }
+      score, err := strconv.Atoi(strings.TrimSpace(scoreText))
+      if err == nil && score > 80 {
+        if !yield(HonorRollEntry{
+          Name:  strings.TrimSpace(name),
+          Score: score,
+          Grade: "A",
+        }) {
+          return
+        }
+      }
+    }
+  }
+}
+
+lines := []string{"Alice,88", "Bob,72", "Carol,91"}
+pairs := slices.Collect(MatchingPairs())
+results := slices.Collect(HonorRoll(lines))`,
+
+      csharp: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+readonly record struct HonorRollEntry(string Name, int Score, string Grade);
+
+var lines = new[] { "Alice,88", "Bob,72", "Carol,91" };
+
+var pairs =
+    (from x in Enumerable.Range(1, 10)
+     from y in Enumerable.Range(1, 10)
+     let product = x * y
+     where x + y > 12 && product % 3 == 0
+     select (x, y)).ToArray();
+
+static IEnumerable<HonorRollEntry> HonorRoll(IEnumerable<string> lines)
+{
+    foreach (var line in lines)
+    {
+        var parts = line.Split(',', 2);
+        if (parts.Length != 2 || !int.TryParse(parts[1].Trim(), out var score) || score <= 80)
+        {
+            continue;
+        }
+
+        yield return new HonorRollEntry(parts[0].Trim(), score, "A");
     }
 }
 
-// Parse and transform
-file, _ := os.Open("data.csv")
-scanner := bufio.NewScanner(file)
-var results []Record
-for scanner.Scan() {
-    parts := strings.SplitN(scanner.Text(), ",", 2)
-    score, _ := strconv.Atoi(strings.TrimSpace(parts[1]))
-    if score > 80 {
-        results = append(results, Record{
-            Name: strings.TrimSpace(parts[0]),
-            Score: score, Grade: "A",
-        })
-    }
-}`,
+var results = HonorRoll(lines).ToArray();`,
 
-      csharp: `// C#: LINQ queries
-var result = (
-    from x in Enumerable.Range(1, 10)
-    from y in Enumerable.Range(1, 10)
-    where x + y > 12 && (x * y) % 3 == 0
-    select (x, y)
-).ToHashSet();
+      dart: `typedef Pair = (int, int);
+typedef HonorRollEntry = ({String name, int score, String grade});
 
-// Parse and transform
-var results = File.ReadLines("data.csv")
-    .Select(line => line.Split(','))
-    .Where(parts => int.Parse(parts[1].Trim()) > 80)
-    .Select(parts => new {
-        Name = parts[0].Trim(),
-        Score = int.Parse(parts[1].Trim()),
-        Grade = "A"
-    })
-    .ToList();`,
+final lines = ['Alice,88', 'Bob,72', 'Carol,91'];
 
-      dart: `// Dart: collection for + where
-final result = {
-  for (var x = 1; x <= 10; x++)
-    for (var y = 1; y <= 10; y++)
+final pairs = <Pair>[
+  for (final x in Iterable<int>.generate(10, (i) => i + 1))
+    for (final y in Iterable<int>.generate(10, (i) => i + 1))
       if (x + y > 12 && (x * y) % 3 == 0) (x, y),
-};
+];
 
-// Parse and transform
-final lines = File('data.csv').readAsLinesSync();
-final results = [
-  for (final line in lines)
-    if (line.split(',') case [var name, var score]
-        when int.parse(score.trim()) > 80)
-      {'name': name.trim(), 'score': int.parse(score.trim()), 'grade': 'A'},
-];`,
+Iterable<HonorRollEntry> honorRoll(Iterable<String> lines) sync* {
+  for (final line in lines) {
+    if (line.split(',') case [final name, final scoreText]) {
+      final score = int.tryParse(scoreText.trim());
+      if (score != null && score > 80) {
+        yield (name: name.trim(), score: score, grade: 'A');
+      }
+    }
+  }
+}
 
-      swift: `// Swift: flatMap + filter
-let result: Set<[Int]> = Set(
-    (1...10).flatMap { x in
-        (1...10).compactMap { y in
-            x + y > 12 && (x * y) % 3 == 0 ? [x, y] : nil
+final results = honorRoll(lines).toList();`,
+
+      swift: `import Foundation
+
+typealias Pair = (Int, Int)
+
+struct HonorRollEntry {
+    let name: String
+    let score: Int
+    let grade: String = "A"
+}
+
+let lines = ["Alice,88", "Bob,72", "Carol,91"]
+
+let pairs: [Pair] = Array(
+    (1...10).lazy.flatMap { x in
+        (1...10).lazy.compactMap { y -> Pair? in
+            x + y > 12 && (x * y).isMultiple(of: 3) ? (x, y) : nil
         }
     }
 )
 
-// Parse and transform
-let contents = try String(contentsOfFile: "data.csv")
-let results = contents.split(separator: "\\n").compactMap { line -> Record? in
-    let parts = line.split(separator: ",")
-    guard parts.count == 2,
-          let score = Int(parts[1].trimmingCharacters(in: .whitespaces)),
-          score > 80 else { return nil }
-    return Record(
-        name: parts[0].trimmingCharacters(in: .whitespaces),
-        score: score, grade: "A"
-    )
-}`,
+let results = Array(
+    lines.lazy.compactMap { line -> HonorRollEntry? in
+        let parts = line.split(separator: ",", maxSplits: 1)
+        guard parts.count == 2,
+              let score = Int(String(parts[1]).trimmingCharacters(in: .whitespaces)),
+              score > 80 else {
+            return nil
+        }
 
-      kotlin: `// Kotlin: sequence + flatMap
-val result = (1..10).flatMap { x ->
-    (1..10).filter { y ->
-        x + y > 12 && (x * y) % 3 == 0
-    }.map { y -> x to y }
-}.toSet()
-
-// Parse and transform
-val results = File("data.csv").readLines()
-    .map { it.split(",") }
-    .filter { it[1].trim().toInt() > 80 }
-    .map { (name, score) ->
-        mapOf(
-            "name" to name.trim(),
-            "score" to score.trim().toInt(),
-            "grade" to "A"
+        return HonorRollEntry(
+            name: String(parts[0]).trimmingCharacters(in: .whitespaces),
+            score: score
         )
-    }`,
+    }
+)`,
+
+      kotlin: `data class HonorRollEntry(
+    val name: String,
+    val score: Int,
+    val grade: String = "A",
+)
+
+val lines = sequenceOf("Alice,88", "Bob,72", "Carol,91")
+
+val pairs = sequence {
+    for (x in 1..10) {
+        for (y in 1..10) {
+            if (x + y > 12 && (x * y) % 3 == 0) {
+                yield(x to y)
+            }
+        }
+    }
+}.toList()
+
+fun honorRoll(lines: Sequence<String>) =
+    lines.mapNotNull { line ->
+        val parts = line.split(",", limit = 2)
+        if (parts.size != 2) return@mapNotNull null
+
+        val score = parts[1].trim().toIntOrNull() ?: return@mapNotNull null
+        if (score > 80) HonorRollEntry(parts[0].trim(), score) else null
+    }
+
+val results = honorRoll(lines).toList()`,
     },
   },
 ];
@@ -1750,8 +2382,7 @@ const LangTab = ({ lid, isActive, onClick, showStar }: { lid: LangId; isActive: 
   </button>
 );
 
-function CodeComparison({ sample, lang }: { sample: CodeSample; lang: Lang }) {
-  const [activeLang, setActiveLang] = useState<LangId>("python");
+function CodeComparison({ sample, lang, activeLang, setActiveLang, accentColor = "#10B981" }: { sample: CodeSample; lang: Lang; activeLang: LangId; setActiveLang: (lid: LangId) => void; accentColor?: string }) {
   const [mobileLang, setMobileLang] = useState<LangId>("elixir");
   const isJa = lang === "ja";
   const fontBody = isJa ? JA_SANS : SANS;
@@ -1761,8 +2392,8 @@ function CodeComparison({ sample, lang }: { sample: CodeSample; lang: Lang }) {
       {/* Section header */}
       <div className="mb-3 px-1">
         <div className="flex items-center gap-2.5 mb-1">
-          <span style={{ color: LANG_COLORS.elixir }}>{sample.icon}</span>
-          <h3 className="text-[18px] sm:text-[20px] font-bold m-0" style={{ fontFamily: fontBody }}>
+          <span style={{ color: accentColor }}>{sample.icon}</span>
+          <h3 className="text-[18px] sm:text-[20px] font-bold m-0" style={{ fontFamily: fontBody, color: accentColor }}>
             {sample.title[lang]}
           </h3>
         </div>
@@ -1824,9 +2455,10 @@ function DifficultyRow({ data, isJa }: { data: typeof difficultyData[0]; isJa: b
   return (
     <div className="flex items-center gap-3 py-2">
       <div
-        className="w-[80px] sm:w-[100px] text-[13px] font-bold shrink-0"
+        className="w-[80px] sm:w-[100px] flex items-center gap-1.5 text-[13px] font-bold shrink-0"
         style={{ fontFamily: MONO, color: data.color }}
       >
+        <span className="shrink-0 opacity-80"><DiffLangIcon lang={data.lang} color={data.color} /></span>
         {data.lang}
       </div>
       <div className="flex-1 flex gap-1 items-center">
@@ -1872,6 +2504,7 @@ function DifficultyRow({ data, isJa }: { data: typeof difficultyData[0]; isJa: b
 
 export default function LanguageIsThePromptPage() {
   const [lang, setLang] = useState<Lang>("ja");
+  const [activeLang, setActiveLang] = useState<LangId>("python");
   useEffect(() => {
     const stored = localStorage.getItem("aid-lang");
     if (stored === "en" || stored === "ja") setLang(stored);
@@ -2028,8 +2661,8 @@ export default function LanguageIsThePromptPage() {
         }}
       >
         <div className="flex items-center gap-2.5 mb-3">
-          <Zap className="w-4 h-4" style={{ color: "#9B59B6" }} />
-          <h2 className="text-[18px] font-black m-0" style={{ fontFamily: fontBody }}>{l.tldr}</h2>
+          <Zap className="w-4 h-4" style={{ color: "#F59E0B" }} />
+          <h2 className="text-[18px] font-black m-0" style={{ fontFamily: fontBody, color: "#F59E0B" }}>{l.tldr}</h2>
         </div>
         <p
           className="text-[14px] sm:text-[15px] m-0 leading-relaxed"
@@ -2050,8 +2683,8 @@ export default function LanguageIsThePromptPage() {
         }}
       >
         <div className="flex items-center gap-2.5 mb-4">
-          <Zap className="w-4 h-4" style={{ color: "#10B981" }} />
-          <h2 className="text-[18px] sm:text-[20px] font-bold m-0" style={{ fontFamily: fontBody }}>
+          <Beaker className="w-4 h-4" style={{ color: "#10B981" }} />
+          <h2 className="text-[18px] sm:text-[20px] font-bold m-0" style={{ fontFamily: fontBody, color: "#10B981" }}>
             {l.whyTitle}
           </h2>
         </div>
@@ -2109,8 +2742,13 @@ export default function LanguageIsThePromptPage() {
                   borderColor: "rgba(255,255,255,0.08)",
                 }}
               >
-                <div className="text-[15px] font-bold mb-1.5" style={{ color: c, fontFamily: fontBody }}>
-                  {p.title}
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: `${c}18` }}>
+                    <PrincipleIcon id={p.icon} color={c} />
+                  </div>
+                  <div className="text-[15px] font-bold" style={{ color: c, fontFamily: fontBody }}>
+                    {p.title}
+                  </div>
                 </div>
                 <div className="text-[12px] sm:text-[13px] leading-relaxed" style={{ color: "rgba(255,255,255,0.58)", fontFamily: fontBody }}>
                   {p.desc}
@@ -2133,7 +2771,7 @@ export default function LanguageIsThePromptPage() {
       >
         <div className="flex items-center gap-3 mb-1">
           <Terminal className="w-4 h-4" style={{ color: "#EF4444" }} />
-          <h2 className="text-[22px] sm:text-[26px] font-black m-0" style={{ fontFamily: fontBody }}>
+          <h2 className="text-[22px] sm:text-[26px] font-black m-0" style={{ fontFamily: fontBody, color: "#EF4444" }}>
             {l.difficultyTitle}
           </h2>
         </div>
@@ -2170,12 +2808,13 @@ export default function LanguageIsThePromptPage() {
          ═══════════════════════════════════════════════════════════════════ */}
       <section className="mb-8">
         <div className="flex items-center gap-3 mb-1">
-          <Code2 className="w-5 h-5" style={{ color: "#9B59B6" }} />
+          <Code2 className="w-5 h-5" style={{ color: "#3B82F6" }} />
           <h2
             className="text-[24px] sm:text-[30px] font-black m-0"
             style={{
               fontFamily: isJa ? JA_SANS : SANS,
               letterSpacing: isJa ? 0 : -0.8,
+              color: "#3B82F6",
             }}
           >
             {l.codeTitle}
@@ -2185,8 +2824,8 @@ export default function LanguageIsThePromptPage() {
           {l.codeSub}
         </p>
 
-        {codeSamples.map((sample) => (
-          <CodeComparison key={sample.id} sample={sample} lang={lang} />
+        {codeSamples.map((sample, idx) => (
+          <CodeComparison key={sample.id} sample={sample} lang={lang} activeLang={activeLang} setActiveLang={setActiveLang} accentColor={["#10B981","#3B82F6","#9B59B6","#F59E0B","#06B6D4","#E0247A","#8B5CF6"][idx % 7]} />
         ))}
       </section>
 
@@ -2200,8 +2839,8 @@ export default function LanguageIsThePromptPage() {
           borderColor: "rgba(155,89,182,0.18)",
         }}
       >
-        <h3 className="text-[20px] font-bold mb-2" style={{ fontFamily: fontBody }}>
-          {l.paperLink}
+        <h3 className="text-[20px] font-bold mb-2" style={{ fontFamily: fontBody, color: "#06B6D4" }}>
+          📄 {l.paperLink}
         </h3>
         <p className="text-[13px] m-0" style={{ color: "rgba(255,255,255,0.5)", fontFamily: fontBody }}>
           {l.paperLinkSub}
