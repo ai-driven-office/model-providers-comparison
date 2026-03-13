@@ -1,0 +1,78 @@
+order: 9
+title:
+  en: Comprehensions & Generators
+  ja: 内包表記とジェネレータ
+description:
+  en: List comprehensions are set-builder notation (∀x ∈ S, P(x) → f(x)) made executable -a declarative way to express map/filter/flatMap in a single construct. For LLMs, comprehensions are highly predictable because the entire transformation is specified in one syntactic unit with no hidden control flow. Elixir's for comprehension with <- generators, pattern-match filters, and :into collectors follows the same structure as mathematical set notation. Languages without native comprehensions approximate this through method chains (.map/.filter/.flatMap), LINQ query syntax, or sequence/yield builders.
+  ja: リスト内包表記は集合構成記法（∀x ∈ S, P(x) → f(x)）を実行可能にしたもの -map/filter/flatMapを単一構文で宣言的に表現する方法。LLMにとって内包表記は非常に予測しやすい：変換全体が隠れた制御フローのない単一の構文単位で指定されるため。Elixirのfor内包表記は<-ジェネレータ、パターンマッチフィルタ、:intoコレクタで数学的集合記法と同じ構造に従う。ネイティブ内包表記を持たない言語はメソッドチェーン（.map/.filter/.flatMap）、LINQクエリ構文、sequence/yieldビルダで近似する。
+importance: medium
+icon: flask-conical
+libraries:
+  - lang: elixir
+    name: for comprehension
+    url: https://hexdocs.pm/elixir/comprehensions.html
+    builtin: true
+  - lang: python
+    name: List/dict/set comprehensions
+    url: https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
+    builtin: true
+  - lang: typescript
+    name: Array .map/.filter/.flatMap
+    url: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#instance_methods
+    builtin: true
+  - lang: typescript_effect
+    name: Array.Do + Stream + Schema
+    url: https://effect.website/docs/data-types/stream
+  - lang: go
+    name: iter.Seq + slices package (Go 1.23+)
+    url: https://pkg.go.dev/iter
+    builtin: true
+  - lang: csharp
+    name: LINQ query expressions
+    url: https://learn.microsoft.com/en-us/dotnet/csharp/linq/get-started/query-expression-basics
+    builtin: true
+  - lang: dart
+    name: Collection-for + sync* generators
+    url: https://dart.dev/language/collections#control-flow-operators
+    builtin: true
+  - lang: swift
+    name: lazy + compactMap chains
+    url: https://developer.apple.com/documentation/swift/lazysequenceprotocol
+    builtin: true
+  - lang: kotlin
+    name: sequence { yield() } builder
+    url: https://kotlinlang.org/docs/sequences.html#construct
+    builtin: true
+caveats:
+  en: Go lacked iterator protocol until 1.23 (iter.Seq). Dart collection-for (Dart 2.3+) is the closest to comprehension syntax. TypeScript has no comprehension syntax -method chains are idiomatic. C# LINQ from/where/select is syntactic sugar over .Select/.Where extension methods. Kotlin sequence builders use coroutines internally.
+  ja: Goは1.23（iter.Seq）まで反復子プロトコルを欠いていた。Dartのcollection-for（Dart 2.3+）が内包表記構文に最も近い。TypeScriptには内包表記構文がなく、メソッドチェーンが慣用的。C# LINQのfrom/where/selectは.Select/.Where拡張メソッドのシンタックスシュガー。Kotlinのsequenceビルダは内部でコルーチンを使用する。
+annotations:
+  elixir:
+    - match: for x <- 1..10,
+      title:
+        en: Generators declare the input domains inline
+        ja: ジェネレータが入力範囲をその場で宣言する
+      body:
+        en: The comprehension starts by saying where `x` and `y` come from. Iteration source and result construction live in one syntactic unit.
+        ja: 内包表記は `x` と `y` の出所を最初に宣言する。反復元と結果構築が1つの構文単位に収まる。
+    - match: rem(x * y, 3) == 0
+      title:
+        en: Filters sit next to the generators they constrain
+        ja: フィルタが対象ジェネレータのすぐ横に置かれる
+      body:
+        en: Instead of a nested `if`, the predicate appears directly inside the comprehension header. Selection rules stay local and declarative.
+        ja: 入れ子の `if` ではなく、条件が内包表記ヘッダ内に直接書かれる。選別ルールがローカルで宣言的になる。
+    - match: "[name, score_text] = String.split(line, \",\", parts: 2),"
+      title:
+        en: Pattern matching can filter and destructure mid-stream
+        ja: 途中でパターンマッチによる分解と絞り込みができる
+      body:
+        en: This line both asserts the split shape and binds its pieces. Inputs that do not match are discarded automatically from the comprehension.
+        ja: この行は分割結果の形を確認しつつ、要素を束縛する。形が合わない入力は内包表記から自動的に落ちる。
+    - match: "%{name: String.trim(name), score: score, grade: \"A\"}"
+      title:
+        en: The output expression is the final line of the construct
+        ja: 出力形が構文の最後に明示される
+      body:
+        en: After generators and filters, the body says exactly what each kept item becomes. Input selection and output shape are visually adjacent.
+        ja: ジェネレータとフィルタの後に、採用された各要素が何になるかを最後の式で示す。入力条件と出力形が近接して見える。

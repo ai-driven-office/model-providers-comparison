@@ -1,0 +1,74 @@
+order: 1
+title:
+  en: Pattern Matching
+  ja: パターンマッチング
+description:
+  en: "Algebraic data decomposition -instead of testing conditions imperatively, you declare the shape of data each branch handles, and the compiler guarantees exhaustiveness. The paper found function-head dispatch eliminates hidden control flow, making each branch a self-contained, locally predictable unit for LLMs. Below: Elixir multi-clause function heads, Python 3.10+ structural matching, Kotlin sealed-class when, TypeScript discriminated unions, and more."
+  ja: 代数的データ分解 -命令的に条件をテストする代わりに、各分岐が処理するデータの形状を宣言し、コンパイラが網羅性を保証する。論文では関数ヘッドディスパッチが隠れた制御フローを排除し、各分岐がLLMにとって自己完結した予測可能な単位になることを発見。以下：Elixirの複数句関数ヘッド、Python 3.10+構造的マッチ、Kotlinのsealed class + when、TypeScriptの判別共用体など。
+importance: high
+icon: git-branch
+libraries:
+  - lang: python
+    name: match statement (3.10+)
+    url: https://docs.python.org/3/reference/compound_stmts.html#the-match-statement
+    builtin: true
+  - lang: typescript
+    name: Discriminated unions
+    url: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions
+    builtin: true
+  - lang: typescript_effect
+    name: Match.tag + Schema.TaggedClass (v4 beta)
+    url: https://effect.website/docs/data-types/match
+  - lang: go
+    name: Type switch
+    url: https://go.dev/tour/methods/16
+    builtin: true
+  - lang: csharp
+    name: Switch expressions (C# 8+)
+    url: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/switch-expression
+    builtin: true
+  - lang: dart
+    name: Switch expressions (Dart 3.0+)
+    url: https://dart.dev/language/branches#switch-expressions
+    builtin: true
+  - lang: swift
+    name: switch + pattern matching
+    url: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/controlflow/#Switch
+    builtin: true
+  - lang: kotlin
+    name: sealed class + when
+    url: https://kotlinlang.org/docs/sealed-classes.html
+    builtin: true
+caveats:
+  en: Python structural pattern matching requires 3.10+. Dart switch expressions require Dart 3.0+. C# switch expressions require C# 8+.
+  ja: Pythonの構造的パターンマッチには3.10+が必要。Dartのswitch式にはDart 3.0+が必要。C#のswitch式にはC# 8+が必要。
+annotations:
+  elixir:
+    - match: def area(
+      title:
+        en: Pattern matching starts in the head
+        ja: パターンマッチは関数ヘッドから始まる
+      body:
+        en: Elixir chooses the clause before entering the body. You do not scan for a later `if`, `switch`, or `match` to discover the branch.
+        ja: Elixirでは関数本体に入る前に節が選ばれる。後から `if` や `switch` を探して分岐を理解する必要がない。
+    - match: "{:circle, r}"
+      title:
+        en: Tag + destructure in one move
+        ja: タグ判定と分解を同時に行う
+      body:
+        en: The `:circle` atom picks the variant, and `r` becomes the radius immediately. The code both checks shape and pulls out data in the same syntax.
+        ja: "`:circle` アトムでバリアントを選び、同時に `r` が半径として束縛される。形の判定とデータ取り出しが同じ構文で済む。"
+    - match: def area({:rect, w, h})
+      title:
+        en: Each case gets its own clause
+        ja: 各ケースが独立した節になる
+      body:
+        en: Circle, rect, and triangle are laid out as parallel clauses instead of one nested decision tree. The structure is repetitive and visually flat.
+        ja: circle / rect / triangle が、1つの深い分岐木ではなく並列な節として並ぶ。反復的で平坦な構造になっている。
+    - match: Shape.area({:circle, 5})
+      title:
+        en: The call site mirrors the clause
+        ja: 呼び出し側の形が節と対応する
+      body:
+        en: Seeing `{:circle, 5}` at the call site already tells you which clause will execute. The data shape itself advertises the control flow.
+        ja: 呼び出し側に `{:circle, 5}` が見えた時点で、どの節が実行されるかほぼ分かる。データの形そのものが制御フローを示している。

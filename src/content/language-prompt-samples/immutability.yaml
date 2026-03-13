@@ -1,0 +1,77 @@
+order: 3
+title:
+  en: Immutability Default
+  ja: デフォルト不変性
+description:
+  en: "Referential transparency -once a binding is established, it never changes. This is the foundation of equational reasoning (Backus 1978) and eliminates entire categories of bugs: stale references, aliasing hazards, time-of-check/time-of-use races. For LLMs, immutability means every value is defined exactly where it appears -no tracing mutation history across scopes. The paper found that languages with immutable-by-default semantics produced significantly fewer stateful bugs in generated code, because the model never needs to reason about 'which version of X am I looking at?'"
+  ja: 参照透過性 -一度束縛された値は決して変わらない。等式推論（Backus 1978）の基盤であり、古参照・エイリアシング・TOCTOU競合を丸ごと排除する。LLMにとって不変性は、すべての値がその出現箇所で定義されることを意味し、スコープをまたぐ変異履歴の追跡が不要となる。論文では、デフォルト不変の言語が生成コードにおいて有意にステートフルバグを減らすことを確認 -モデルが「今見ているXはどのバージョンか」を推論する必要がないため。
+importance: high
+icon: lock
+libraries:
+  - lang: elixir
+    name: Immutable by default (all data)
+    url: https://hexdocs.pm/elixir/basic-types.html
+    builtin: true
+  - lang: python
+    name: dataclasses(frozen=True)
+    url: https://docs.python.org/3/library/dataclasses.html#frozen-instances
+    builtin: true
+  - lang: typescript
+    name: Readonly<T> + as const
+    url: https://www.typescriptlang.org/docs/handbook/2/objects.html#readonly-properties
+    builtin: true
+  - lang: typescript_effect
+    name: Schema.Class (v4 beta immutable data)
+    url: https://effect.website/docs/data-types/data
+  - lang: go
+    name: Value types (struct copy semantics)
+    url: https://go.dev/doc/effective_go#allocation_new
+    builtin: true
+  - lang: csharp
+    name: record + with expression (C# 9+)
+    url: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/record
+    builtin: true
+  - lang: dart
+    name: freezed code generation
+    url: https://pub.dev/packages/freezed
+  - lang: swift
+    name: struct (value type) + let bindings
+    url: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/classesandstructures/
+    builtin: true
+  - lang: kotlin
+    name: data class + copy()
+    url: https://kotlinlang.org/docs/data-classes.html#copying
+    builtin: true
+caveats:
+  en: Elixir, Erlang, and Haskell are truly immutable by default -all others require opt-in. Python frozen dataclasses are shallow-frozen only. TypeScript Readonly is a compile-time check only (no runtime enforcement). Go struct copies are shallow -nested pointers still alias. Dart requires codegen (freezed) for deep immutability. Swift structs are value types but classes are reference types.
+  ja: Elixir・Erlang・Haskellのみが真のデフォルト不変 -他はすべてオプトイン。Pythonのfrozen dataclassは浅いフリーズのみ。TypeScriptのReadonlyはコンパイル時チェックのみ（実行時は未保証）。Goの構造体コピーは浅く、ネストしたポインタはエイリアスする。Dartは深い不変性にコード生成（freezed）が必要。Swiftのstructは値型だがclassは参照型。
+annotations:
+  elixir:
+    - match: next = state.count + 1
+      title:
+        en: You derive a new value, not mutate the old one
+        ja: 既存値を変更せず、新しい値を導く
+      body:
+        en: The next count is computed into a fresh binding. `state.count` itself never changes anywhere in the function.
+        ja: 次の値は新しい束縛 `next` に計算される。`state.count` 自体は関数内のどこでも書き換わらない。
+    - match: "| count: next,"
+      title:
+        en: Struct/map update copies with one field changed
+        ja: マップ更新は差分だけ変えた新しい値を作る
+      body:
+        en: The `%{state | ...}` form reuses the old map shape while producing a new value. It reads like “same state, except these fields”.
+        ja: "`%{state | ...}` は元のマップ形を保ちながら新しい値を返す。「同じ state だが、この項目だけ違う」と読める。"
+    - match: "history: state.history ++ [next]"
+      title:
+        en: Collection growth is explicit data construction
+        ja: コレクション更新も明示的なデータ構築
+      body:
+        en: Appending history creates the next list in place of mutating a hidden buffer. The new state shows exactly where the extra item came from.
+        ja: 履歴追加も隠れたバッファ更新ではなく、新しいリストを明示的に組み立てる。追加要素の出所がコード上で見える。
+    - match: "state.count      # => 0"
+      title:
+        en: The old value remains valid after the call
+        ja: 呼び出し後も元の値はそのまま有効
+      body:
+        en: "The example proves immutability directly: after `Counter.increment(state)`, the original `state` still reports `0`."
+        ja: この例は不変性をそのまま示している。`Counter.increment(state)` の後でも元の `state` は `0` のまま。

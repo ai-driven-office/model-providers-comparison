@@ -6,20 +6,27 @@ import LanguageIsThePromptPage, {
   type LangId,
 } from "../components/language-is-the-prompt";
 import { loadCodeSamples } from "../components/language-is-the-prompt/data/loadCodeSamples";
+import { loadLanguagePromptPageContent } from "../components/language-is-the-prompt/data/loadPageContent";
 
 const { createHighlighter } = await import("shiki");
 const codeSamples = await loadCodeSamples();
+const pageContent = await loadLanguagePromptPageContent();
 const highlighter = await createHighlighter({
   themes: ["night-owl"],
-  langs: [...new Set(Object.values(LANG_SHIKI))],
+  langs: [...new Set(Object.values(LANG_SHIKI).filter(Boolean))],
 });
 
 const highlights: HighlightMap = {};
 
 function highlightSnippet(code: string, langId: LangId, sampleId: string): string | undefined {
+  const shikiLang = LANG_SHIKI[langId];
+  if (!shikiLang) {
+    return undefined;
+  }
+
   try {
     return highlighter.codeToHtml(code, {
-      lang: LANG_SHIKI[langId],
+      lang: shikiLang,
       theme: "night-owl",
     });
   } catch (error) {
@@ -52,5 +59,10 @@ const serializedHighlights = JSON.stringify(highlights).replace(/</g, "\\u003C")
     type="application/json"
     set:html={serializedHighlights}
   />
-  <LanguageIsThePromptPage client:load codeSamples={codeSamples} highlights={highlights} />
+  <LanguageIsThePromptPage
+    client:load
+    codeSamples={codeSamples}
+    highlights={highlights}
+    pageContent={pageContent}
+  />
 </BaseLayout>

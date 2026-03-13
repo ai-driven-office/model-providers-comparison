@@ -1,0 +1,134 @@
+copy:
+  en:
+    back: Back to Dashboard
+    badge: Research
+    title: The Language Is the Prompt
+    subtitle: What Elixir's 87.4% vs Python's 43.9% suggests about explicitness, language design, and LLM code generation.
+    heroStat1Label: Elixir Pass@1
+    heroStat1Value: 87.4%
+    heroStat2Label: Python Pass@1
+    heroStat2Value: 43.9%
+    heroStat3Label: Gap on Hard Tasks
+    heroStat3Value: 55pt
+    tldr: TL;DR
+    tldrText: "LLMs don't just read your prompt  - they read your **language**, its **conventions**, and its **libraries**. Elixir makes intent unusually explicit, but the broader lesson is portable: the **less guesswork** a model has to do, the **better it tends to perform**."
+    whyTitle: Why does this matter?
+    whyPoints:
+      - Elixir has **far less training data** than Python, yet performs **unusually well** at code generation
+      - The gap **widens on harder problems**, suggesting that explicitness matters more as **complexity grows**
+      - "**Explicit error contracts** are the **strongest portable signal** across all languages tested"
+      - Other languages can **adopt these principles** to improve their LLM code generation
+    hypothesisTitle: The Explicitness Hypothesis
+    hypothesisSub: Languages that make **intent**, **contracts**, and **data flow** locally visible **reduce the predictive burden** on LLMs.
+    principles:
+      - title: Explicit Contracts
+        desc: Algebraic data typing for errors -every function returns {:ok, val} or {:error, reason} instead of throwing exceptions. The paper identified this as the single strongest cross-language predictor of LLM performance. The {:ok, _}/{:error, _} pattern appears thousands of times in training data, creating extremely strong next-token prediction signal.
+        icon: contract
+      - title: Pattern Matching
+        desc: Algebraic pattern matching decomposes data by shape -each function clause handles exactly one variant, and the compiler guarantees exhaustiveness. For LLMs, flat branch-per-clause structures are far more predictable than deeply nested conditional trees; the model reasons about each branch in isolation.
+        icon: pattern
+      - title: Immutability Default
+        desc: "Referential transparency by default: once bound, a value never changes. This eliminates stale references, shared-state races, and temporal coupling. LLMs never need to trace mutation history across scopes -every value is defined exactly where it appears, making code locally self-contained."
+        icon: lock
+      - title: Pipe Operator
+        desc: "Function composition made visually linear: data |> step1 |> step2 |> step3. The paper found pipeline style reduces nesting depth and makes each transformation locally obvious. LLMs predict left-to-right sequences far more accurately than nested calls like step3(step2(step1(data)))."
+        icon: pipe
+      - title: Formatter Uniformity
+        desc: A canonical formatter (mix format) eliminates all stylistic variation -indentation, spacing, line breaks become deterministic. In information theory terms, this collapses surface-level entropy to near zero. The model spends zero capacity on style, all capacity on semantics.
+        icon: format
+      - title: Executable Docs
+        desc: Doctests embed runnable examples inside function documentation, serving as specification, test, and docs simultaneously -the literate programming ideal. ExUnit executes these as part of the test suite. LLMs get verified input/output pairs co-located with the function definition.
+        icon: docs
+    difficultyTitle: The Hard Problem Gap
+    difficultySub: On hard tasks, Elixir degrades far less than most comparison languages.
+    difficultyNote: Elixir stays relatively stable from easy to hard problems; Python and JS drop much more sharply.
+    codeTitle: Show Me the Code
+    codeSub: Elixir stays on the left; the selected language shows the closest idiomatic equivalent, using current language features and common libraries when they matter.
+    codeNote: "Note: Effect is not a separate language. It is a TypeScript library. We show it separately because the syntax and idioms are different enough from mainstream TypeScript that side-by-side comparison is useful for learning."
+    readPaperCta: Read the full research paper
+    readPaperCtaSub: Scroll down to the embedded PDF with all data, methodology, and analysis
+    paperLink: Research Source
+    paperLinkSub: Günther Brunner · CyberAgent
+    methodology: "Source: \"The Language Is the Prompt\" by Günther Brunner, CyberAgent Inc."
+  ja:
+    back: ダッシュボードに戻る
+    badge: 研究
+    title: 言語がプロンプトである
+    subtitle: Elixirの87.4%、Pythonの43.9%という差が、明示性・言語設計・LLMコード生成について何を示しているか。プログラミング言語そのものがプロンプトだ。
+    heroStat1Label: Elixir Pass@1
+    heroStat1Value: 87.4%
+    heroStat2Label: Python Pass@1
+    heroStat2Value: 43.9%
+    heroStat3Label: 難問での差
+    heroStat3Value: 55pt
+    tldr: 要約
+    tldrText: LLMはプロンプトだけでなく、**言語**・**慣習**・**ライブラリ**も読む。Elixirは意図を非常に明示しやすいが、重要なのはその発想が**他言語にも移せる**ことだ。モデルが**推測しなくてよい**ほど、**性能は安定しやすい**。
+    whyTitle: なぜ重要か？
+    whyPoints:
+      - ElixirはPythonより**学習データが少ない**のに、コード生成で**非常に高い性能**を示す
+      - "**難問になるほど差は広がり**、明示性が**複雑さに強く効いている**ことを示唆する"
+      - "**明示的なエラー契約**が、テストされた全言語で**最も強力なポータブルシグナル**"
+      - 他の言語もこれらの原則を**採用してLLMコード生成を改善**できる
+    hypothesisTitle: 明示性仮説
+    hypothesisSub: "**意図**・**契約**・**データフロー**をローカルに可視化する言語は、LLMの**予測負荷を減らす**。"
+    principles:
+      - title: 明示的な契約
+        desc: 代数的データ型によるエラーハンドリング -例外をスローせず、すべての関数が{:ok, val}または{:error, reason}を返す。論文ではこれが最も強力な言語横断的LLM性能予測因子と特定された。{:ok, _}/{:error, _}パターンは訓練データに何千回も出現し、極めて強い次トークン予測シグナルを生む。
+        icon: contract
+      - title: パターンマッチ
+        desc: 代数的パターンマッチングはデータを形状で分解し、各関数句が正確に1つのバリアントを処理、コンパイラが網羅性を保証する。LLMにとって、フラットな句ごとの分岐は深くネストした条件分岐ツリーよりはるかに予測しやすく、各分岐を独立に推論できる。
+        icon: pattern
+      - title: デフォルト不変性
+        desc: デフォルトの参照透過性：一度束縛された値は変わらない。古い参照、共有状態の競合、時間的結合を排除する。LLMはスコープ間の変異履歴を追跡する必要がなく、すべての値が出現箇所で定義されるため、コードがローカルに自己完結する。
+        icon: lock
+      - title: パイプ演算子
+        desc: 関数合成を視覚的に線形にする：data |> step1 |> step2 |> step3。論文ではパイプラインスタイルがネスト深度を減らし各変換をローカルに明白にすることを発見。LLMはstep3(step2(step1(data)))より左から右のシーケンスをはるかに正確に予測する。
+        icon: pipe
+      - title: フォーマッタ統一
+        desc: 標準フォーマッタ（mix format）がスタイル変動を完全排除 -インデント・スペース・改行が決定論的に。情報理論的には表面エントロピーをほぼゼロに圧縮。モデルはスタイルに容量ゼロ、セマンティクスに全容量を使える。
+        icon: format
+      - title: 実行可能なドキュメント
+        desc: 関数ドキュメント内に実行可能な例を埋め込み、仕様・テスト・ドキュメントの三役を同時に果たすリテラルプログラミングの理想形。ExUnitがテストスイートとして実行する。LLMは関数定義の隣に検証済みの入出力ペアを得る。
+        icon: docs
+    difficultyTitle: 難問での差
+    difficultySub: 難しい問題でも、Elixirは多くの比較対象より劣化がかなり小さい。
+    difficultyNote: Elixirは易しい問題から難しい問題まで比較的安定しており、PythonやJSは落ち込みが大きい。
+    codeTitle: コードで見る
+    codeSub: 左にElixir、右に選択した言語での最も自然な等価表現を表示。必要に応じて最新の言語機能や定番ライブラリを使う。
+    codeNote: "注: Effectは独立した言語ではなく、TypeScriptのライブラリです。ただし構文と慣用スタイルが通常のTypeScriptとかなり異なるため、学習と比較をしやすくするために別枠で表示しています。"
+    readPaperCta: 研究論文を読む
+    readPaperCtaSub: 埋め込みPDFで全データ・手法・分析を確認できます
+    paperLink: 研究ソース
+    paperLinkSub: Günther Brunner · CyberAgent
+    methodology: "出典: 「The Language Is the Prompt」  - Günther Brunner, CyberAgent Inc."
+difficultyData:
+  - lang: Elixir
+    easy: 96.6
+    medium: 86.7
+    hard: 86.3
+    degradation: -10.3
+    color: "#22D694"
+  - lang: Kotlin
+    easy: 100
+    medium: 88.1
+    hard: 63.6
+    degradation: -36.4
+    color: "#5B9EFF"
+  - lang: C#
+    easy: 97.8
+    medium: 81.1
+    hard: 63.1
+    degradation: -34.7
+    color: "#A78BFA"
+  - lang: Python
+    easy: 82
+    medium: 48.6
+    hard: 31.6
+    degradation: -50.4
+    color: "#FFB340"
+  - lang: JS
+    easy: 78.5
+    medium: 45.2
+    hard: 28.3
+    degradation: -50.2
+    color: "#FF5A5A"

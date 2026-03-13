@@ -1,0 +1,69 @@
+order: 2
+title:
+  en: Result Types & Error Handling
+  ja: Result型とエラーハンドリング
+description:
+  en: "Explicit error types formalize success vs. failure at the type level -a function's signature tells you exactly what can go wrong, rather than hiding exceptions in the call stack. The paper identified this as the single strongest cross-language predictor of LLM performance: every language scoring above 70% Pass@1 had idiomatic result types. Below: Elixir's {:ok, val}/{:error, reason} tuples, Swift/Kotlin Result and Arrow Either, Go's (value, error) pairs, Effect's typed error channel, and library-based approaches for Python, TypeScript, C#, and Dart."
+  ja: 明示的なエラー型は成功と失敗の区別を型レベルで形式化する -関数シグネチャが失敗の可能性を正確に伝え、コールスタックに例外を隠さない。論文ではこれが最も強力な言語横断的LLM性能予測因子と特定：Pass@1が70%超のすべての言語は慣用的なResult型を持っていた。以下：Elixirの{:ok, val}/{:error, reason}タプル、Swift/KotlinのResultとArrow Either、Goの(value, error)ペア、Effectの型付きエラーチャネル、Python・TypeScript・C#・Dartのライブラリベースのアプローチ。
+importance: critical
+icon: shield
+libraries:
+  - lang: python
+    name: returns
+    url: https://github.com/dry-python/returns
+  - lang: typescript
+    name: neverthrow
+    url: https://github.com/supermacro/neverthrow
+  - lang: typescript_effect
+    name: Schema.TaggedErrorClass + ServiceMap.Service (v4 beta)
+    url: https://effect.website/docs/getting-started/running-effects
+  - lang: go
+    name: (value, error) tuple
+    url: https://go.dev/blog/error-handling-and-go
+    builtin: true
+  - lang: csharp
+    name: Result<T> (manual / CSharpFunctionalExtensions)
+    url: https://github.com/vkhorikov/CSharpFunctionalExtensions
+  - lang: dart
+    name: fpdart
+    url: https://pub.dev/packages/fpdart
+  - lang: swift
+    name: Result<Success, Failure>
+    url: https://developer.apple.com/documentation/swift/result
+    builtin: true
+  - lang: kotlin
+    name: Arrow Either
+    url: https://arrow-kt.io/docs/apidocs/arrow-core/arrow.core/-either/
+caveats:
+  en: Python returns library provides monadic Result; native Python has no built-in Result type. TypeScript has no native Result -neverthrow or manual discriminated unions. C# sample uses a manual Result record; consider CSharpFunctionalExtensions for production use.
+  ja: Pythonのreturnsライブラリはモナド的Resultを提供。ネイティブPythonにはResult型がない。TypeScriptにもネイティブResultはなく、neverthrowまたは手動の判別共用体を使用。C#サンプルは手動Result record。本番にはCSharpFunctionalExtensionsも検討を。
+annotations:
+  elixir:
+    - match: nil   -> {:error, :not_found}
+      title:
+        en: Failure is returned as data
+        ja: 失敗もデータとして返す
+      body:
+        en: A missing user does not throw. The branch returns a tagged tuple that every caller can pattern-match on explicitly.
+        ja: ユーザー未発見でも例外は投げず、タグ付きタプルを返す。呼び出し側はその形をそのままパターンマッチできる。
+    - match: with {:ok, user}    <- fetch_user(user_id),
+      title:
+        en: Happy path reads top to bottom
+        ja: ハッピーパスが上から下へ読める
+      body:
+        en: Each `<-` step expects `{:ok, value}` and binds the value only on success. The chain stops automatically on the first non-matching result.
+        ja: 各 `<-` は `{:ok, value}` を期待し、成功時だけ値を束縛する。形が合わなければその時点で自動的に連鎖が止まる。
+    - match: "User.changeset(user, %{email: new_email})"
+      title:
+        en: Validation stays in the same data flow
+        ja: バリデーションも同じデータフローに乗る
+      body:
+        en: Building the changeset and persisting it remain ordinary tuple-producing steps. Validation is not a hidden side channel.
+        ja: changeset の生成と保存も、通常のタプルを返すステップとして連鎖に残る。検証が隠れた副経路にならない。
+    - match: "{:error, changeset}  -> {:error, format_errors(changeset)}"
+      title:
+        en: Errors can be normalized at the boundary
+        ja: エラーは境界で正規化できる
+      body:
+        en: The raw failure shape from deeper layers is converted into a caller-friendly error right in the `else` branch, without exceptions or out-of-band control flow.
+        ja: 下位層の失敗形を `else` 側で呼び出し側向けのエラーへ変換できる。例外や別経路の制御フローは不要。

@@ -1,0 +1,77 @@
+order: 7
+title:
+  en: Concurrency & State
+  ja: 並行処理と状態管理
+description:
+  en: "The actor model isolates mutable state inside a single-owner process that communicates only via message passing -no shared memory, no locks, no races by construction. In CS terms, this is Hewitt's actor model (1973) realized as a language primitive. The paper found this was the hardest domain across all languages: Elixir's GenServer scored 75% on hard concurrency tasks while most others dropped below 35%. The gap exists because GenServer's callback structure (init/handle_call/handle_cast) is a rigid, well-documented template that LLMs can fill in, whereas ad-hoc threading requires reasoning about non-local state mutations."
+  ja: アクターモデルは可変状態を単一オーナープロセス内に隔離し、メッセージパッシングのみで通信する -共有メモリなし、ロックなし、構造的に競合なし。CS的にはHewittのアクターモデル（1973）を言語プリミティブとして実現したもの。論文ではこれが全言語で最も困難な領域であることを発見：Elixir GenServerは難しい並行処理タスクで75%を記録した一方、他のほとんどの言語は35%以下に低下。GenServerのコールバック構造（init/handle_call/handle_cast）が厳格で十分に文書化されたテンプレートでありLLMが穴埋めできるのに対し、アドホックなスレッディングは非局所的な状態変異の推論を必要とするためである。
+importance: critical
+icon: cpu
+libraries:
+  - lang: elixir
+    name: GenServer (OTP)
+    url: https://hexdocs.pm/elixir/GenServer.html
+    builtin: true
+  - lang: python
+    name: asyncio.Queue + Task
+    url: https://docs.python.org/3/library/asyncio-queue.html
+    builtin: true
+  - lang: typescript
+    name: Worker Threads
+    url: https://nodejs.org/api/worker_threads.html
+    builtin: true
+  - lang: typescript_effect
+    name: Mailbox + Stream + Deferred
+    url: https://effect.website/docs/concurrency/fibers
+  - lang: go
+    name: goroutine + channel
+    url: https://go.dev/doc/effective_go#goroutines
+    builtin: true
+  - lang: csharp
+    name: Channel<T> + Task
+    url: https://learn.microsoft.com/en-us/dotnet/core/extensions/channels
+    builtin: true
+  - lang: dart
+    name: Isolate + SendPort
+    url: https://dart.dev/language/concurrency
+    builtin: true
+  - lang: swift
+    name: actor (Swift 5.5+)
+    url: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/#Actors
+    builtin: true
+  - lang: kotlin
+    name: Coroutines Channel
+    url: https://kotlinlang.org/docs/channels.html
+caveats:
+  en: Swift actors (5.5+) are the closest mainstream equivalent to GenServer -both enforce single-owner isolation. Go channels are lightweight but require manual select/done patterns. Python asyncio is single-threaded cooperative; true parallelism needs multiprocessing. Dart Isolates cannot share memory -communication is always via message ports.
+  ja: Swiftのactor（5.5+）がGenServerに最も近い主流の等価物 -両者とも単一オーナー隔離を強制。Goチャネルは軽量だが手動のselect/doneパターンが必要。Python asyncioはシングルスレッド協調型で、真の並列性にはmultiprocessingが必要。Dart Isolateはメモリ共有不可 -通信は常にメッセージポート経由。
+annotations:
+  elixir:
+    - match: use GenServer
+      title:
+        en: The concurrency model is a named runtime primitive
+        ja: 並行モデルが名前付きのランタイム原語になっている
+      body:
+        en: This is not a custom thread pattern. `GenServer` tells you immediately that the module follows a standard OTP process template with well-known callbacks.
+        ja: これは独自スレッド設計ではなく、標準OTPプロセステンプレートだと `GenServer` だけで分かる。コールバックも既知の形になる。
+    - match: "def increment, do: GenServer.call(__MODULE__, :increment)"
+      title:
+        en: The public API is just message sending
+        ja: 公開APIはメッセージ送信に薄く対応する
+      body:
+        en: Client functions stay tiny because they only package requests. State access is never performed directly by outside callers.
+        ja: クライアント関数は要求を包むだけなので短い。外部呼び出し側が状態へ直接触ることはない。
+    - match: def handle_call(:increment, _from, count),
+      title:
+        en: State transitions live in explicit callbacks
+        ja: 状態遷移は明示的なコールバックに閉じ込められる
+      body:
+        en: All logic for the `:increment` message is concentrated in the matching callback head. You can inspect one clause to understand one message.
+        ja: "`:increment` に対するロジックが、このコールバックヘッドに集中している。1つのメッセージを理解するのに1つの節を読めばよい。"
+    - match: "{:reply, count + 1, count + 1}"
+      title:
+        en: Reply and next state are returned together
+        ja: 返信値と次状態を同時に返す
+      body:
+        en: "The tuple spells out the protocol: what the caller gets back, and what state the server should keep. Mutation is made explicit as data."
+        ja: このタプルがプロトコルをそのまま示す。呼び出し側への返信と、サーバが保持すべき次状態が明示される。

@@ -1,0 +1,74 @@
+order: 8
+title:
+  en: Executable Documentation
+  ja: 実行可能なドキュメント
+description:
+  en: "Literate programming -embedding runnable examples directly inside function documentation so that spec, test, and docs are a single artifact. Elixir's @doc + doctest runs examples as part of the test suite via ExUnit, creating verified input/output pairs co-located with the function definition. The paper found this uniquely beneficial for LLMs: when the training data contains thousands of functions with inline I/O examples, the model learns to treat documentation as executable specification rather than prose. Languages without native doctests approximate this through test-sourced documentation (DocFX, KDoc @sample, DocC @Snippet) -correct but less tightly co-located."
+  ja: リテラルプログラミング -実行可能な例を関数ドキュメント内に直接埋め込み、仕様・テスト・ドキュメントを単一の成果物とする。Elixirの@doc + doctestはExUnitを介してテストスイートの一部として例を実行し、関数定義の隣に検証済みの入出力ペアを生成する。論文ではこれがLLMに特に有益であることを発見：訓練データにインラインI/O例付きの関数が何千も含まれると、モデルはドキュメントを散文ではなく実行可能な仕様として学習する。ネイティブdoctestを持たない言語はテストソース型ドキュメント（DocFX、KDoc @sample、DocC @Snippet）で近似する -正確だが共配置の緊密さは劣る。
+importance: high
+icon: book-open
+diagramId: doc-pipeline
+libraries:
+  - lang: elixir
+    name: ExUnit doctest
+    url: https://hexdocs.pm/ex_unit/ExUnit.DocTest.html
+    builtin: true
+  - lang: python
+    name: doctest module
+    url: https://docs.python.org/3/library/doctest.html
+    builtin: true
+  - lang: typescript
+    name: tsdoc + Vitest
+    url: https://tsdoc.org/
+  - lang: typescript_effect
+    name: "@effect/vitest + JSDoc @example"
+    url: https://github.com/Effect-TS/effect/tree/main/packages/vitest
+  - lang: go
+    name: Example functions (_test.go)
+    url: https://go.dev/blog/examples
+    builtin: true
+  - lang: csharp
+    name: DocFX code snippets
+    url: https://dotnet.github.io/docfx/
+  - lang: dart
+    name: dartdoc_test
+    url: https://pub.dev/packages/dartdoc_test
+  - lang: swift
+    name: DocC @Snippet (Xcode 14+)
+    url: https://developer.apple.com/documentation/docc
+  - lang: kotlin
+    name: KDoc @sample
+    url: https://kotlinlang.org/docs/kotlin-doc.html#sample-identifier
+caveats:
+  en: Only Elixir, Python, Go, and Rust have truly native doctests that run as part of the standard test suite. TypeScript/JavaScript has no built-in doctest -various third-party tools exist but none are standard. Dart's dartdoc_test is a community package, not built-in. Swift DocC @Snippet compiles but doesn't assert return values. C# DocFX pulls source from test files -correct but indirect.
+  ja: 真にネイティブなdoctestを標準テストスイートの一部として実行できるのはElixir、Python、Go、Rustのみ。TypeScript/JavaScriptにはビルトインdoctestがなく、サードパーティツールが存在するが標準ではない。Dartのdartdoc_testはコミュニティパッケージ。Swift DocC @Snippetはコンパイルするが戻り値をアサートしない。C# DocFXはテストファイルからソースを取り込む -正確だが間接的。
+annotations:
+  elixir:
+    - match: "@doc \"\"\""
+      title:
+        en: Examples live inside the official docs
+        ja: 公式ドキュメントの中に実例が入る
+      body:
+        en: The primary documentation block is also where executable examples are written. Spec and example are co-located with the function.
+        ja: 実行例は主要なドキュメントブロックの中に書かれる。仕様と例が関数の隣に共配置される。
+    - match: iex> Math.safe_add(1, 2)
+      title:
+        en: The docs show exact I/O, not vague prose
+        ja: 散文ではなく具体的な入出力を示す
+      body:
+        en: An `iex>` example captures the function call exactly as a reader would try it. The expected result is right below it.
+        ja: "`iex>` 例は、読者がそのまま試す呼び出し形を示す。期待結果も直下に並ぶ。"
+    - match: "@spec safe_add(integer(), integer()) ::"
+      title:
+        en: Type-level contract and doc examples reinforce each other
+        ja: 型契約とドキュメント例が相互補強する
+      body:
+        en: The `@spec` says the allowed result shapes, and the doctest demonstrates concrete instances of those shapes.
+        ja: "`@spec` が許される結果形を示し、doctest がその具体例を示す。抽象契約と具体例が一致する。"
+    - match: doctest Math
+      title:
+        en: One line turns the docs into test cases
+        ja: 1行でドキュメントがテストになる
+      body:
+        en: This test declaration imports the examples from the docs and executes them under ExUnit. The examples are not decorative; they are enforced.
+        ja: この宣言がドキュメント例を ExUnit テストとして取り込み、実行する。例は飾りではなく検証対象になる。

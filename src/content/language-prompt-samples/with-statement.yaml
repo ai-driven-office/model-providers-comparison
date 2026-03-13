@@ -1,0 +1,73 @@
+order: 6
+title:
+  en: Happy Path Chaining & Short-Circuiting
+  ja: ハッピーパスの連鎖とショートサーキット
+description:
+  en: "Monadic composition (>>= / bind) sequences fallible operations so that the first failure short-circuits the entire chain -no nested if-checks required. In CS terms, this is the Either monad applied to real workflow orchestration. The paper found that multi-step pipelines with explicit error propagation produce dramatically higher pass rates: LLMs generate each step as an independent unit, and the short-circuit semantics are trivially predictable. Below: Elixir with/else, Python returns.do, TypeScript early returns, Effect generators, and each language's idiomatic chaining."
+  ja: モナド合成（>>= / bind）が失敗可能な操作を順序立て、最初の失敗でチェーン全体をショートサーキットする -ネストしたif文不要。CS的にはEitherモナドを実ワークフローオーケストレーションに適用したもの。論文では、明示的エラー伝播を伴う多段パイプラインが劇的に高いPass率を生むことを発見：LLMは各ステップを独立ユニットとして生成し、ショートサーキットセマンティクスは自明に予測可能。
+importance: high
+icon: sparkles
+libraries:
+  - lang: elixir
+    name: with/else special form
+    url: https://hexdocs.pm/elixir/Kernel.SpecialForms.html#with/1
+    builtin: true
+  - lang: python
+    name: returns Result.do
+    url: https://returns.readthedocs.io/en/latest/pages/railway.html
+  - lang: typescript
+    name: neverthrow andThen()
+    url: https://github.com/supermacro/neverthrow#chaining
+  - lang: typescript_effect
+    name: Effect.gen + Schema.TaggedErrorClass (v4 beta)
+    url: https://effect.website/docs/getting-started/using-generators
+  - lang: go
+    name: Sequential if err != nil
+    url: https://go.dev/blog/error-handling-and-go
+    builtin: true
+  - lang: csharp
+    name: CSharpFunctionalExtensions Bind
+    url: https://github.com/vkhorikov/CSharpFunctionalExtensions
+  - lang: dart
+    name: fpdart flatMap
+    url: https://pub.dev/packages/fpdart
+  - lang: swift
+    name: Result flatMap
+    url: https://developer.apple.com/documentation/swift/result/flatmap(_:)
+    builtin: true
+  - lang: kotlin
+    name: Arrow either { } / bind()
+    url: https://arrow-kt.io/docs/apidocs/arrow-core/arrow.core/-either/
+caveats:
+  en: Python returns.do requires dry-python/returns ≥ 0.22. TypeScript lacks native monadic chaining -manual early returns or neverthrow .andThen() chains are the standard workaround. Effect.gen uses generators to simulate do-notation.
+  ja: Python returns.doにはdry-python/returns ≥ 0.22が必要。TypeScriptにはネイティブのモナド連鎖がなく、手動の早期returnまたはneverthrow .andThen()チェーンが標準的な回避策。Effect.genはジェネレータでdo記法をシミュレートする。
+annotations:
+  elixir:
+    - match: with {:ok, user}     <- authenticate(token),
+      title:
+        en: The workflow declares its success contract up front
+        ja: 成功条件を最初に宣言している
+      body:
+        en: Each line says “continue only if this step returns `{:ok, ...}`”. The happy path is encoded structurally, not implied by convention.
+        ja: 各行が「このステップが `{:ok, ...}` を返した時だけ続行」と宣言している。成功経路が慣習ではなく構造として表現される。
+    - match: "{:ok, payment}  <- charge_card(user, items),"
+      title:
+        en: Later steps can use earlier bindings directly
+        ja: 後続ステップは前段の束縛をそのまま使える
+      body:
+        en: By the time payment runs, `user` and `items` are already guaranteed-good values. No extra null checks or success flags clutter the call.
+        ja: payment の時点では `user` と `items` はすでに成功確定済み。追加の null チェックや成功フラグは不要。
+    - match: send_confirmation(user, order)
+      title:
+        en: Side effects happen only after the full chain succeeds
+        ja: 副作用は全工程成功後にだけ実行される
+      body:
+        en: Confirmation sits inside the `do` block after every fallible step. That makes its preconditions obvious at a glance.
+        ja: 確認送信は、失敗しうる全ステップの後に `do` ブロック内で実行される。前提条件が一目で分かる。
+    - match: else
+      title:
+        en: All failure exits are centralized
+        ja: 失敗出口が1か所に集約される
+      body:
+        en: The `else` block is the single place where non-matching results are translated into user-facing errors. Recovery logic does not leak into the happy path.
+        ja: "`else` は不一致結果をユーザー向けエラーへ変換する唯一の場所。回復ロジックがハッピーパス側へ漏れない。"

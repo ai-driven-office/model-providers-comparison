@@ -1,13 +1,14 @@
-import { readFile, stat } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
-import type { CodeSample, LangId } from "../LanguageIsThePromptPage";
-import { codeSamplesSpec } from "./codeSamplesSpec.ts";
+import { LANG_IDS, type CodeSample, type LangId } from "./types";
+import { loadCodeSampleSpecs } from "./codeSamplesSpec.ts";
+import { SUPPLEMENTAL_SNIPPETS } from "./supplementalSnippets";
 
 const PROJECT_ROOT = process.cwd();
-const SNIPPET_PATH_PREFIXES = [
-  "src/components/",
-  "language-is-the-prompt/",
-];
+const SNIPPETS_ROOT = path.join(
+  PROJECT_ROOT,
+  "src/components/language-is-the-prompt/snippets",
+);
 
 type SnippetCacheEntry = {
   mtimeMs: number;
@@ -16,30 +17,7 @@ type SnippetCacheEntry = {
 
 const snippetCache = new Map<string, SnippetCacheEntry>();
 
-function resolveSnippetPath(snippetPath: string): string {
-  const normalized = snippetPath.replace(/^\/+/, "");
-
-  if (path.isAbsolute(normalized)) {
-    return normalized;
-  }
-
-  if (normalized.startsWith("src/components/")) {
-    return path.join(PROJECT_ROOT, normalized);
-  }
-
-  if (normalized.startsWith("language-is-the-prompt/")) {
-    return path.join(PROJECT_ROOT, "src/components", normalized);
-  }
-
-  if (SNIPPET_PATH_PREFIXES.some((prefix) => normalized.startsWith(prefix))) {
-    return path.join(PROJECT_ROOT, normalized);
-  }
-
-  return path.join(PROJECT_ROOT, "src/components", normalized);
-}
-
-async function readSnippet(snippetPath: string): Promise<string> {
-  const fullPath = resolveSnippetPath(snippetPath);
+async function readSnippet(fullPath: string): Promise<string> {
   const stats = await stat(fullPath);
   const cached = snippetCache.get(fullPath);
 
@@ -52,18 +30,47 @@ async function readSnippet(snippetPath: string): Promise<string> {
   return contents;
 }
 
+function isLangId(value: string): value is LangId {
+  return LANG_IDS.includes(value as LangId);
+}
+
+async function loadSnippetsForSample(
+  sampleId: string,
+): Promise<Partial<Record<LangId, string>>> {
+  const sampleDir = path.join(SNIPPETS_ROOT, sampleId);
+  const fileNames = await readdir(sampleDir);
+  const snippetsByLang = new Map<LangId, string>();
+
+  for (const fileName of fileNames) {
+    const fullPath = path.join(sampleDir, fileName);
+    const stats = await stat(fullPath);
+
+    if (!stats.isFile()) {
+      continue;
+    }
+
+    const langId = path.parse(fileName).name;
+    if (!isLangId(langId)) {
+      throw new Error(
+        `[language-is-the-prompt] Unexpected snippet file "${fileName}" in sample "${sampleId}"`,
+      );
+    }
+
+    snippetsByLang.set(langId, await readSnippet(fullPath));
+  }
+
+  return {
+    ...Object.fromEntries(snippetsByLang),
+    ...(SUPPLEMENTAL_SNIPPETS[sampleId] ?? {}),
+  };
+}
+
 export async function loadCodeSamples(): Promise<CodeSample[]> {
+  const codeSamplesSpec = await loadCodeSampleSpecs();
   const samples = await Promise.all(
     codeSamplesSpec.map(async (sampleSpec) => {
-      const snippetEntries = await Promise.all(
-        Object.entries(sampleSpec.snippetPaths).map(async ([langId, snippetPath]) => {
-          const code = await readSnippet(snippetPath);
-          return [langId, code] as const;
-        }),
-      );
-
-      const snippets = Object.fromEntries(snippetEntries) as Record<LangId, string>;
-      const { snippetPaths: _removedSnippetPaths, ...sample } = sampleSpec;
+      const snippets = await loadSnippetsForSample(sampleSpec.id);
+      const { order: _removedOrder, ...sample } = sampleSpec;
 
       return {
         ...sample,

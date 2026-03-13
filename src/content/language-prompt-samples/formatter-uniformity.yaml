@@ -1,0 +1,72 @@
+order: 5
+title:
+  en: Formatter Uniformity
+  ja: フォーマッタ統一
+description:
+  en: "A canonical, zero-config formatter collapses surface-level entropy to near zero. In information-theoretic terms (Shannon 1948), if all projects look identical after formatting, the model spends zero predictive capacity on style and allocates 100% to semantics. Elixir ships mix format built-in -formatting is not a choice but a property of the ecosystem. The paper observed that consistent formatting across training data significantly reduces token-level perplexity, meaning the LLM wastes fewer parameters modeling whitespace, brace placement, and import ordering. Below: each language's current best opinionated formatter."
+  ja: 標準のゼロコンフィグフォーマッタが表面レベルのエントロピーをほぼゼロに圧縮する。情報理論（Shannon 1948）の観点では、全プロジェクトがフォーマット後に同一に見えれば、モデルはスタイルに予測容量をゼロ消費し、100%をセマンティクスに割り当てる。Elixirはmix formatを組み込みで提供 -フォーマットは選択ではなくエコシステムの性質。論文では、訓練データ全体の一貫したフォーマットがトークンレベルのパープレキシティを有意に低下させ、LLMが空白・括弧配置・import順序のモデリングに浪費するパラメータが減ることを確認。
+importance: high
+icon: paintbrush
+libraries:
+  - lang: elixir
+    name: mix format (built-in)
+    url: https://hexdocs.pm/mix/Mix.Tasks.Format.html
+    builtin: true
+  - lang: python
+    name: ruff format
+    url: https://docs.astral.sh/ruff/formatter/
+  - lang: typescript
+    name: oxfmt (Oxc project)
+    url: https://oxc.rs/docs/guide/usage/formatter
+  - lang: typescript_effect
+    name: oxfmt (Oxc project)
+    url: https://oxc.rs/docs/guide/usage/formatter
+  - lang: go
+    name: gofumpt (stricter gofmt)
+    url: https://github.com/mvdan/gofumpt
+  - lang: csharp
+    name: CSharpier
+    url: https://csharpier.com/
+  - lang: dart
+    name: dart format (built-in)
+    url: https://dart.dev/tools/dart-format
+    builtin: true
+  - lang: swift
+    name: swift-format
+    url: https://github.com/swiftlang/swift-format
+  - lang: kotlin
+    name: ktfmt
+    url: https://github.com/facebook/ktfmt
+caveats:
+  en: Only Elixir (mix format), Go (gofmt), and Dart (dart format) ship built-in formatters with zero config. Python migrated from Black to the faster Ruff. TypeScript ecosystem is shifting from Prettier to Rust-native oxfmt (Oxc). Go's gofumpt adds stricter rules on top of gofmt. Swift-format is official but not bundled with the compiler. Kotlin has multiple competing formatters (ktfmt, ktlint, IntelliJ built-in).
+  ja: Elixir（mix format）・Go（gofmt）・Dart（dart format）のみがゼロコンフィグの組み込みフォーマッタを提供。PythonはBlackからより高速なRuffに移行中。TypeScriptエコシステムはPrettierからRustネイティブのoxfmt（Oxc）へシフト中。Goのgofumptはgofmtの上により厳密なルールを追加。swift-formatは公式だがコンパイラには同梱されず。Kotlinには複数の競合フォーマッタ（ktfmt, ktlint, IntelliJ組み込み）がある。
+annotations:
+  elixir:
+    - match: mix format
+      title:
+        en: Formatting is part of the language workflow
+        ja: フォーマットが言語ワークフローに組み込まれている
+      body:
+        en: Elixir’s canonical formatter ships with the toolchain. Teams do not need to negotiate style before they can share code that looks familiar.
+        ja: Elixir の標準フォーマッタはツールチェーン同梱。見慣れた形のコードを共有する前に、チームでスタイル交渉する必要がない。
+    - match: "%{"
+      title:
+        en: Composite literals get one predictable layout
+        ja: 複合リテラルの配置が一貫する
+      body:
+        en: The map opens into a standard multiline shape with aligned fields. Readers learn one house style and see it everywhere.
+        ja: マップは標準的な複数行レイアウトに展開され、項目配置も揃う。読む側は1つの様式を覚えればよい。
+    - match: "email: email |> String.trim() |> String.downcase(),"
+      title:
+        en: Even dense expressions keep a normalized form
+        ja: 密な式でも正規化された形を保つ
+      body:
+        en: A short pipeline stays inline here because it still fits the formatter’s rules. The shape is decided mechanically, not by personal taste.
+        ja: この短いパイプラインはフォーマッタ規則に従ってインラインのまま保たれる。見た目は好みではなく機械的に決まる。
+    - match: "tags: [\"active\", if(admin?, do: \"staff\", else: \"member\")]"
+      title:
+        en: Inline conditionals are rendered consistently too
+        ja: インライン条件式も同じく一貫して整形される
+      body:
+        en: The formatter preserves the compact `if(..., do:, else:)` idiom in a stable way. Special forms do not create style divergence across projects.
+        ja: コンパクトな `if(..., do:, else:)` も安定した形で整形される。特殊フォームがプロジェクトごとの見た目差を生みにくい。

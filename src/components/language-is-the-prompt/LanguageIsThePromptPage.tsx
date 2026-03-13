@@ -2,6 +2,24 @@ import { useState, useEffect, useRef, type ReactNode, type WheelEvent as ReactWh
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, Zap, Code2, Beaker, Shield, Layers, GitBranch, Terminal, BookOpen, Cpu, FlaskConical, Sparkles, FileCheck, Shuffle, Lock, ArrowRight, Paintbrush, FileText, ExternalLink, PenTool, TestTube, CheckCircle, BookMarked, BrainCircuit } from "lucide-react";
 import type { Lang } from "../../data/i18n";
+import {
+  DEFAULT_COMPARISON_LANGS,
+  LANG_COLORS,
+  LANG_LABELS,
+  LANG_MONOGRAMS,
+  LANG_ORDER,
+  LANG_SHIKI,
+} from "./data/languageMeta";
+import type {
+  CodeAnnotation,
+  CodeSample,
+  CodeSampleIconId,
+  DifficultyDatum,
+  HighlightMap,
+  LangId,
+  LanguagePromptPageContent,
+  PrincipleIconId,
+} from "./data/types";
 import PaperEmbed from "./PaperEmbed";
 
 /* ── Typography constants ── */
@@ -9,189 +27,6 @@ const MONO = "'Space Mono', monospace";
 const CODE_FONT = "'JetBrains Mono', 'Fira Code', 'Space Mono', monospace";
 const SANS = "'Inter', system-ui, sans-serif";
 const JA_SANS = "'Zen Kaku Gothic New', sans-serif";
-
-
-/* ══════════════════════════════════════════════════════════════════════════
-   BILINGUAL CONTENT
-   ══════════════════════════════════════════════════════════════════════════ */
-
-const content = {
-  en: {
-    back: "Back to Dashboard",
-    badge: "Research",
-    title: "The Language Is the Prompt",
-    subtitle: "What Elixir's 87.4% vs Python's 43.9% suggests about explicitness, language design, and LLM code generation.",
-    heroStat1Label: "Elixir Pass@1",
-    heroStat1Value: "87.4%",
-    heroStat2Label: "Python Pass@1",
-    heroStat2Value: "43.9%",
-    heroStat3Label: "Gap on Hard Tasks",
-    heroStat3Value: "55pt",
-    tldr: "TL;DR",
-    tldrText: "LLMs don't just read your prompt  - they read your **language**, its **conventions**, and its **libraries**. Elixir makes intent unusually explicit, but the broader lesson is portable: the **less guesswork** a model has to do, the **better it tends to perform**.",
-    whyTitle: "Why does this matter?",
-    whyPoints: [
-      "Elixir has **far less training data** than Python, yet performs **unusually well** at code generation",
-      "The gap **widens on harder problems**, suggesting that explicitness matters more as **complexity grows**",
-      "**Explicit error contracts** are the **strongest portable signal** across all languages tested",
-      "Other languages can **adopt these principles** to improve their LLM code generation",
-    ],
-    hypothesisTitle: "The Explicitness Hypothesis",
-    hypothesisSub: "Languages that make **intent**, **contracts**, and **data flow** locally visible **reduce the predictive burden** on LLMs.",
-    principles: [
-      { title: "Explicit Contracts", desc: "Algebraic data typing for errors -every function returns {:ok, val} or {:error, reason} instead of throwing exceptions. The paper identified this as the single strongest cross-language predictor of LLM performance. The {:ok, _}/{:error, _} pattern appears thousands of times in training data, creating extremely strong next-token prediction signal.", icon: "contract" },
-      { title: "Pattern Matching", desc: "Algebraic pattern matching decomposes data by shape -each function clause handles exactly one variant, and the compiler guarantees exhaustiveness. For LLMs, flat branch-per-clause structures are far more predictable than deeply nested conditional trees; the model reasons about each branch in isolation.", icon: "pattern" },
-      { title: "Immutability Default", desc: "Referential transparency by default: once bound, a value never changes. This eliminates stale references, shared-state races, and temporal coupling. LLMs never need to trace mutation history across scopes -every value is defined exactly where it appears, making code locally self-contained.", icon: "lock" },
-      { title: "Pipe Operator", desc: "Function composition made visually linear: data |> step1 |> step2 |> step3. The paper found pipeline style reduces nesting depth and makes each transformation locally obvious. LLMs predict left-to-right sequences far more accurately than nested calls like step3(step2(step1(data))).", icon: "pipe" },
-      { title: "Formatter Uniformity", desc: "A canonical formatter (mix format) eliminates all stylistic variation -indentation, spacing, line breaks become deterministic. In information theory terms, this collapses surface-level entropy to near zero. The model spends zero capacity on style, all capacity on semantics.", icon: "format" },
-      { title: "Executable Docs", desc: "Doctests embed runnable examples inside function documentation, serving as specification, test, and docs simultaneously -the literate programming ideal. ExUnit executes these as part of the test suite. LLMs get verified input/output pairs co-located with the function definition.", icon: "docs" },
-    ],
-    difficultyTitle: "The Hard Problem Gap",
-    difficultySub: "On hard tasks, Elixir degrades far less than most comparison languages.",
-    difficultyNote: "Elixir stays relatively stable from easy to hard problems; Python and JS drop much more sharply.",
-    codeTitle: "Show Me the Code",
-    codeSub: "Elixir stays on the left; the selected language shows the closest idiomatic equivalent, using current language features and common libraries when they matter.",
-    codeNote: "Note: Effect is not a separate language. It is a TypeScript library. We show it separately because the syntax and idioms are different enough from mainstream TypeScript that side-by-side comparison is useful for learning.",
-    readPaperCta: "Read the full research paper",
-    readPaperCtaSub: "Scroll down to the embedded PDF with all data, methodology, and analysis",
-    paperLink: "Research Source",
-    paperLinkSub: "Günther Brunner · CyberAgent",
-    methodology: "Source: \"The Language Is the Prompt\" by Günther Brunner, CyberAgent Inc.",
-  },
-  ja: {
-    back: "ダッシュボードに戻る",
-    badge: "研究",
-    title: "言語がプロンプトである",
-    subtitle: "Elixirの87.4%、Pythonの43.9%という差が、明示性・言語設計・LLMコード生成について何を示しているか。プログラミング言語そのものがプロンプトだ。",
-    heroStat1Label: "Elixir Pass@1",
-    heroStat1Value: "87.4%",
-    heroStat2Label: "Python Pass@1",
-    heroStat2Value: "43.9%",
-    heroStat3Label: "難問での差",
-    heroStat3Value: "55pt",
-    tldr: "要約",
-    tldrText: "LLMはプロンプトだけでなく、**言語**・**慣習**・**ライブラリ**も読む。Elixirは意図を非常に明示しやすいが、重要なのはその発想が**他言語にも移せる**ことだ。モデルが**推測しなくてよい**ほど、**性能は安定しやすい**。",
-    whyTitle: "なぜ重要か？",
-    whyPoints: [
-      "ElixirはPythonより**学習データが少ない**のに、コード生成で**非常に高い性能**を示す",
-      "**難問になるほど差は広がり**、明示性が**複雑さに強く効いている**ことを示唆する",
-      "**明示的なエラー契約**が、テストされた全言語で**最も強力なポータブルシグナル**",
-      "他の言語もこれらの原則を**採用してLLMコード生成を改善**できる",
-    ],
-    hypothesisTitle: "明示性仮説",
-    hypothesisSub: "**意図**・**契約**・**データフロー**をローカルに可視化する言語は、LLMの**予測負荷を減らす**。",
-    principles: [
-      { title: "明示的な契約", desc: "代数的データ型によるエラーハンドリング -例外をスローせず、すべての関数が{:ok, val}または{:error, reason}を返す。論文ではこれが最も強力な言語横断的LLM性能予測因子と特定された。{:ok, _}/{:error, _}パターンは訓練データに何千回も出現し、極めて強い次トークン予測シグナルを生む。", icon: "contract" },
-      { title: "パターンマッチ", desc: "代数的パターンマッチングはデータを形状で分解し、各関数句が正確に1つのバリアントを処理、コンパイラが網羅性を保証する。LLMにとって、フラットな句ごとの分岐は深くネストした条件分岐ツリーよりはるかに予測しやすく、各分岐を独立に推論できる。", icon: "pattern" },
-      { title: "デフォルト不変性", desc: "デフォルトの参照透過性：一度束縛された値は変わらない。古い参照、共有状態の競合、時間的結合を排除する。LLMはスコープ間の変異履歴を追跡する必要がなく、すべての値が出現箇所で定義されるため、コードがローカルに自己完結する。", icon: "lock" },
-      { title: "パイプ演算子", desc: "関数合成を視覚的に線形にする：data |> step1 |> step2 |> step3。論文ではパイプラインスタイルがネスト深度を減らし各変換をローカルに明白にすることを発見。LLMはstep3(step2(step1(data)))より左から右のシーケンスをはるかに正確に予測する。", icon: "pipe" },
-      { title: "フォーマッタ統一", desc: "標準フォーマッタ（mix format）がスタイル変動を完全排除 -インデント・スペース・改行が決定論的に。情報理論的には表面エントロピーをほぼゼロに圧縮。モデルはスタイルに容量ゼロ、セマンティクスに全容量を使える。", icon: "format" },
-      { title: "実行可能なドキュメント", desc: "関数ドキュメント内に実行可能な例を埋め込み、仕様・テスト・ドキュメントの三役を同時に果たすリテラルプログラミングの理想形。ExUnitがテストスイートとして実行する。LLMは関数定義の隣に検証済みの入出力ペアを得る。", icon: "docs" },
-    ],
-    difficultyTitle: "難問での差",
-    difficultySub: "難しい問題でも、Elixirは多くの比較対象より劣化がかなり小さい。",
-    difficultyNote: "Elixirは易しい問題から難しい問題まで比較的安定しており、PythonやJSは落ち込みが大きい。",
-    codeTitle: "コードで見る",
-    codeSub: "左にElixir、右に選択した言語での最も自然な等価表現を表示。必要に応じて最新の言語機能や定番ライブラリを使う。",
-    codeNote: "注: Effectは独立した言語ではなく、TypeScriptのライブラリです。ただし構文と慣用スタイルが通常のTypeScriptとかなり異なるため、学習と比較をしやすくするために別枠で表示しています。",
-    readPaperCta: "研究論文を読む",
-    readPaperCtaSub: "埋め込みPDFで全データ・手法・分析を確認できます",
-    paperLink: "研究ソース",
-    paperLinkSub: "Günther Brunner · CyberAgent",
-    methodology: "出典: 「The Language Is the Prompt」  - Günther Brunner, CyberAgent Inc.",
-  },
-} as const;
-
-/* ══════════════════════════════════════════════════════════════════════════
-   DIFFICULTY DATA
-   ══════════════════════════════════════════════════════════════════════════ */
-
-const difficultyData = [
-  { lang: "Elixir",     easy: 96.6, medium: 86.7, hard: 86.3, degradation: -10.3, color: "#22D694" },
-  { lang: "Kotlin",     easy: 100.0, medium: 88.1, hard: 63.6, degradation: -36.4, color: "#5B9EFF" },
-  { lang: "C#",         easy: 97.8, medium: 81.1, hard: 63.1, degradation: -34.7, color: "#A78BFA" },
-  { lang: "Python",     easy: 82.0, medium: 48.6, hard: 31.6, degradation: -50.4, color: "#FFB340" },
-  { lang: "JS",         easy: 78.5, medium: 45.2, hard: 28.3, degradation: -50.2, color: "#FF5A5A" },
-];
-
-/* ══════════════════════════════════════════════════════════════════════════
-   CODE SAMPLES  - Elixir features with equivalents in 8 other languages
-   ══════════════════════════════════════════════════════════════════════════ */
-
-export type LangId = "elixir" | "python" | "typescript" | "typescript_effect" | "go" | "csharp" | "dart" | "swift" | "kotlin";
-export type CodeSampleIconId =
-  | "git-branch"
-  | "shield"
-  | "lock"
-  | "layers"
-  | "paintbrush"
-  | "sparkles"
-  | "cpu"
-  | "book-open"
-  | "flask-conical";
-export type CodeSampleDiagramId = "doc-pipeline";
-
-interface LibRef {
-  lang: string;
-  name: string;
-  url?: string;
-  builtin?: boolean;
-}
-
-export interface CodeAnnotation {
-  match: string;
-  title: { en: string; ja: string };
-  body: { en: string; ja: string };
-}
-
-export interface CodeSample {
-  id: string;
-  title: { en: string; ja: string };
-  description: { en: string; ja: string };
-  importance?: "critical" | "high" | "medium";
-  icon: CodeSampleIconId;
-  diagramId?: CodeSampleDiagramId;
-  snippets: Record<LangId, string>;
-  libraries?: LibRef[];
-  caveats?: { en: string; ja: string };
-  annotations?: Partial<Record<LangId, CodeAnnotation[]>>;
-}
-
-const LANG_LABELS: Record<LangId, string> = {
-  elixir: "Elixir",
-  python: "Python",
-  typescript: "TS",
-  typescript_effect: "Effect",
-  go: "Go",
-  csharp: "C#",
-  dart: "Dart",
-  swift: "Swift",
-  kotlin: "Kotlin",
-};
-
-const LANG_COLORS: Record<LangId, string> = {
-  elixir: "#9B59B6",
-  python: "#3776AB",
-  typescript: "#3178C6",
-  typescript_effect: "#7B61FF",
-  go: "#00ADD8",
-  csharp: "#68217A",
-  dart: "#0175C2",
-  swift: "#F05138",
-  kotlin: "#7F52FF",
-};
-
-export const LANG_SHIKI: Record<LangId, string> = {
-  elixir: "elixir",
-  python: "python",
-  typescript: "typescript",
-  typescript_effect: "typescript",
-  go: "go",
-  csharp: "csharp",
-  dart: "dart",
-  swift: "swift",
-  kotlin: "kotlin",
-};
 
 const ANNOTATION_ACCENTS = [
   { color: "#7DD3FC", glow: "rgba(125,211,252,0.22)", icon: BrainCircuit },
@@ -236,8 +71,6 @@ interface CodeSegment {
   text: string;
   annotationIndex: number | null;
 }
-
-export type HighlightMap = Record<string, Partial<Record<LangId, string>>>;
 
 const HIGHLIGHTS_SCRIPT_ID = "language-is-the-prompt-highlights";
 let cachedScriptHighlights: HighlightMap | null = null;
@@ -650,78 +483,32 @@ function SyntaxBlock({
   );
 }
 
-/* ── Language SVG Icons (16x16) ── */
+/* ── Language Icons ── */
 function LangIcon({ id, size = 16 }: { id: LangId; size?: number }) {
   const s = size;
   const c = LANG_COLORS[id];
-  switch (id) {
-    case "elixir":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
-          <path d="M12 2C8.5 6 6 10.5 6 14.5C6 18.64 8.69 22 12 22C15.31 22 18 18.64 18 14.5C18 10.5 15.5 6 12 2Z" fill={c} fillOpacity={0.85} />
-          <path d="M12 2C8.5 6 6 10.5 6 14.5C6 18.64 8.69 22 12 22C15.31 22 18 18.64 18 14.5C18 10.5 15.5 6 12 2Z" stroke={c} strokeWidth={1.5} fill="none" />
-        </svg>
-      );
-    case "python":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
-          <path d="M11.9 2C6.5 2 7 4.5 7 4.5V7h5v1H5.5S2 7.5 2 12.1 4.9 17 4.9 17H7v-2.9s-.1-2.9 2.9-2.9h4.9s2.8 0 2.8-2.7V4.8S18 2 11.9 2zM9.2 4c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9z" fill={c} />
-          <path d="M12.1 22c5.4 0 4.9-2.5 4.9-2.5V17h-5v-1h6.5s3.5.5 3.5-4.1S19.1 7 19.1 7H17v2.9s.1 2.9-2.9 2.9H9.2s-2.8 0-2.8 2.7v3.7S6 22 12.1 22zm2.7-2c-.5 0-.9-.4-.9-.9s.4-.9.9-.9.9.4.9.9-.4.9-.9.9z" fill={c} fillOpacity={0.65} />
-        </svg>
-      );
-    case "typescript":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="2" width="20" height="20" rx="3" fill={c} />
-          <text x="12" y="16.5" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="sans-serif">TS</text>
-        </svg>
-      );
-    case "typescript_effect":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="2" width="20" height="20" rx="3" fill={c} />
-          <text x="12" y="16.5" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold" fontFamily="sans-serif">Efx</text>
-        </svg>
-      );
-    case "go":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="2" width="20" height="20" rx="3" fill={c} fillOpacity={0.15} />
-          <text x="12" y="16.5" textAnchor="middle" fill={c} fontSize="11" fontWeight="bold" fontFamily="sans-serif">Go</text>
-        </svg>
-      );
-    case "csharp":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="2" width="20" height="20" rx="3" fill={c} />
-          <text x="12" y="16.5" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold" fontFamily="sans-serif">C#</text>
-        </svg>
-      );
-    case "dart":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
-          <path d="M4.5 12L7 4.5H17L19.5 7V17L17 19.5H7L4.5 17V12Z" fill={c} fillOpacity={0.2} stroke={c} strokeWidth={1.5} />
-          <path d="M7 4.5L12 12L17 19.5" stroke={c} strokeWidth={1.2} />
-          <path d="M19.5 7L12 12L4.5 17" stroke={c} strokeWidth={1.2} />
-        </svg>
-      );
-    case "swift":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="2" width="20" height="20" rx="5" fill={c} />
-          <path d="M16.5 16.5c-1 1-5.5-.5-8-3.5 3 1.5 5 1.5 5 1.5-2-2-3.5-4.5-4-5.5 2 2 4.5 3.5 4.5 3.5C12 10 9 6.5 9 6.5c4 3 7 6.5 7.5 7 .8-1 1-3 .5-5 2 2.5 1.5 6-.5 8z" fill="white" />
-        </svg>
-      );
-    case "kotlin":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
-          <path d="M4 4H20L12 12L20 20H4V4Z" fill={c} />
-        </svg>
-      );
-  }
+  const glyph = LANG_MONOGRAMS[id];
+  const fontSize = glyph.length >= 3 ? 8.5 : glyph.length === 1 ? 11.5 : 10;
+
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="2" y="2" width="20" height="20" rx="5" fill={c} fillOpacity={0.18} stroke={c} strokeWidth={1.4} />
+      <text
+        x="12"
+        y="16"
+        textAnchor="middle"
+        fill={id === "javascript" ? "#111827" : c}
+        fontSize={fontSize}
+        fontWeight="700"
+        fontFamily="system-ui, sans-serif"
+      >
+        {glyph}
+      </text>
+    </svg>
+  );
 }
 
-function PrincipleIcon({ id, color }: { id: string; color: string }) {
+function PrincipleIcon({ id, color }: { id: PrincipleIconId; color: string }) {
   const s = 18;
   switch (id) {
     case "contract":
@@ -824,30 +611,37 @@ function useReduceMotion(): boolean {
   return reduced;
 }
 
-/* ── Code Tab Selector ── */
-const LANG_ORDER: LangId[] = ["elixir", "python", "typescript", "typescript_effect", "go", "csharp", "dart", "swift", "kotlin"];
-
 /* Shared window chrome pieces */
 const WINDOW_BG = "linear-gradient(180deg, #1e2432 0%, #171c28 100%)";
 const WINDOW_BORDER = "1px solid rgba(255,255,255,0.08)";
 const WINDOW_SHADOW = "0 25px 60px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03) inset";
 const DIVIDER = "1px solid rgba(255,255,255,0.06)";
 
-const OTHER_LANGS = LANG_ORDER.filter((l) => l !== "elixir") as LangId[];
+const SELECTOR_LANGS = LANG_ORDER.filter((lid) => lid !== "elixir");
+const RADAR_LANGS: LangId[] = [
+  "elixir",
+  "rust",
+  "gleam",
+  "typescript_effect",
+  "typescript",
+  "go",
+  "swift",
+  "kotlin",
+  "python",
+  "javascript",
+];
 
-/* ── Tab change sounds (Web Audio API) ── two-note chirps, all soft waveforms ── */
-const TAB_SOUNDS: Record<LangId, { notes: [number, number]; type: OscillatorType; dur: number }> = {
-  elixir:            { notes: [1047, 1319], type: "sine",     dur: 0.10 },  // C6→E6  bright major 3rd
-  python:            { notes: [523, 659],   type: "triangle", dur: 0.09 },  // C5→E5  warm chirp
-  typescript:        { notes: [784, 988],   type: "sine",     dur: 0.09 },  // G5→B5  gentle major 3rd
-  typescript_effect: { notes: [880, 1175],  type: "sine",     dur: 0.10 },  // A5→D6  sparkly 4th
-  go:                { notes: [440, 554],   type: "sine",     dur: 0.08 },  // A4→C#5 calm major 3rd
-  csharp:            { notes: [587, 740],   type: "triangle", dur: 0.10 },  // D5→F#5 mellow chirp
-  kotlin:            { notes: [698, 880],   type: "sine",     dur: 0.09 },  // F5→A5  sweet minor 3rd
-  swift:             { notes: [988, 1319],  type: "triangle", dur: 0.08 },  // B5→E6  airy 4th
-  dart:              { notes: [659, 880],   type: "sine",     dur: 0.09 },  // E5→A5  bubbly 4th
-  rust:              { notes: [554, 698],   type: "triangle", dur: 0.09 },  // C#5→F5 soft minor 3rd
-};
+/* ── Tab change sounds (Web Audio API) ── */
+function getTabSoundConfig(lid: LangId): { notes: [number, number]; type: OscillatorType; dur: number } {
+  const index = Math.max(0, LANG_ORDER.indexOf(lid));
+  const base = 392 + (index % 12) * 37;
+  const ratio = index % 3 === 0 ? 1.25 : index % 3 === 1 ? 1.33 : 1.5;
+  return {
+    notes: [base, Math.round(base * ratio)] as [number, number],
+    type: index % 2 === 0 ? "sine" : "triangle",
+    dur: 0.08 + (index % 3) * 0.01,
+  };
+}
 
 let _audioCtx: AudioContext | null = null;
 function playTabSound(lid: LangId) {
@@ -855,7 +649,7 @@ function playTabSound(lid: LangId) {
     if (!_audioCtx) _audioCtx = new AudioContext();
     const ctx = _audioCtx;
     if (ctx.state === "suspended") ctx.resume();
-    const cfg = TAB_SOUNDS[lid] ?? { notes: [660, 880] as [number, number], type: "sine" as OscillatorType, dur: 0.09 };
+    const cfg = getTabSoundConfig(lid);
     const t = ctx.currentTime;
     const half = cfg.dur / 2;
     // Note 1
@@ -886,34 +680,62 @@ function scrollTabsOnWheel(event: ReactWheelEvent<HTMLDivElement>) {
   event.preventDefault();
 }
 
-const LangTab = ({ lid, isActive, onClick, showStar }: { lid: LangId; isActive: boolean; onClick: () => void; showStar?: boolean }) => (
-  <button onClick={() => { playTabSound(lid); onClick(); }}
-    className="flex items-center justify-center gap-1 px-2.5 py-1.5 border-none cursor-pointer transition-all duration-200 whitespace-nowrap"
-    style={{ fontFamily: CODE_FONT, fontSize: 12, fontWeight: isActive ? 600 : 400,
-      background: isActive ? "rgba(255,255,255,0.05)" : "transparent",
-      color: isActive ? LANG_COLORS[lid] : "rgba(255,255,255,0.35)",
-      borderBottom: isActive ? `2px solid ${LANG_COLORS[lid]}` : "2px solid transparent",
-    }}>
-    <span className="shrink-0"><LangIcon id={lid} size={14} /></span>
-    {showStar ? <span className="flex items-center gap-1"><span style={{ color: isActive ? "#FFD700" : "rgba(255,255,255,0.2)" }}>★</span>{LANG_LABELS[lid]}</span> : LANG_LABELS[lid]}
-  </button>
-);
+function LangTab({
+  lid,
+  isActive,
+  onClick,
+  showStar = false,
+}: {
+  lid: LangId;
+  isActive: boolean;
+  onClick: () => void;
+  showStar?: boolean;
+}) {
+  return (
+    <button
+      onClick={() => {
+        playTabSound(lid);
+        onClick();
+      }}
+      className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 border-none cursor-pointer transition-all duration-200 whitespace-nowrap"
+      style={{
+        fontFamily: CODE_FONT,
+        fontSize: 12,
+        fontWeight: isActive ? 600 : 400,
+        background: isActive ? "rgba(255,255,255,0.05)" : "transparent",
+        color: isActive ? LANG_COLORS[lid] : "rgba(255,255,255,0.35)",
+        borderBottom: isActive ? `2px solid ${LANG_COLORS[lid]}` : "2px solid transparent",
+      }}
+    >
+      <span className="shrink-0">
+        <LangIcon id={lid} size={14} />
+      </span>
+      {showStar ? (
+        <span className="flex items-center gap-1">
+          <span style={{ color: isActive ? "#FFD700" : "rgba(255,255,255,0.2)" }}>★</span>
+          {LANG_LABELS[lid]}
+        </span>
+      ) : (
+        LANG_LABELS[lid]
+      )}
+    </button>
+  );
+}
 
 /* ── Explicitness Radar Diagram (Interactive) ── */
-const RADAR_SCORES: Record<LangId, number[]> = {
+const RADAR_SCORES: Partial<Record<LangId, number[]>> = {
   // [Contracts, Pattern Match, Immutability, Pipe Operator, Formatter, Exec Docs]
   elixir:           [0.95, 0.97, 1.0,  0.95, 0.92, 0.98],
   python:           [0.35, 0.55, 0.30, 0.20, 0.60, 0.40],
   typescript:       [0.75, 0.40, 0.45, 0.25, 0.70, 0.30],
   typescript_effect: [0.90, 0.65, 0.80, 0.90, 0.70, 0.35],
   go:               [0.55, 0.30, 0.40, 0.15, 0.95, 0.75],
-  csharp:           [0.70, 0.80, 0.55, 0.15, 0.65, 0.30],
-  dart:             [0.65, 0.70, 0.50, 0.20, 0.90, 0.25],
   swift:            [0.80, 0.85, 0.65, 0.15, 0.55, 0.30],
   kotlin:           [0.75, 0.75, 0.60, 0.25, 0.65, 0.30],
+  rust:             [0.86, 0.82, 0.88, 0.25, 0.90, 0.78],
+  javascript:       [0.45, 0.25, 0.25, 0.20, 0.72, 0.18],
+  gleam:            [0.90, 0.92, 0.92, 0.55, 0.95, 0.70],
 };
-
-const ALL_LANG_IDS: LangId[] = ["elixir", "python", "typescript", "typescript_effect", "go", "csharp", "dart", "swift", "kotlin"];
 
 function ExplicitnessRadar({ isJa }: { isJa: boolean }) {
   const [enabled, setEnabled] = useState<Set<LangId>>(() => new Set(["elixir", "python"] as LangId[]));
@@ -949,7 +771,7 @@ function ExplicitnessRadar({ isJa }: { isJa: boolean }) {
   };
 
   const gridLevels = [0.25, 0.5, 0.75, 1.0];
-  const enabledLangs = ALL_LANG_IDS.filter((id) => enabled.has(id));
+  const enabledLangs = RADAR_LANGS.filter((id) => enabled.has(id) && RADAR_SCORES[id]);
 
   return (
     <div className="rounded-xl px-5 py-5 mb-6" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -1011,7 +833,7 @@ function ExplicitnessRadar({ isJa }: { isJa: boolean }) {
 
       {/* Interactive toggle buttons */}
       <div className="flex flex-wrap justify-center gap-2 mt-3">
-        {ALL_LANG_IDS.map((lid) => {
+        {RADAR_LANGS.map((lid) => {
           const isOn = enabled.has(lid);
           const color = LANG_COLORS[lid];
           return (
@@ -3103,9 +2925,121 @@ function FootnoteSection({ sample, lang }: { sample: CodeSample; lang: Lang }) {
   );
 }
 
+function tint(hex: string, alpha: number) {
+  const value = hex.replace("#", "");
+  const r = parseInt(value.slice(0, 2), 16);
+  const g = parseInt(value.slice(2, 4), 16);
+  const b = parseInt(value.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function ComparisonLanguageBar({
+  lang,
+  availableLangs,
+  selectedLangs,
+  onToggle,
+  onReset,
+}: {
+  lang: Lang;
+  availableLangs: LangId[];
+  selectedLangs: LangId[];
+  onToggle: (lid: LangId) => void;
+  onReset: () => void;
+}) {
+  const isJa = lang === "ja";
+
+  return (
+    <div
+      className="sticky top-4 z-20 mb-8 rounded-[20px] border p-4 sm:p-5 backdrop-blur-xl"
+      style={{
+        background: "linear-gradient(135deg, rgba(18,28,45,0.88), rgba(29,36,58,0.84))",
+        borderColor: "rgba(255,255,255,0.08)",
+        boxShadow: "0 16px 40px rgba(0,0,0,0.24)",
+      }}
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: "#7DD3FC", fontFamily: MONO }}>
+            {isJa ? "比較バー" : "Comparison Bar"}
+          </div>
+          <div className="mt-1 text-[13px] leading-[1.7]" style={{ color: "rgba(255,255,255,0.58)", fontFamily: isJa ? JA_SANS : SANS }}>
+            {isJa
+              ? "Elixirは常に基準として表示されます。下のチップで比較したい言語を追加・削除できます。"
+              : "Elixir stays pinned as the baseline. Use the chips below to add or remove comparison languages."}
+          </div>
+        </div>
+        <button
+          onClick={onReset}
+          className="self-start rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] transition-all duration-200 hover:opacity-100"
+          style={{
+            fontFamily: MONO,
+            color: "rgba(255,255,255,0.72)",
+            borderColor: "rgba(255,255,255,0.12)",
+            background: "rgba(255,255,255,0.04)",
+            opacity: 0.9,
+          }}
+        >
+          {isJa ? "既定に戻す" : "Reset"}
+        </button>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <div
+          className="inline-flex items-center gap-2 rounded-full border px-3 py-2"
+          style={{
+            borderColor: tint(LANG_COLORS.elixir, 0.45),
+            background: tint(LANG_COLORS.elixir, 0.14),
+            color: LANG_COLORS.elixir,
+            fontFamily: MONO,
+          }}
+        >
+          <LangIcon id="elixir" size={14} />
+          <span className="text-[11px] font-bold">{LANG_LABELS.elixir}</span>
+          <span className="text-[9px] uppercase tracking-[0.08em]" style={{ opacity: 0.7 }}>
+            {isJa ? "固定" : "Pinned"}
+          </span>
+        </div>
+
+        <div
+          className="min-w-0 flex-1 overflow-x-auto scrollbar-hide"
+          onWheel={scrollTabsOnWheel}
+        >
+          <div className="flex w-max gap-2 pr-2">
+            {availableLangs.map((lid) => {
+              const active = selectedLangs.includes(lid);
+              const color = LANG_COLORS[lid];
+              return (
+                <button
+                  key={lid}
+                  onClick={() => {
+                    playTabSound(lid);
+                    onToggle(lid);
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[11px] font-bold transition-all duration-200"
+                  style={{
+                    fontFamily: MONO,
+                    borderColor: active ? tint(color, 0.42) : "rgba(255,255,255,0.08)",
+                    background: active ? tint(color, 0.14) : "rgba(255,255,255,0.035)",
+                    color: active ? color : "rgba(255,255,255,0.45)",
+                    boxShadow: active ? `0 0 0 1px ${tint(color, 0.14)}` : "none",
+                  }}
+                >
+                  <LangIcon id={lid} size={14} />
+                  <span>{LANG_LABELS[lid]}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CodeComparison({
   sample,
   lang,
+  comparisonLangs,
   activeLang,
   onActiveLangChange,
   accentColor = "#10B981",
@@ -3113,15 +3047,28 @@ function CodeComparison({
 }: {
   sample: CodeSample;
   lang: Lang;
+  comparisonLangs: LangId[];
   activeLang: LangId;
   onActiveLangChange: (lid: LangId) => void;
   accentColor?: string;
   highlights: HighlightMap;
 }) {
+  const availableComparisonLangs = comparisonLangs.filter((lid) => Boolean(sample.snippets[lid]));
+  const fallbackLang = availableComparisonLangs[0] ?? null;
+  const resolvedActiveLang =
+    activeLang && availableComparisonLangs.includes(activeLang)
+      ? activeLang
+      : fallbackLang;
   const [mobileLang, setMobileLang] = useState<LangId>("elixir");
   const isJa = lang === "ja";
   const fontBody = isJa ? JA_SANS : SANS;
   const diagramNode = sample.diagramId === "doc-pipeline" ? <DocPipelineDiagram isJa={isJa} /> : null;
+
+  useEffect(() => {
+    if (mobileLang !== "elixir" && !availableComparisonLangs.includes(mobileLang)) {
+      setMobileLang("elixir");
+    }
+  }, [availableComparisonLangs, mobileLang]);
 
   return (
     <div className="mb-20">
@@ -3144,59 +3091,79 @@ function CodeComparison({
       {/* Optional inline diagram */}
       {diagramNode && <div className="mb-3">{diagramNode}</div>}
 
-      {/* ═══ MOBILE: single pane with all tabs (< md) ═══ */}
       <div className="md:hidden">
-        <div className="rounded-[14px] overflow-hidden" style={{ background: WINDOW_BG, border: WINDOW_BORDER, boxShadow: WINDOW_SHADOW }}>
+        <div
+          className="rounded-[14px] overflow-hidden"
+          style={{ background: WINDOW_BG, border: WINDOW_BORDER, boxShadow: WINDOW_SHADOW }}
+        >
           <div
             className="flex overflow-x-auto scrollbar-hide gap-0 px-2"
             style={{ borderBottom: DIVIDER, background: "rgba(0,0,0,0.15)" }}
             onWheel={scrollTabsOnWheel}
           >
-            {LANG_ORDER.map((lid) => (
-              <LangTab key={lid} lid={lid} isActive={mobileLang === lid} showStar={lid === "elixir"}
-                onClick={() => setMobileLang(lid)} />
+            <LangTab
+              lid="elixir"
+              isActive={mobileLang === "elixir"}
+              showStar
+              onClick={() => setMobileLang("elixir")}
+            />
+            {availableComparisonLangs.map((lid) => (
+              <LangTab
+                key={lid}
+                lid={lid}
+                isActive={mobileLang === lid}
+                onClick={() => setMobileLang(lid)}
+              />
             ))}
           </div>
+
           <SyntaxBlock
-            code={sample.snippets[mobileLang]}
-            language={LANG_SHIKI[mobileLang]}
+            code={sample.snippets[mobileLang] ?? sample.snippets.elixir ?? ""}
+            language={LANG_SHIKI[mobileLang] ?? LANG_LABELS[mobileLang]}
             annotations={sample.annotations?.[mobileLang] ?? []}
             uiLang={lang}
             highlightedHtml={highlights[sample.id]?.[mobileLang]}
           />
         </div>
-        <FootnoteSection sample={sample} lang={lang} />
       </div>
 
-      {/* ═══ DESKTOP: single window, split inside (>= md) ═══ */}
       <div className="hidden md:block">
-        <div className="rounded-t-[14px] overflow-hidden" style={{ background: WINDOW_BG, border: WINDOW_BORDER, borderBottom: "none", boxShadow: WINDOW_SHADOW }}>
-          {/* Tab bars side-by-side */}
-          <div className="grid grid-cols-2" style={{ borderBottom: DIVIDER, background: "rgba(0,0,0,0.15)" }}>
-            {/* Left: Elixir pinned tab */}
+        <div
+          className="rounded-t-[14px] overflow-hidden"
+          style={{
+            background: WINDOW_BG,
+            border: WINDOW_BORDER,
+            borderBottom: "none",
+            boxShadow: WINDOW_SHADOW,
+          }}
+        >
+          <div
+            className="grid grid-cols-2"
+            style={{ borderBottom: DIVIDER, background: "rgba(0,0,0,0.15)" }}
+          >
             <div className="flex px-2" style={{ borderRight: DIVIDER }}>
               <LangTab lid="elixir" isActive showStar onClick={() => {}} />
             </div>
-            {/* Right: Other language tabs -distribute evenly */}
-            <div
-              className="min-w-0 overflow-x-auto scrollbar-hide"
-              onWheel={scrollTabsOnWheel}
-            >
+            <div className="min-w-0 overflow-x-auto scrollbar-hide" onWheel={scrollTabsOnWheel}>
               <div className="flex w-max min-w-full px-2">
-                {OTHER_LANGS.map((lid) => (
-                  <LangTab key={lid} lid={lid} isActive={activeLang === lid}
-                    onClick={() => onActiveLangChange(lid)} />
+                {availableComparisonLangs.map((lid) => (
+                  <LangTab
+                    key={lid}
+                    lid={lid}
+                    isActive={resolvedActiveLang === lid}
+                    onClick={() => onActiveLangChange(lid)}
+                  />
                 ))}
               </div>
             </div>
           </div>
-          {/* Code panes side-by-side -stretch to equal height */}
+
           <div className="grid grid-cols-2" style={{ minHeight: 200 }}>
             <div className="flex flex-col" style={{ borderRight: DIVIDER }}>
-              <div className="flex-1" style={{ background: "transparent" }}>
+              <div className="flex-1">
                 <SyntaxBlock
-                  code={sample.snippets.elixir}
-                  language={LANG_SHIKI.elixir}
+                  code={sample.snippets.elixir ?? ""}
+                  language={LANG_SHIKI.elixir ?? LANG_LABELS.elixir}
                   annotations={sample.annotations?.elixir ?? []}
                   uiLang={lang}
                   highlightedHtml={highlights[sample.id]?.elixir}
@@ -3204,21 +3171,55 @@ function CodeComparison({
               </div>
             </div>
             <div className="flex flex-col">
-              <div className="flex-1" style={{ background: "transparent" }}>
-                <SyntaxBlock
-                  code={sample.snippets[activeLang]}
-                  language={LANG_SHIKI[activeLang]}
-                  annotations={sample.annotations?.[activeLang] ?? []}
-                  uiLang={lang}
-                  highlightedHtml={highlights[sample.id]?.[activeLang]}
-                />
+              <div className="flex-1">
+                {resolvedActiveLang ? (
+                  <SyntaxBlock
+                    code={sample.snippets[resolvedActiveLang] ?? ""}
+                    language={LANG_SHIKI[resolvedActiveLang] ?? LANG_LABELS[resolvedActiveLang]}
+                    annotations={sample.annotations?.[resolvedActiveLang] ?? []}
+                    uiLang={lang}
+                    highlightedHtml={highlights[sample.id]?.[resolvedActiveLang]}
+                  />
+                ) : (
+                  <div
+                    className="flex h-full items-center justify-center px-8 text-center text-[13px] leading-[1.7]"
+                    style={{ color: "rgba(255,255,255,0.45)", fontFamily: fontBody }}
+                  >
+                    {isJa
+                      ? "選択中の比較言語には、この節のサンプルがまだありません。"
+                      : "None of the selected comparison languages has a snippet for this section yet."}
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
-        <div className="rounded-b-[14px] overflow-hidden" style={{ background: WINDOW_BG, border: WINDOW_BORDER, borderTop: "none" }}>
+        <div
+          className="rounded-b-[14px] overflow-hidden"
+          style={{ background: WINDOW_BG, border: WINDOW_BORDER, borderTop: "none" }}
+        >
           <FootnoteSection sample={sample} lang={lang} />
         </div>
+      </div>
+
+      {!availableComparisonLangs.length && (
+        <div
+          className="mt-3 rounded-xl border px-4 py-3 text-[13px] leading-[1.7] md:hidden"
+          style={{
+            color: "rgba(255,255,255,0.5)",
+            borderColor: "rgba(255,255,255,0.06)",
+            background: "rgba(255,255,255,0.02)",
+            fontFamily: fontBody,
+          }}
+        >
+          {isJa
+            ? "この節では、選択中の比較言語のサンプルがまだありません。Elixirの基準コードだけを表示しています。"
+            : "No selected comparison language has a snippet for this section yet, so only the Elixir baseline is shown."}
+        </div>
+      )}
+
+      <div className="md:hidden">
+        <FootnoteSection sample={sample} lang={lang} />
       </div>
     </div>
   );
@@ -3226,7 +3227,7 @@ function CodeComparison({
 
 
 /* ── Difficulty Bar ── */
-function DifficultyBars({ isJa }: { isJa: boolean }) {
+function DifficultyBars({ data, isJa }: { data: DifficultyDatum[]; isJa: boolean }) {
   const [ref, visible] = useInView(0.2);
   return (
     <div ref={ref}>
@@ -3242,14 +3243,14 @@ function DifficultyBars({ isJa }: { isJa: boolean }) {
           {isJa ? "低下" : "Drop"}
         </div>
       </div>
-      {difficultyData.map((d) => (
+      {data.map((d) => (
         <DifficultyRow key={d.lang} data={d} isJa={isJa} visible={visible} />
       ))}
     </div>
   );
 }
 
-function DifficultyRow({ data, isJa, visible }: { data: typeof difficultyData[0]; isJa: boolean; visible: boolean }) {
+function DifficultyRow({ data, isJa, visible }: { data: DifficultyDatum; isJa: boolean; visible: boolean }) {
   return (
     <div className="flex items-center gap-3 py-2">
       <div
@@ -3306,9 +3307,11 @@ function DifficultyRow({ data, isJa, visible }: { data: typeof difficultyData[0]
 export default function LanguageIsThePromptPage({
   codeSamples = [],
   highlights = {},
+  pageContent,
 }: {
   codeSamples?: CodeSample[];
   highlights?: HighlightMap;
+  pageContent: LanguagePromptPageContent;
 }) {
   const scriptHighlights = readHighlightsFromScript();
   const resolvedHighlights =
@@ -3316,9 +3319,8 @@ export default function LanguageIsThePromptPage({
       ? scriptHighlights
       : highlights;
   const [lang, setLang] = useState<Lang>("ja");
-  const [sectionLangs, setSectionLangs] = useState<LangId[]>(
-    () => codeSamples.map(() => "python" as LangId),
-  );
+  const [selectedLangs, setSelectedLangs] = useState<LangId[]>(DEFAULT_COMPARISON_LANGS);
+  const [sectionLangs, setSectionLangs] = useState<LangId[]>([]);
   useEffect(() => {
     const stored = localStorage.getItem("aid-lang");
     if (stored === "en" || stored === "ja") setLang(stored);
@@ -3327,19 +3329,65 @@ export default function LanguageIsThePromptPage({
     localStorage.setItem("aid-lang", lang);
   }, [lang]);
   useEffect(() => {
-    setSectionLangs((prev) => {
-      if (prev.length === codeSamples.length) return prev;
-      return codeSamples.map((_, idx) => prev[idx] ?? ("python" as LangId));
+    const available = new Set<LangId>();
+    for (const sample of codeSamples) {
+      for (const lid of SELECTOR_LANGS) {
+        if (sample.snippets[lid]) {
+          available.add(lid);
+        }
+      }
+    }
+
+    setSelectedLangs((prev) => {
+      const filtered = prev.filter((lid) => available.has(lid));
+      if (filtered.length > 0) {
+        return filtered;
+      }
+      return DEFAULT_COMPARISON_LANGS.filter((lid) => available.has(lid));
     });
   }, [codeSamples]);
+  useEffect(() => {
+    setSectionLangs((prev) =>
+      codeSamples.map((sample, idx) => {
+        const current = prev[idx];
+        const availableForSample = selectedLangs.filter((lid) => Boolean(sample.snippets[lid]));
+
+        if (current && availableForSample.includes(current)) {
+          return current;
+        }
+
+        return availableForSample[0] ?? selectedLangs[0] ?? DEFAULT_COMPARISON_LANGS[0];
+      }),
+    );
+  }, [codeSamples, selectedLangs]);
   const isJa = lang === "ja";
-  const l = content[lang];
+  const l = pageContent.copy[lang];
   const reduceMotion = useReduceMotion();
   const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
   const fontBody = isJa ? JA_SANS : SANS;
+  const availableComparisonLangs = SELECTOR_LANGS.filter((lid) =>
+    codeSamples.some((sample) => Boolean(sample.snippets[lid])),
+  );
+
+  const toggleComparisonLang = (lid: LangId) => {
+    setSelectedLangs((prev) =>
+      prev.includes(lid)
+        ? prev.filter((current) => current !== lid)
+        : [...prev, lid],
+    );
+  };
 
   const handleSectionLangChange = (sectionIndex: number, lid: LangId) => {
-    setSectionLangs((prev) => prev.map((current, idx) => (idx < sectionIndex ? current : lid)));
+    setSectionLangs((prev) =>
+      prev.map((current, idx) => (idx === sectionIndex ? lid : current)),
+    );
+  };
+
+  const resetComparisonLangs = () => {
+    const defaults = DEFAULT_COMPARISON_LANGS.filter((lid) =>
+      availableComparisonLangs.includes(lid),
+    );
+    setSelectedLangs(defaults.length > 0 ? defaults : availableComparisonLangs.slice(0, 4));
   };
 
   return (
@@ -3648,7 +3696,7 @@ export default function LanguageIsThePromptPage({
 
         <DegradationCurve isJa={isJa} />
 
-        <DifficultyBars isJa={isJa} />
+        <DifficultyBars data={pageContent.difficultyData} isJa={isJa} />
 
         <p className="text-[12px] mt-5" style={{ color: "rgba(255,255,255,0.35)", fontFamily: fontBody }}>
           <Linkify text={l.difficultyNote} isJa={isJa} />
@@ -3694,12 +3742,21 @@ export default function LanguageIsThePromptPage({
 
         <CodeSectionDiagram isJa={isJa} />
 
+        <ComparisonLanguageBar
+          lang={lang}
+          availableLangs={availableComparisonLangs}
+          selectedLangs={selectedLangs}
+          onToggle={toggleComparisonLang}
+          onReset={resetComparisonLangs}
+        />
+
         {codeSamples.map((sample, idx) => (
           <CodeComparison
             key={sample.id}
             sample={sample}
             lang={lang}
-            activeLang={sectionLangs[idx] ?? "python"}
+            comparisonLangs={selectedLangs}
+            activeLang={sectionLangs[idx] ?? selectedLangs[0] ?? DEFAULT_COMPARISON_LANGS[0]}
             onActiveLangChange={(lid) => handleSectionLangChange(idx, lid)}
             accentColor={["#10B981", "#3B82F6", "#9B59B6", "#F59E0B", "#06B6D4", "#E0247A", "#8B5CF6"][idx % 7]}
             highlights={resolvedHighlights}

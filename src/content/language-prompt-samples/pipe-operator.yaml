@@ -1,0 +1,73 @@
+order: 4
+title:
+  en: Pipe Operator & Data Pipelines
+  ja: パイプ演算子とデータパイプライン
+description:
+  en: "Pipeline composition expresses data transformation as a linear sequence -the dual of deeply nested function calls. In CS terms, this is function composition (f ∘ g ∘ h) made human-readable. The paper found pipeline style correlates with lower prediction entropy: each step is context-independent, so the model only needs local understanding. Below: Elixir's native |>, method chaining in OOP ecosystems, Effect's pipe() (since TC39 pipe is still Stage 2), and explicit staging in Go."
+  ja: パイプライン合成はデータ変換を線形シーケンスで表現する -深くネストした関数呼び出しの双対。CS的には関数合成(f ∘ g ∘ h)の人間可読版。論文ではパイプラインスタイルが予測エントロピー低下と相関：各ステップがコンテキスト独立で、モデルはローカルな理解だけで予測できる。以下：Elixirのネイティブ|>、OOPでのメソッドチェーン、EffectのTC39 Stage 2待ちpipe()、Goの明示的ステージング。
+importance: high
+icon: layers
+libraries:
+  - lang: python
+    name: toolz pipe()
+    url: https://toolz.readthedocs.io/en/latest/api.html#toolz.functoolz.pipe
+  - lang: typescript
+    name: Array method chains
+    url: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#instance_methods
+    builtin: true
+  - lang: typescript_effect
+    name: pipe()
+    url: https://effect.website/docs/getting-started/the-pipe-function
+  - lang: go
+    name: Explicit variables (idiomatic)
+    url: https://go.dev/doc/effective_go#named-results
+    builtin: true
+  - lang: csharp
+    name: LINQ method chains
+    url: https://learn.microsoft.com/en-us/dotnet/csharp/linq/
+    builtin: true
+  - lang: dart
+    name: Cascade (..) notation
+    url: https://dart.dev/language/operators#cascade-notation
+    builtin: true
+  - lang: swift
+    name: Method chaining
+    url: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/methods/
+    builtin: true
+  - lang: kotlin
+    name: let / run scope functions
+    url: https://kotlinlang.org/docs/scope-functions.html
+    builtin: true
+caveats:
+  en: TC39 Pipe Operator (|>) proposal is at Stage 2 -current Node/Bun/Deno do not ship it natively. Effect's pipe() is the recommended workaround for TypeScript. Python's toolz.pipe() is a third-party utility; most Python code uses method chaining or intermediate variables.
+  ja: TC39パイプ演算子(|>)提案はStage 2 -現行のNode/Bun/Denoはネイティブ未実装。Effectのpipe()がTypeScriptの推奨回避策。Pythonのtoolz.pipe()はサードパーティ。多くのPythonコードはメソッドチェーンまたは中間変数を使用。
+annotations:
+  elixir:
+    - match: "|> Enum.filter(&(&1.status == :completed))"
+      title:
+        en: Each pipe step names one transformation
+        ja: 各パイプが変換を一段ずつ示す
+      body:
+        en: Filtering completed orders is its own line and its own operation. You do not have to mentally unwrap nested calls to find the first stage.
+        ja: 完了注文の抽出が1行1操作として独立している。ネストをほどいて最初の処理を探す必要がない。
+    - match: "|> Enum.map(& &1.total)"
+      title:
+        en: Shape changes stay visible in sequence
+        ja: データの形の変化が順番に見える
+      body:
+        en: After filtering orders, the pipeline projects them down to totals. The reader can track the data shape one small step at a time.
+        ja: 注文を絞った後、そのまま total の列へ写像している。データ形の変化を小さな段階ごとに追える。
+    - match: "|> then(&(&1 * 1.1))"
+      title:
+        en: Ad hoc math still fits the pipeline
+        ja: 一時的な計算もパイプの中に収まる
+      body:
+        en: When no named function exists, `then/2` inserts a tiny anonymous step without breaking the left-to-right flow.
+        ja: 専用関数がなくても `then/2` で小さな匿名処理を差し込める。左から右の流れは崩れない。
+    - match: "|> String.replace(~r/[^a-z0-9\\\\s]/, \"\")"
+      title:
+        en: The same pattern scales to text pipelines
+        ja: 同じ形を文字列処理にもそのまま使える
+      body:
+        en: "The second example shows the exact same grammar applied to strings: trim, lowercase, clean, split, join. The visual pattern stays stable across domains."
+        ja: 2つ目の例では同じ文法が文字列処理にもそのまま使われる。trim, lowercase, clean, split, join と視覚パターンが変わらない。
