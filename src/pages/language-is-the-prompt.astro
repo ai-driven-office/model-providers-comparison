@@ -2,12 +2,13 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import LanguageIsThePromptPage, {
   LANG_SHIKI,
-  codeSamples,
   type HighlightMap,
   type LangId,
 } from "../components/language-is-the-prompt";
+import { loadCodeSamples } from "../components/language-is-the-prompt/data/loadCodeSamples";
 
 const { createHighlighter } = await import("shiki");
+const codeSamples = await loadCodeSamples();
 const highlighter = await createHighlighter({
   themes: ["night-owl"],
   langs: [...new Set(Object.values(LANG_SHIKI))],
@@ -15,16 +16,30 @@ const highlighter = await createHighlighter({
 
 const highlights: HighlightMap = {};
 
-for (const sample of codeSamples) {
-  const sampleHighlights: Partial<Record<LangId, string>> = {};
-  for (const [langId, code] of Object.entries(sample.snippets) as [LangId, string][]) {
-    sampleHighlights[langId] = highlighter.codeToHtml(code, {
+function highlightSnippet(code: string, langId: LangId, sampleId: string): string | undefined {
+  try {
+    return highlighter.codeToHtml(code, {
       lang: LANG_SHIKI[langId],
       theme: "night-owl",
     });
+  } catch (error) {
+    console.warn(`[language-is-the-prompt] Shiki failed for ${sampleId}/${langId}`, error);
+    return undefined;
+  }
+}
+
+for (const sample of codeSamples) {
+  const sampleHighlights: Partial<Record<LangId, string>> = {};
+  for (const [langId, code] of Object.entries(sample.snippets) as [LangId, string][]) {
+    const highlighted = highlightSnippet(code, langId, sample.id);
+    if (highlighted) {
+      sampleHighlights[langId] = highlighted;
+    }
   }
   highlights[sample.id] = sampleHighlights;
 }
+
+const serializedHighlights = JSON.stringify(highlights).replace(/</g, "\\u003C");
 ---
 
 <BaseLayout
@@ -32,5 +47,10 @@ for (const sample of codeSamples) {
   title="The Language Is the Prompt - Language Design and LLM Code Generation"
   description="What Elixir's 87.4% vs Python's 43.9% suggests about explicitness, language design, and LLM code generation. Research explained for engineers."
 >
-  <LanguageIsThePromptPage client:load highlights={highlights} />
+  <script
+    id="language-is-the-prompt-highlights"
+    type="application/json"
+    set:html={serializedHighlights}
+  />
+  <LanguageIsThePromptPage client:load codeSamples={codeSamples} highlights={highlights} />
 </BaseLayout>

@@ -83,13 +83,20 @@ kbd, samp {
   font-variant-ligatures: none;
 }
 
-/* Force monospace on code blocks — override :lang() selectors */
-pre, pre *,
-code, code *,
-.shiki-wrapper, .shiki-wrapper * {
+/* Code blocks must not inherit prose typography from :lang(ja)/:lang(en) */
+pre,
+pre *,
+code,
+code *,
+.shiki,
+.shiki *,
+.shiki-wrapper,
+.shiki-wrapper * {
   font-family: var(--font-mono) !important;
   font-variant-ligatures: common-ligatures contextual;
   font-feature-settings: "liga" 1, "calt" 1;
+  line-break: auto;
+  word-break: normal;
 }
 
 /* ─── Scrollbar-hide utility (mobile tab bar) ─── */
