@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, type ReactNode, type WheelEvent as ReactWheelEvent } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, Zap, Code2, Beaker, Shield, Layers, GitBranch, Terminal, BookOpen, Cpu, FlaskConical, Sparkles, FileCheck, Shuffle, Lock, ArrowRight, Paintbrush, FileText, ExternalLink, PenTool, TestTube, CheckCircle, BookMarked, BrainCircuit } from "lucide-react";
-import { createHighlighter, type Highlighter } from "shiki";
-import type { Lang } from "../data/i18n";
+import type { Lang } from "../../data/i18n";
 import PaperEmbed from "./PaperEmbed";
 
 /* ── Typography constants ── */
@@ -107,18 +107,18 @@ const content = {
    ══════════════════════════════════════════════════════════════════════════ */
 
 const difficultyData = [
-  { lang: "Elixir",     easy: 96.6, medium: 86.7, hard: 86.3, degradation: -10.3, color: "#10B981" },
-  { lang: "Kotlin",     easy: 100.0, medium: 88.1, hard: 63.6, degradation: -36.4, color: "#3B82F6" },
-  { lang: "C#",         easy: 97.8, medium: 81.1, hard: 63.1, degradation: -34.7, color: "#8B5CF6" },
-  { lang: "Python",     easy: 82.0, medium: 48.6, hard: 31.6, degradation: -50.4, color: "#F59E0B" },
-  { lang: "JS",         easy: 78.5, medium: 45.2, hard: 28.3, degradation: -50.2, color: "#EF4444" },
+  { lang: "Elixir",     easy: 96.6, medium: 86.7, hard: 86.3, degradation: -10.3, color: "#22D694" },
+  { lang: "Kotlin",     easy: 100.0, medium: 88.1, hard: 63.6, degradation: -36.4, color: "#5B9EFF" },
+  { lang: "C#",         easy: 97.8, medium: 81.1, hard: 63.1, degradation: -34.7, color: "#A78BFA" },
+  { lang: "Python",     easy: 82.0, medium: 48.6, hard: 31.6, degradation: -50.4, color: "#FFB340" },
+  { lang: "JS",         easy: 78.5, medium: 45.2, hard: 28.3, degradation: -50.2, color: "#FF5A5A" },
 ];
 
 /* ══════════════════════════════════════════════════════════════════════════
    CODE SAMPLES  - Elixir features with equivalents in 8 other languages
    ══════════════════════════════════════════════════════════════════════════ */
 
-type LangId = "elixir" | "python" | "typescript" | "typescript_effect" | "go" | "csharp" | "dart" | "swift" | "kotlin";
+export type LangId = "elixir" | "python" | "typescript" | "typescript_effect" | "go" | "csharp" | "dart" | "swift" | "kotlin";
 
 interface LibRef {
   lang: string;
@@ -170,8 +170,7 @@ const LANG_COLORS: Record<LangId, string> = {
   kotlin: "#7F52FF",
 };
 
-/* Shiki language IDs for each LangId */
-const LANG_SHIKI: Record<LangId, string> = {
+export const LANG_SHIKI: Record<LangId, string> = {
   elixir: "elixir",
   python: "python",
   typescript: "typescript",
@@ -184,13 +183,6 @@ const LANG_SHIKI: Record<LangId, string> = {
   kotlin: "kotlin",
 };
 
-const SHIKI_LANGS = ["elixir", "python", "typescript", "go", "dart", "swift", "kotlin"] as const;
-const SHIKI_THEME = "night-owl";
-
-/* Singleton highlighter - loaded once, reused across all code blocks */
-let _highlighter: Highlighter | null = null;
-let _highlighterPromise: Promise<Highlighter> | null = null;
-
 const ANNOTATION_ACCENTS = [
   { color: "#7DD3FC", glow: "rgba(125,211,252,0.22)", icon: BrainCircuit },
   { color: "#A78BFA", glow: "rgba(167,139,250,0.22)", icon: Shuffle },
@@ -202,6 +194,40 @@ const ANNOTATION_ACCENTS = [
   { color: "#C084FC", glow: "rgba(192,132,252,0.22)", icon: Shield },
   { color: "#60A5FA", glow: "rgba(96,165,250,0.22)", icon: Cpu },
 ] as const;
+
+function renderAnnotationText(text: string, isActive: boolean) {
+  return text.split(/(`[^`]+`)/g).filter(Boolean).map((segment, index) => {
+    const isCode = segment.startsWith("`") && segment.endsWith("`");
+    if (!isCode) {
+      return <span key={`${segment}-${index}`}>{segment}</span>;
+    }
+
+    return (
+      <code
+        key={`${segment}-${index}`}
+        className="font-bold"
+        style={{
+          fontFamily: CODE_FONT,
+          color: isActive ? "#D6F3FF" : "#7DD3FC",
+          background: isActive ? "rgba(125,211,252,0.12)" : "rgba(125,211,252,0.08)",
+          border: `1px solid ${isActive ? "rgba(125,211,252,0.24)" : "rgba(125,211,252,0.16)"}`,
+          borderRadius: "0.35rem",
+          padding: "0.08rem 0.34rem",
+          fontSize: "0.92em",
+        }}
+      >
+        {segment.slice(1, -1)}
+      </code>
+    );
+  });
+}
+
+interface CodeSegment {
+  text: string;
+  annotationIndex: number | null;
+}
+
+export type HighlightMap = Record<string, Partial<Record<LangId, string>>>;
 
 function annotateCodeHtml(html: string, code: string, annotations: CodeAnnotation[]) {
   if (!annotations.length || typeof DOMParser === "undefined") return html;
@@ -248,10 +274,13 @@ function annotateCodeHtml(html: string, code: string, annotations: CodeAnnotatio
         target.splitText(localEnd - localStart);
       }
 
+      const accent = ANNOTATION_ACCENTS[annotationIndex % ANNOTATION_ACCENTS.length];
       const span = doc.createElement("span");
       span.className = "code-annotation-hit";
       span.setAttribute("data-code-annotation-id", String(annotationIndex));
       span.setAttribute("tabindex", "0");
+      span.style.setProperty("--annotation-color", accent.color);
+      span.style.setProperty("--annotation-glow", accent.glow);
       target.parentNode?.replaceChild(span, target);
       span.appendChild(target);
     }
@@ -264,93 +293,76 @@ function annotateCodeHtml(html: string, code: string, annotations: CodeAnnotatio
   return doc.body.innerHTML;
 }
 
-function getHighlighter(): Promise<Highlighter> {
-  if (_highlighter) return Promise.resolve(_highlighter);
-  if (!_highlighterPromise) {
-    _highlighterPromise = createHighlighter({
-      themes: [SHIKI_THEME],
-      langs: [...SHIKI_LANGS],
+function getCodeSegments(code: string, annotations: CodeAnnotation[]): CodeSegment[] {
+  const ranges = annotations
+    .map((annotation, index) => {
+      const start = code.indexOf(annotation.match);
+      if (start === -1) return null;
+      return { start, end: start + annotation.match.length, index };
     })
-      .then((h) => {
-        _highlighter = h;
-        return h;
-      })
-      .catch((error) => {
-        _highlighterPromise = null;
-        throw error;
-      });
+    .filter((range): range is { start: number; end: number; index: number } => Boolean(range))
+    .sort((a, b) => a.start - b.start);
+
+  if (!ranges.length) {
+    return [{ text: code, annotationIndex: null }];
   }
-  return _highlighterPromise;
-}
 
-function renderAnnotationText(text: string, isActive: boolean) {
-  return text.split(/(`[^`]+`)/g).filter(Boolean).map((segment, index) => {
-    const isCode = segment.startsWith("`") && segment.endsWith("`");
-    if (!isCode) {
-      return <span key={`${segment}-${index}`}>{segment}</span>;
+  const segments: CodeSegment[] = [];
+  let cursor = 0;
+
+  for (const range of ranges) {
+    if (range.start < cursor) continue;
+    if (cursor < range.start) {
+      segments.push({ text: code.slice(cursor, range.start), annotationIndex: null });
     }
+    segments.push({
+      text: code.slice(range.start, range.end),
+      annotationIndex: range.index,
+    });
+    cursor = range.end;
+  }
 
-    return (
-      <code
-        key={`${segment}-${index}`}
-        className="font-bold"
-        style={{
-          fontFamily: CODE_FONT,
-          color: isActive ? "#D6F3FF" : "#7DD3FC",
-          background: isActive ? "rgba(125,211,252,0.12)" : "rgba(125,211,252,0.08)",
-          border: `1px solid ${isActive ? "rgba(125,211,252,0.24)" : "rgba(125,211,252,0.16)"}`,
-          borderRadius: "0.35rem",
-          padding: "0.08rem 0.34rem",
-          fontSize: "0.92em",
-        }}
-      >
-        {segment.slice(1, -1)}
-      </code>
-    );
-  });
+  if (cursor < code.length) {
+    segments.push({ text: code.slice(cursor), annotationIndex: null });
+  }
+
+  return segments;
 }
 
-/* Syntax-highlighted code block using shiki */
 function SyntaxBlock({
   code,
   language,
   annotations = [],
   uiLang = "en",
+  highlightedHtml,
 }: {
   code: string;
   language: string;
   annotations?: CodeAnnotation[];
   uiLang?: Lang;
+  highlightedHtml?: string;
 }) {
-  const [html, setHtml] = useState<string>("");
   const [activeAnnotation, setActiveAnnotation] = useState<number | null>(null);
+  /* annotation ordering: indices into `annotations` array, reordered on click */
+  const [annoOrder, setAnnoOrder] = useState<number[]>(() => annotations.map((_, i) => i));
+  const [enhancedHtml, setEnhancedHtml] = useState<string | null>(null);
   const codeWrapperRef = useRef<HTMLDivElement | null>(null);
+  const segments = highlightedHtml ? [] : getCodeSegments(code, annotations);
 
   useEffect(() => {
-    let cancelled = false;
     setActiveAnnotation(null);
-    getHighlighter()
-      .then((h) => {
-        if (cancelled) return;
-        let result = h.codeToHtml(code, {
-          lang: language,
-          theme: SHIKI_THEME,
-        });
-        // Inject monospace font into shiki's <pre> style to override Tailwind v4 base
-        result = result.replace(
-          /(<pre[^>]*style=")/,
-          `$1font-family:${CODE_FONT};`
-        );
-        result = annotateCodeHtml(result, code, annotations);
-        setHtml(result);
-      })
-      .catch((error) => {
-        if (cancelled) return;
-        console.error("Failed to load syntax highlighter", error);
-        setHtml("");
-      });
-    return () => { cancelled = true; };
-  }, [annotations, code, language]);
+    setAnnoOrder(annotations.map((_, i) => i));
+  }, [annotations, code, highlightedHtml, language]);
+
+  useEffect(() => {
+    if (!highlightedHtml) {
+      setEnhancedHtml(null);
+      return;
+    }
+
+    const annotatedHtml = annotateCodeHtml(highlightedHtml, code, annotations);
+    setEnhancedHtml(annotatedHtml);
+  }, [annotations, code, highlightedHtml]);
 
   useEffect(() => {
     const wrapper = codeWrapperRef.current;
@@ -363,66 +375,115 @@ function SyntaxBlock({
         node.getAttribute("data-code-annotation-id") === String(activeAnnotation);
       node.classList.toggle("code-annotation-hit-active", isMatch);
     });
-  }, [activeAnnotation, html]);
+  }, [activeAnnotation, enhancedHtml]);
 
-  if (!html) {
-    // Fallback while shiki loads - plain text with mono font
-    return (
-      <pre
-        className="m-0 px-6 py-5 overflow-x-auto text-[12.5px] sm:text-[13.5px] leading-[1.75] h-full"
-        style={{
-          fontFamily: CODE_FONT,
-          fontFeatureSettings: "'liga' 1, 'calt' 1",
-          background: "transparent",
-          color: "rgba(255,255,255,0.6)",
-          tabSize: 2,
-          whiteSpace: "pre-wrap",
-          wordWrap: "break-word",
-          overflowWrap: "break-word",
-        }}
-      >
-        <code style={{ fontFamily: CODE_FONT }}>{code}</code>
-      </pre>
-    );
-  }
-
-  // Inject font + padding + height into shiki's <pre> output
-  const styled = html
-    .replace(
-      /(<pre[^>]*style=")/,
-      `$1font-family:${CODE_FONT};padding:20px 24px;height:100%;margin:0;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;`
-    )
-    .replace(
-      /(<code[^>]*)/,
-      `$1 style="font-family:${CODE_FONT};white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;"`
-    );
+  const styledHtml = enhancedHtml
+    ? enhancedHtml
+        .replace(
+          /(<pre[^>]*style=")/,
+          `$1font-family:${CODE_FONT};padding:20px 24px;height:100%;margin:0;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;`
+        )
+        .replace(
+          /(<code[^>]*)/,
+          `$1 style="font-family:${CODE_FONT};white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;"`
+        )
+    : null;
 
   return (
     <div>
-      <div
-        ref={codeWrapperRef}
-        className="shiki-wrapper overflow-x-auto h-full"
-        style={{
-          fontFeatureSettings: "'liga' 1, 'calt' 1",
-          fontSize: "13px",
-          lineHeight: 1.75,
-          tabSize: 2,
-          overflowWrap: "break-word",
-          wordBreak: "break-all",
-        }}
-        onMouseOver={(event) => {
-          const hit = (event.target as HTMLElement | null)?.closest?.("[data-code-annotation-id]");
-          const nextId = hit?.getAttribute("data-code-annotation-id");
-          setActiveAnnotation(nextId ? Number(nextId) : null);
-        }}
-        onFocusCapture={(event) => {
-          const hit = (event.target as HTMLElement | null)?.closest?.("[data-code-annotation-id]");
-          const nextId = hit?.getAttribute("data-code-annotation-id");
-          setActiveAnnotation(nextId ? Number(nextId) : null);
-        }}
-        onMouseLeave={() => setActiveAnnotation(null)}
-        dangerouslySetInnerHTML={{ __html: styled }}
-      />
+      {styledHtml ? (
+        <div
+          ref={codeWrapperRef}
+          className="shiki-wrapper overflow-x-auto h-full text-[12.5px] sm:text-[13.5px]"
+          style={{
+            fontFeatureSettings: "'liga' 1, 'calt' 1",
+            lineHeight: 1.75,
+            tabSize: 2,
+          }}
+          aria-label={`Code sample (${language})`}
+          onMouseOver={(event) => {
+            const hit = (event.target as HTMLElement | null)?.closest?.("[data-code-annotation-id]");
+            const nextId = hit?.getAttribute("data-code-annotation-id");
+            setActiveAnnotation(nextId ? Number(nextId) : null);
+          }}
+          onClick={(event) => {
+            const hit = (event.target as HTMLElement | null)?.closest?.("[data-code-annotation-id]");
+            const clickedId = hit?.getAttribute("data-code-annotation-id");
+            if (clickedId != null) {
+              const index = Number(clickedId);
+              playAnnotationSound(index);
+              setActiveAnnotation(index);
+              setAnnoOrder((prev) => {
+                if (prev[0] === index) return prev;
+                return [index, ...prev.filter((i) => i !== index)];
+              });
+            }
+          }}
+          onFocusCapture={(event) => {
+            const hit = (event.target as HTMLElement | null)?.closest?.("[data-code-annotation-id]");
+            const nextId = hit?.getAttribute("data-code-annotation-id");
+            setActiveAnnotation(nextId ? Number(nextId) : null);
+          }}
+          onMouseLeave={() => setActiveAnnotation(null)}
+          dangerouslySetInnerHTML={{ __html: styledHtml }}
+        />
+      ) : (
+        <pre
+          className="m-0 px-6 py-5 overflow-x-auto text-[12.5px] sm:text-[13.5px] leading-[1.75] h-full"
+          style={{
+            fontFamily: CODE_FONT,
+            fontFeatureSettings: "'liga' 1, 'calt' 1",
+            background: "transparent",
+            color: "rgba(255,255,255,0.76)",
+            tabSize: 2,
+            whiteSpace: "pre-wrap",
+            wordWrap: "break-word",
+            overflowWrap: "break-word",
+          }}
+        >
+          <code style={{ fontFamily: CODE_FONT }} aria-label={`Code sample (${language})`}>
+            {segments.map((segment, index) => {
+              if (segment.annotationIndex === null) {
+                return <span key={`${index}-${segment.text.slice(0, 12)}`}>{segment.text}</span>;
+              }
+
+              const annotationIndex = segment.annotationIndex;
+              const accent = ANNOTATION_ACCENTS[annotationIndex % ANNOTATION_ACCENTS.length];
+              const isActive = activeAnnotation === annotationIndex;
+
+              return (
+                <span
+                  key={`${annotationIndex}-${index}`}
+                  data-code-annotation-id={annotationIndex}
+                  tabIndex={0}
+                  style={{
+                    background: isActive ? accent.glow : "rgba(255,255,255,0.04)",
+                    color: isActive ? "#F4FBFF" : accent.color,
+                    borderRadius: "0.4rem",
+                    boxShadow: isActive ? `0 0 0 1px ${accent.glow}` : "none",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseEnter={() => setActiveAnnotation(annotationIndex)}
+                  onMouseLeave={() => setActiveAnnotation(null)}
+                  onFocus={() => setActiveAnnotation(annotationIndex)}
+                  onBlur={() => setActiveAnnotation(null)}
+                  onClick={() => {
+                    playAnnotationSound(annotationIndex);
+                    setActiveAnnotation(annotationIndex);
+                    setAnnoOrder((prev) => {
+                      if (prev[0] === annotationIndex) return prev;
+                      return [annotationIndex, ...prev.filter((i) => i !== annotationIndex)];
+                    });
+                  }}
+                >
+                  {segment.text}
+                </span>
+              );
+            })}
+          </code>
+        </pre>
+      )}
       {annotations.length > 0 && (
         <div
           className="px-6 py-4 border-t"
@@ -434,20 +495,39 @@ function SyntaxBlock({
           <div className="text-[11px] font-bold uppercase tracking-[0.12em] mb-2.5" style={{ color: "#7DD3FC", fontFamily: MONO }}>
             {uiLang === "ja" ? "見るポイント" : "Reading Guide"}
           </div>
-          <div className="space-y-2.5">
-            {annotations.map((annotation, index) => {
+          <div style={{ position: "relative" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            {annoOrder.map((index) => {
+              const annotation = annotations[index];
+              if (!annotation) return null;
               const isActive = activeAnnotation === index;
+              const isTop = annoOrder[0] === index && annoOrder.length > 1;
               const accent = ANNOTATION_ACCENTS[index % ANNOTATION_ACCENTS.length];
               const AccentIcon = accent.icon;
               return (
                 <div
                   key={`${annotation.match}-${index}`}
-                  className="rounded-xl px-3.5 py-3 transition-colors cursor-pointer"
+                  className="rounded-xl px-3.5 py-3 cursor-pointer"
                   tabIndex={0}
                   style={{
                     background: isActive ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.02)",
                     border: isActive ? `1px solid ${accent.glow}` : "1px solid rgba(255,255,255,0.04)",
-                    boxShadow: isActive ? `0 0 0 1px ${accent.glow}, inset 0 1px 0 rgba(255,255,255,0.03)` : "inset 0 1px 0 rgba(255,255,255,0.02)",
+                    boxShadow: isActive
+                      ? `0 0 0 1px ${accent.glow}, inset 0 1px 0 rgba(255,255,255,0.03)`
+                      : isTop
+                        ? `0 0 12px ${accent.glow}40, inset 0 1px 0 rgba(255,255,255,0.03)`
+                        : "inset 0 1px 0 rgba(255,255,255,0.02)",
+                    transition: "all 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
+                    /* flash effect when item just moved to top */
+                    animation: isTop ? "anno-pop 0.4s ease-out" : undefined,
+                  }}
+                  onClick={() => {
+                    playAnnotationSound(index);
+                    setActiveAnnotation(index);
+                    setAnnoOrder((prev) => {
+                      if (prev[0] === index) return prev;
+                      return [index, ...prev.filter((i) => i !== index)];
+                    });
                   }}
                   onMouseEnter={() => setActiveAnnotation(index)}
                   onMouseLeave={() => setActiveAnnotation(null)}
@@ -509,9 +589,28 @@ function SyntaxBlock({
                 </div>
               );
             })}
+            </div>
           </div>
         </div>
       )}
+      {/* keyframe for annotation pop */}
+      <style>{`
+        .code-annotation-hit {
+          border-radius: 0.4rem;
+          cursor: pointer;
+          transition: background-color 0.2s ease, box-shadow 0.2s ease;
+          background: color-mix(in srgb, var(--annotation-glow) 55%, transparent);
+        }
+        .code-annotation-hit-active {
+          background: color-mix(in srgb, var(--annotation-glow) 85%, transparent);
+          box-shadow: 0 0 0 1px var(--annotation-glow);
+        }
+        @keyframes anno-pop {
+          0% { transform: scale(1.03) translateY(-4px); opacity: 0.7; }
+          60% { transform: scale(1.005) translateY(0); opacity: 1; }
+          100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -648,7 +747,7 @@ function DiffLangIcon({ lang, color }: { lang: string; color: string }) {
   }
 }
 
-const codeSamples: CodeSample[] = [
+export const codeSamples: CodeSample[] = [
   /* ── 1. Pattern Matching ── */
   {
     id: "pattern-matching",
@@ -842,7 +941,8 @@ static double Area(Shape shape) => shape switch
 {
     Circle(var radius) => Math.PI * radius * radius,
     Rect(var width, var height) => width * height,
-    Triangle(var baseLength, var height) => 0.5 * baseLength * height,
+    Triangle(var baseLength, var height) =>
+        0.5 * baseLength * height,
     _ => throw new ArgumentOutOfRangeException(nameof(shape))
 };
 
@@ -875,7 +975,10 @@ final class Triangle extends Shape {
 
 double area(Shape shape) => switch (shape) {
   Circle(radius: final radius) => pi * radius * radius,
-  Rect(width: final width, height: final height) => width * height,
+  Rect(
+    width: final width,
+    height: final height,
+  ) => width * height,
   Triangle(baseLength: final baseLength, height: final height) =>
     0.5 * baseLength * height,
 };
@@ -996,7 +1099,8 @@ end
 
 def update_email(user_id, new_email) do
   with {:ok, user}    <- fetch_user(user_id),
-       {:ok, updated} <- User.changeset(user, %{email: new_email})
+       {:ok, updated} <-
+         User.changeset(user, %{email: new_email})
                          |> Repo.update() do
     {:ok, updated}
   else
@@ -1020,12 +1124,22 @@ type UpdateEmailError = NotFound | UpdateFailed
 
 def fetch_user(user_id: int) -> Result[User, UpdateEmailError]:
     user = repo.get(user_id)
-    return Success(user) if user is not None else Failure(NotFound(user_id))
+    return (
+        Success(user)
+        if user is not None
+        else Failure(NotFound(user_id))
+    )
 
-def persist_email(user: User, new_email: str) -> Result[User, UpdateEmailError]:
+def persist_email(
+    user: User,
+    new_email: str,
+) -> Result[User, UpdateEmailError]:
     return repo.update(user, email=new_email).alt(UpdateFailed)
 
-def update_email(user_id: int, new_email: str) -> Result[User, UpdateEmailError]:
+def update_email(
+    user_id: int,
+    new_email: str,
+) -> Result[User, UpdateEmailError]:
     return fetch_user(user_id).bind(
         lambda user: persist_email(user, new_email)
     )`,
@@ -1038,7 +1152,9 @@ type UpdateEmailError =
   | { type: "not_found"; userId: number }
   | { type: "update_failed"; message: string }
 
-const fetchUser = (userId: number): Result<User, UpdateEmailError> => {
+const fetchUser = (
+  userId: number,
+): Result<User, UpdateEmailError> => {
   const user = repo.get(userId)
   return user
     ? { ok: true, value: user }
@@ -1052,7 +1168,10 @@ const persistEmail = (
   const result = repo.update(user, { email: newEmail })
   return result.ok
     ? result
-    : { ok: false, error: { type: "update_failed", message: result.error } }
+    : {
+        ok: false,
+        error: { type: "update_failed", message: result.error },
+      }
 }
 
 const updateEmail = (
@@ -1067,7 +1186,9 @@ const updateEmail = (
 
       typescript_effect: `import { Data, Effect } from "effect"
 
-class NotFound extends Data.TaggedError("NotFound")<{ readonly userId: number }> {}
+class NotFound extends Data.TaggedError("NotFound")<{
+  readonly userId: number
+}> {}
 class UpdateFailed extends Data.TaggedError("UpdateFailed")<{
   readonly message: string
 }> {}
@@ -1124,7 +1245,10 @@ func updateEmail(userID int, newEmail string) (User, error) {
   return updated, nil
 }
 
-if _, err := updateEmail(42, "new@example.com"); errors.Is(err, ErrNotFound) {
+if _, err := updateEmail(
+  42,
+  "new@example.com",
+); errors.Is(err, ErrNotFound) {
   log.Println("missing user")
 }`,
 
@@ -1133,19 +1257,35 @@ if _, err := updateEmail(42, "new@example.com"); errors.Is(err, ErrNotFound) {
 public abstract record UpdateEmailError
 {
     public sealed record NotFound(int UserId) : UpdateEmailError;
-    public sealed record UpdateFailed(string Message) : UpdateEmailError;
+    public sealed record UpdateFailed(
+        string Message
+    ) : UpdateEmailError;
 }
 
-static Result<User, UpdateEmailError> FetchUser(int userId) =>
+static Result<User, UpdateEmailError> FetchUser(
+    int userId
+) =>
     repo.Get(userId) is { } user
         ? Result.Success<User, UpdateEmailError>(user)
-        : Result.Failure<User, UpdateEmailError>(new UpdateEmailError.NotFound(userId));
+        : Result.Failure<User, UpdateEmailError>(
+            new UpdateEmailError.NotFound(userId)
+        );
 
-static Result<User, UpdateEmailError> PersistEmail(User user, string newEmail) =>
+static Result<User, UpdateEmailError> PersistEmail(
+    User user,
+    string newEmail
+) =>
     repo.Update(user, newEmail)
-        .MapError(message => (UpdateEmailError)new UpdateEmailError.UpdateFailed(message));
+        .MapError(
+            message =>
+                (UpdateEmailError)new UpdateEmailError
+                    .UpdateFailed(message)
+        );
 
-static Result<User, UpdateEmailError> UpdateEmail(int userId, string newEmail) =>
+static Result<User, UpdateEmailError> UpdateEmail(
+    int userId,
+    string newEmail
+) =>
     FetchUser(userId).Bind(user => PersistEmail(user, newEmail));`,
 
       dart: `import 'package:fpdart/fpdart.dart';
@@ -1168,10 +1308,16 @@ Either<UpdateEmailError, User> fetchUser(int userId) =>
   Option.fromNullable(repo.get(userId))
       .toEither(() => NotFound(userId));
 
-Either<UpdateEmailError, User> persistEmail(User user, String newEmail) =>
+Either<UpdateEmailError, User> persistEmail(
+  User user,
+  String newEmail,
+) =>
   repo.update(user, email: newEmail).mapLeft(UpdateFailed.new);
 
-Either<UpdateEmailError, User> updateEmail(int userId, String newEmail) =>
+Either<UpdateEmailError, User> updateEmail(
+  int userId,
+  String newEmail,
+) =>
   Either.Do((_) {
     final user = _(fetchUser(userId));
     return _(persistEmail(user, newEmail));
@@ -1189,12 +1335,18 @@ func fetchUser(id: Int) -> Result<User, UpdateEmailError> {
   return .success(user)
 }
 
-func persistEmail(_ user: User, newEmail: String) -> Result<User, UpdateEmailError> {
+func persistEmail(
+  _ user: User,
+  newEmail: String
+) -> Result<User, UpdateEmailError> {
   repo.update(user, email: newEmail)
     .mapError { .updateFailed(message: $0.localizedDescription) }
 }
 
-func updateEmail(userId: Int, newEmail: String) -> Result<User, UpdateEmailError> {
+func updateEmail(
+  userId: Int,
+  newEmail: String
+) -> Result<User, UpdateEmailError> {
   fetchUser(id: userId).flatMap { user in
     persistEmail(user, newEmail: newEmail)
   }
@@ -1209,14 +1361,22 @@ sealed interface UpdateEmailError
 data class NotFound(val userId: Int) : UpdateEmailError
 data class UpdateFailed(val message: String) : UpdateEmailError
 
-fun fetchUser(userId: Int): Either<UpdateEmailError, User> = either {
+fun fetchUser(
+  userId: Int
+): Either<UpdateEmailError, User> = either {
   ensureNotNull(repo.get(userId)) { NotFound(userId) }
 }
 
-fun persistEmail(user: User, newEmail: String): Either<UpdateEmailError, User> =
+fun persistEmail(
+  user: User,
+  newEmail: String,
+): Either<UpdateEmailError, User> =
   repo.update(user, email = newEmail).mapLeft(::UpdateFailed)
 
-fun updateEmail(userId: Int, newEmail: String): Either<UpdateEmailError, User> = either {
+fun updateEmail(
+  userId: Int,
+  newEmail: String,
+): Either<UpdateEmailError, User> = either {
   val user = fetchUser(userId).bind()
   persistEmail(user, newEmail).bind()
 }`,
@@ -1341,7 +1501,10 @@ nextState.Count // 1`,
 
       csharp: `using System.Collections.Immutable;
 
-public sealed record CounterState(int Count, ImmutableArray<int> History);
+public sealed record CounterState(
+    int Count,
+    ImmutableArray<int> History
+);
 
 static CounterState Increment(CounterState state)
 {
@@ -1367,7 +1530,10 @@ CounterState increment(CounterState state) {
 
   return (
     count: nextCount,
-    history: List<int>.unmodifiable([...state.history, nextCount]),
+    history: List<int>.unmodifiable([
+      ...state.history,
+      nextCount,
+    ]),
   );
 }
 
@@ -1383,7 +1549,10 @@ nextState.count; // 1`,
 
     func increment() -> CounterState {
         let nextCount = count + 1
-        return CounterState(count: nextCount, history: history + [nextCount])
+        return CounterState(
+            count: nextCount,
+            history: history + [nextCount]
+        )
     }
 }
 
@@ -1631,7 +1800,9 @@ fmt.Printf("Revenue: %.2f\\n", revenue)
 
 slugSource := strings.TrimSpace("  Hello, World!  ")
 slugSource = strings.ToLower(slugSource)
-slugSource = regexp.MustCompile(\`[^a-z0-9\\s]\`).ReplaceAllString(slugSource, "")
+slugSource = regexp.MustCompile(
+  \`[^a-z0-9\\s]\`,
+).ReplaceAllString(slugSource, "")
 result := strings.Join(strings.Fields(slugSource), "-")
 // => "hello-world"`,
 
@@ -1651,7 +1822,11 @@ Console.WriteLine($"Revenue: {revenue}");
 var result = string.Join(
     "-",
     Regex
-        .Replace("  Hello, World!  ".Trim().ToLowerInvariant(), @"[^a-z0-9\\s]", "")
+        .Replace(
+            "  Hello, World!  ".Trim().ToLowerInvariant(),
+            @"[^a-z0-9\\s]",
+            ""
+        )
         .Split(' ', StringSplitOptions.RemoveEmptyEntries)
 );
 // => "hello-world"`,
@@ -1737,7 +1912,11 @@ def build_user(name, email, admin?) do
 end`,
 
       python: `# Fast modern formatter: ruff format
-def build_user(name: str, email: str, is_admin: bool) -> dict[str, object]:
+def build_user(
+    name: str,
+    email: str,
+    is_admin: bool,
+) -> dict[str, object]:
     return {
         "name": name.strip(),
         "email": email.strip().lower(),
@@ -1753,7 +1932,11 @@ type User = {
   tags: ReadonlyArray<string>
 }
 
-const buildUser = (name: string, email: string, isAdmin: boolean): User => ({
+const buildUser = (
+  name: string,
+  email: string,
+  isAdmin: boolean,
+): User => ({
   name: name.trim(),
   email: email.trim().toLowerCase(),
   isAdmin,
@@ -1770,7 +1953,11 @@ type User = {
   readonly tags: ReadonlyArray<string>
 }
 
-const buildUser = (name: string, email: string, isAdmin: boolean): User => ({
+const buildUser = (
+  name: string,
+  email: string,
+  isAdmin: boolean,
+): User => ({
   name: pipe(name, String.trim),
   email: pipe(email, String.trim, String.toLowerCase),
   isAdmin,
@@ -1842,10 +2029,18 @@ struct User {
     let tags: [String]
 }
 
-func buildUser(name: String, email: String, isAdmin: Bool) -> User {
+func buildUser(
+    name: String,
+    email: String,
+    isAdmin: Bool
+) -> User {
     User(
-        name: name.trimmingCharacters(in: .whitespacesAndNewlines),
-        email: email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+        name: name.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        ),
+        email: email
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased(),
         isAdmin: isAdmin,
         tags: ["active", isAdmin ? "staff" : "member"]
     )
@@ -1859,12 +2054,19 @@ data class User(
     val tags: List<String>,
 )
 
-fun buildUser(name: String, email: String, isAdmin: Boolean): User =
+fun buildUser(
+    name: String,
+    email: String,
+    isAdmin: Boolean,
+): User =
     User(
         name = name.trim(),
         email = email.trim().lowercase(),
         isAdmin = isAdmin,
-        tags = listOf("active", if (isAdmin) "staff" else "member"),
+        tags = listOf(
+            "active",
+            if (isAdmin) "staff" else "member",
+        ),
     )`,
     },
     libraries: [
@@ -1948,7 +2150,7 @@ fun buildUser(name: String, email: String, isAdmin: Boolean): User =
     annotations: {
       elixir: [
         {
-          match: "with {:ok, user}     <- authenticate(params.token),",
+          match: "with {:ok, user}     <- authenticate(token),",
           title: { en: "The workflow declares its success contract up front", ja: "成功条件を最初に宣言している" },
           body: {
             en: "Each line says “continue only if this step returns `{:ok, ...}`”. The happy path is encoded structurally, not implied by convention.",
@@ -1982,9 +2184,9 @@ fun buildUser(name: String, email: String, isAdmin: Boolean): User =
       ],
     },
     snippets: {
-      elixir: `def create_order(params) do
-  with {:ok, user}     <- authenticate(params.token),
-       {:ok, items}    <- validate_items(params.items),
+      elixir: `def create_order(%{token: token, items: raw_items}) do
+  with {:ok, user}     <- authenticate(token),
+       {:ok, items}    <- validate_items(raw_items),
        {:ok, payment}  <- charge_card(user, items),
        {:ok, order}    <- save_order(user, items, payment) do
     send_confirmation(user, order)
@@ -2013,18 +2215,31 @@ class PaymentFailed: pass
 class OrderFailed:
     message: str
 
-type CreateOrderError = Unauthorized | InvalidItems | PaymentFailed | OrderFailed
+type CreateOrderError = (
+    Unauthorized
+    | InvalidItems
+    | PaymentFailed
+    | OrderFailed
+)
 
 def confirm(user: User, order: Order) -> Order:
     send_confirmation(user, order)
     return order
 
-def create_order(params: OrderParams) -> Result[Order, CreateOrderError]:
+def create_order(
+    params: OrderParams,
+) -> Result[Order, CreateOrderError]:
     return Result.do(
         confirm(user, order)
-        for user in authenticate(params.token).alt(lambda _: Unauthorized())
-        for items in validate_items(params.items).alt(lambda _: InvalidItems())
-        for payment in charge_card(user, items).alt(lambda _: PaymentFailed())
+        for user in authenticate(params.token).alt(
+            lambda _: Unauthorized()
+        )
+        for items in validate_items(params.items).alt(
+            lambda _: InvalidItems()
+        )
+        for payment in charge_card(user, items).alt(
+            lambda _: PaymentFailed()
+        )
         for order in save_order(user, items, payment).alt(
             lambda message: OrderFailed(message)
         )
@@ -2053,7 +2268,10 @@ const createOrder = (
     return { ok: false, error: { type: "invalid_items" } }
   }
 
-  const paymentResult = chargeCard(userResult.value, itemsResult.value)
+  const paymentResult = chargeCard(
+    userResult.value,
+    itemsResult.value,
+  )
   if (!paymentResult.ok) {
     return { ok: false, error: { type: "payment_failed" } }
   }
@@ -2066,7 +2284,10 @@ const createOrder = (
   if (!orderResult.ok) {
     return {
       ok: false,
-      error: { type: "order_failed", message: orderResult.error },
+      error: {
+        type: "order_failed",
+        message: orderResult.error,
+      },
     }
   }
 
@@ -2145,19 +2366,54 @@ public abstract record CreateOrderError
     public sealed record Unauthorized : CreateOrderError;
     public sealed record InvalidItems : CreateOrderError;
     public sealed record PaymentFailed : CreateOrderError;
-    public sealed record OrderFailed(string Message) : CreateOrderError;
+    public sealed record OrderFailed(
+        string Message
+    ) : CreateOrderError;
 }
 
-Result<Order, CreateOrderError> CreateOrder(OrderParams params) =>
+Result<Order, CreateOrderError> CreateOrder(
+    OrderParams params
+) =>
     Authenticate(params.Token)
-        .MapError(_ => (CreateOrderError)new CreateOrderError.Unauthorized())
-        .Bind(user => ValidateItems(params.Items)
-            .MapError(_ => (CreateOrderError)new CreateOrderError.InvalidItems())
-            .Bind(items => ChargeCard(user, items)
-                .MapError(_ => (CreateOrderError)new CreateOrderError.PaymentFailed())
-                .Bind(payment => SaveOrder(user, items, payment)
-                    .MapError(message => (CreateOrderError)new CreateOrderError.OrderFailed(message))
-                    .Tap(order => SendConfirmation(user, order)))));`,
+        .MapError(
+            _ =>
+                (CreateOrderError)new CreateOrderError
+                    .Unauthorized()
+        )
+        .Bind(
+            user => ValidateItems(params.Items)
+                .MapError(
+                    _ =>
+                        (CreateOrderError)new CreateOrderError
+                            .InvalidItems()
+                )
+                .Bind(
+                    items => ChargeCard(user, items)
+                        .MapError(
+                            _ =>
+                                (CreateOrderError)new
+                                    CreateOrderError.PaymentFailed()
+                        )
+                        .Bind(
+                            payment =>
+                                SaveOrder(user, items, payment)
+                                .MapError(
+                                    message =>
+                                        (CreateOrderError)new
+                                            CreateOrderError.OrderFailed(
+                                                message
+                                            )
+                                )
+                                .Tap(
+                                    order =>
+                                        SendConfirmation(
+                                            user,
+                                            order
+                                        )
+                                )
+                        )
+                )
+        );`,
 
       dart: `import 'package:fpdart/fpdart.dart';
 
@@ -2182,19 +2438,29 @@ final class OrderFailed extends CreateOrderError {
   final String message;
 }
 
-TaskEither<CreateOrderError, Order> createOrder(OrderParams params) =>
+TaskEither<CreateOrderError, Order> createOrder(
+  OrderParams params,
+) =>
   TaskEither.Do((_) async {
     final user = await _(
-      authenticate(params.token).mapLeft((_) => const Unauthorized()),
+      authenticate(params.token).mapLeft(
+        (_) => const Unauthorized(),
+      ),
     );
     final items = await _(
-      validateItems(params.items).mapLeft((_) => const InvalidItems()),
+      validateItems(params.items).mapLeft(
+        (_) => const InvalidItems(),
+      ),
     );
     final payment = await _(
-      chargeCard(user, items).mapLeft((_) => const PaymentFailed()),
+      chargeCard(user, items).mapLeft(
+        (_) => const PaymentFailed(),
+      ),
     );
     final order = await _(
-      saveOrder(user, items, payment).mapLeft((message) => OrderFailed(message)),
+      saveOrder(user, items, payment).mapLeft(
+        (message) => OrderFailed(message),
+      ),
     );
 
     sendConfirmation(user, order);
@@ -2208,7 +2474,9 @@ TaskEither<CreateOrderError, Order> createOrder(OrderParams params) =>
   case orderFailed(String)
 }
 
-func createOrder(_ params: OrderParams) throws(CreateOrderError) -> Order {
+func createOrder(
+  _ params: OrderParams
+) throws(CreateOrderError) -> Order {
   let user = try authenticate(params.token)
     .mapError { _ in .unauthorized }
     .get()
@@ -2239,7 +2507,9 @@ data object InvalidItems : CreateOrderError
 data object PaymentFailed : CreateOrderError
 data class OrderFailed(val message: String) : CreateOrderError
 
-fun createOrder(params: OrderParams): Either<CreateOrderError, Order> = either {
+fun createOrder(
+  params: OrderParams,
+): Either<CreateOrderError, Order> = either {
   val user = withError({ Unauthorized }) {
     authenticate(params.token).bind()
   }
@@ -2325,8 +2595,9 @@ fun createOrder(params: OrderParams): Either<CreateOrderError, Order> = either {
   use GenServer
 
   # Client API
-  def start_link(initial \\\\ 0),
-    do: GenServer.start_link(__MODULE__, initial, name: __MODULE__)
+  def start_link(initial \\\\ 0) do
+    GenServer.start_link(__MODULE__, initial, name: __MODULE__)
+  end
 
   def increment, do: GenServer.call(__MODULE__, :increment)
   def get,       do: GenServer.call(__MODULE__, :get)
@@ -2339,6 +2610,7 @@ fun createOrder(params: OrderParams): Either<CreateOrderError, Order> = either {
   def handle_call(:increment, _from, count),
     do: {:reply, count + 1, count + 1}
 
+  @impl true
   def handle_call(:get, _from, count),
     do: {:reply, count, count}
 end
@@ -2392,7 +2664,12 @@ await counter.increment()  # => 1
 await counter.increment()  # => 2
 await counter.get()        # => 2`,
 
-      typescript: `import { Worker, isMainThread, parentPort, workerData } from "node:worker_threads"
+      typescript: `import {
+  Worker,
+  isMainThread,
+  parentPort,
+  workerData,
+} from "node:worker_threads"
 
 type Command =
   | { type: "increment"; id: number }
@@ -2407,10 +2684,14 @@ if (!isMainThread) {
     switch (command.type) {
       case "increment":
         count += 1
-        parentPort!.postMessage({ id: command.id, value: count } satisfies Reply)
+        parentPort!.postMessage(
+          { id: command.id, value: count } satisfies Reply,
+        )
         break
       case "get":
-        parentPort!.postMessage({ id: command.id, value: count } satisfies Reply)
+        parentPort!.postMessage(
+          { id: command.id, value: count } satisfies Reply,
+        )
         break
     }
   })
@@ -2422,7 +2703,10 @@ class Counter {
   #pending = new Map<number, (value: number) => void>()
 
   constructor(initial = 0) {
-    this.#worker = new Worker(new URL(import.meta.url), { workerData: initial })
+    this.#worker = new Worker(
+      new URL(import.meta.url),
+      { workerData: initial },
+    )
     this.#worker.on("message", ({ id, value }: Reply) => {
       this.#pending.get(id)?.(value)
       this.#pending.delete(id)
@@ -2776,7 +3060,7 @@ coroutineScope {
           },
         },
         {
-          match: "@spec safe_add(integer(), integer()) :: {:ok, integer()} | {:error, :overflow}",
+          match: "@spec safe_add(integer(), integer()) ::",
           title: { en: "Type-level contract and doc examples reinforce each other", ja: "型契約とドキュメント例が相互補強する" },
           body: {
             en: "The `@spec` says the allowed result shapes, and the doctest demonstrates concrete instances of those shapes.",
@@ -2807,21 +3091,32 @@ defmodule Math do
       iex> Math.safe_add(9_999_999_999, 1)
       {:error, :overflow}
   """
-  @spec safe_add(integer(), integer()) :: {:ok, integer()} | {:error, :overflow}
+  @spec safe_add(integer(), integer()) ::
+          {:ok, integer()} | {:error, :overflow}
   def safe_add(a, b) when is_integer(a) and is_integer(b) do
     result = a + b
-    if abs(result) > 9_999_999_999, do: {:error, :overflow}, else: {:ok, result}
+    if abs(result) > 9_999_999_999,
+      do: {:error, :overflow},
+      else: {:ok, result}
   end
 end
 
 # math_test.exs
-doctest Math
+defmodule MathTest do
+  use ExUnit.Case, async: true
+
+  doctest Math
+end
+
 # Run: mix test`,
 
       python: `# Native executable docs: doctest runs these examples directly.
 from typing import Literal
 
-type SafeAddResult = tuple[Literal["ok"], int] | tuple[Literal["error"], Literal["overflow"]]
+type SafeAddResult = (
+    tuple[Literal["ok"], int]
+    | tuple[Literal["error"], Literal["overflow"]]
+)
 
 def safe_add(a: int, b: int) -> SafeAddResult:
     """Safely adds two integers.
@@ -2839,7 +3134,8 @@ def safe_add(a: int, b: int) -> SafeAddResult:
 # Run: pytest --doctest-modules
 # Or: python -m doctest -v math.py`,
 
-      typescript: `// Tooling-based executable docs: doc-vitest turns @example blocks into Vitest tests.
+      typescript: `// Tooling-based executable docs:
+// doc-vitest turns @example blocks into Vitest tests.
 
 type Result<T, E> =
   | { ok: true; value: T }
@@ -2851,10 +3147,15 @@ type Result<T, E> =
  * @example
  * \`\`\`ts @import.meta.vitest
  * expect(safeAdd(1, 2)).toEqual({ ok: true, value: 3 })
- * expect(safeAdd(9_999_999_999, 1)).toEqual({ ok: false, error: "overflow" })
+ * expect(safeAdd(9_999_999_999, 1)).toEqual(
+ *   { ok: false, error: "overflow" },
+ * )
  * \`\`\`
  */
-export const safeAdd = (a: number, b: number): Result<number, "overflow"> => {
+export const safeAdd = (
+  a: number,
+  b: number,
+): Result<number, "overflow"> => {
   const result = a + b
   return Math.abs(result) > 9_999_999_999
     ? { ok: false, error: "overflow" }
@@ -2867,7 +3168,8 @@ export const safeAdd = (a: number, b: number): Result<number, "overflow"> => {
 //   includeSource: ["src/**/*.ts"],
 // }`,
 
-      typescript_effect: `// Tooling-based executable docs: doc-vitest runs the example, Effect stays in the implementation.
+      typescript_effect: `// Tooling-based executable docs:
+// doc-vitest runs the example, while Effect stays in the code.
 import { Data, Effect } from "effect"
 
 class Overflow extends Data.TaggedError("Overflow") {}
@@ -2878,7 +3180,9 @@ class Overflow extends Data.TaggedError("Overflow") {}
  * @example
  * \`\`\`ts @import.meta.vitest
  * await expect(runEffect(safeAdd(1, 2))).resolves.toBe(3)
- * await expect(runEffect(safeAdd(9_999_999_999, 1))).rejects.toBeInstanceOf(Overflow)
+ * await expect(
+ *   runEffect(safeAdd(9_999_999_999, 1)),
+ * ).rejects.toBeInstanceOf(Overflow)
  * \`\`\`
  */
 const safeAdd = (a: number, b: number) =>
@@ -2892,9 +3196,11 @@ const safeAdd = (a: number, b: number) =>
 // vitest.setup.ts
 // import { Effect } from "effect"
 // globalThis.runEffect = Effect.runPromise
-// // addEqualityTesters() is useful when you compare Effect data structures directly`,
+// // addEqualityTesters() helps when comparing
+// // Effect data structures directly`,
 
-      go: `// Native executable docs: Example... functions run under go test.
+      go: `// Native executable docs:
+// Example... functions run under go test.
 package math
 
 import (
@@ -2925,11 +3231,16 @@ func ExampleSafeAdd_overflow() {
   // Output: overflow
 }`,
 
-      csharp: `// Source-backed docs: DocFX publishes snippets from real tested files.
+      csharp: `// Source-backed docs:
+// DocFX publishes snippets from real tested files.
 using System;
 using Xunit;
 
-public readonly record struct Result<T>(bool Ok, T Value, string? Error);
+public readonly record struct Result<T>(
+    bool Ok,
+    T Value,
+    string? Error
+);
 
 public static Result<long> SafeAdd(long a, long b)
 {
@@ -2948,13 +3259,20 @@ public sealed class MathExamples
     public void SafeAdd_docs()
     {
 #region safe-add
-        Assert.Equal(new Result<long>(true, 3, null), SafeAdd(1, 2));
-        Assert.Equal(new Result<long>(false, 0, "overflow"), SafeAdd(9_999_999_999, 1));
+        Assert.Equal(
+            new Result<long>(true, 3, null),
+            SafeAdd(1, 2)
+        );
+        Assert.Equal(
+            new Result<long>(false, 0, "overflow"),
+            SafeAdd(9_999_999_999, 1)
+        );
 #endregion
     }
 }`,
 
-      dart: `// Checked doc examples: dartdoc_test validates examples under dart test.
+      dart: `// Checked doc examples:
+// dartdoc_test validates examples under dart test.
 import 'package:dartdoc_test/dartdoc_test.dart';
 
 /// Safely adds two integers.
@@ -2974,7 +3292,8 @@ void main() {
   runDartdocTest();
 }`,
 
-      swift: `// Source-backed docs: DocC publishes snippets from real files, not inline doctests.
+      swift: `// Source-backed docs:
+// DocC publishes snippets from real files, not inline doctests.
 // Documentation.docc/SafeAdd.md
 // @Snippet(path: "SafeAddSnippet")
 
@@ -2989,7 +3308,8 @@ print(overflow)  // .failure(.overflow)
 
 // DocC publishes the example from this real file in Snippets/`,
 
-      kotlin: `// Source-backed docs: KDoc @sample pulls in real sample functions.
+      kotlin: `// Source-backed docs:
+// KDoc @sample pulls in real sample functions.
 sealed interface AddResult {
     data class Ok(val value: Long) : AddResult
     data object Overflow : AddResult
@@ -3148,7 +3468,9 @@ function* matchingPairs(): Generator<Pair> {
   }
 }
 
-function* honorRoll(lines: Iterable<string>): Generator<HonorRollEntry> {
+function* honorRoll(
+  lines: Iterable<string>,
+): Generator<HonorRollEntry> {
   for (const line of lines) {
     const [name, scoreText] = line.split(",", 2)
     const score = Number.parseInt(scoreText.trim(), 10)
@@ -3190,7 +3512,9 @@ const honorRoll = (lines: Iterable<string>) =>
         score: Number.parseInt(scoreText.trim(), 10),
       }
     }),
-    Stream.filter(({ score }) => !Number.isNaN(score) && score > 80),
+    Stream.filter(
+      ({ score }) => !Number.isNaN(score) && score > 80,
+    ),
     Stream.map(
       ({ name, score }): HonorRollEntry => ({
         name,
@@ -3260,7 +3584,11 @@ results := slices.Collect(HonorRoll(lines))`,
 using System.Collections.Generic;
 using System.Linq;
 
-readonly record struct HonorRollEntry(string Name, int Score, string Grade);
+readonly record struct HonorRollEntry(
+    string Name,
+    int Score,
+    string Grade
+);
 
 var lines = new[] { "Alice,88", "Bob,72", "Carol,91" };
 
@@ -3271,24 +3599,38 @@ var pairs =
      where x + y > 12 && product % 3 == 0
      select (x, y)).ToArray();
 
-static IEnumerable<HonorRollEntry> HonorRoll(IEnumerable<string> lines)
+static IEnumerable<HonorRollEntry> HonorRoll(
+    IEnumerable<string> lines
+)
 {
     foreach (var line in lines)
     {
         var parts = line.Split(',', 2);
-        if (parts.Length != 2 || !int.TryParse(parts[1].Trim(), out var score) || score <= 80)
+        if (
+            parts.Length != 2
+            || !int.TryParse(parts[1].Trim(), out var score)
+            || score <= 80
+        )
         {
             continue;
         }
 
-        yield return new HonorRollEntry(parts[0].Trim(), score, "A");
+        yield return new HonorRollEntry(
+            parts[0].Trim(),
+            score,
+            "A"
+        );
     }
 }
 
 var results = HonorRoll(lines).ToArray();`,
 
       dart: `typedef Pair = (int, int);
-typedef HonorRollEntry = ({String name, int score, String grade});
+typedef HonorRollEntry = ({
+  String name,
+  int score,
+  String grade,
+});
 
 final lines = ['Alice,88', 'Bob,72', 'Carol,91'];
 
@@ -3298,7 +3640,9 @@ final pairs = <Pair>[
       if (x + y > 12 && (x * y) % 3 == 0) (x, y),
 ];
 
-Iterable<HonorRollEntry> honorRoll(Iterable<String> lines) sync* {
+Iterable<HonorRollEntry> honorRoll(
+  Iterable<String> lines,
+) sync* {
   for (final line in lines) {
     if (line.split(',') case [final name, final scoreText]) {
       final score = int.tryParse(scoreText.trim());
@@ -3326,7 +3670,9 @@ let lines = ["Alice,88", "Bob,72", "Carol,91"]
 let pairs: [Pair] = Array(
     (1...10).lazy.flatMap { x in
         (1...10).lazy.compactMap { y -> Pair? in
-            x + y > 12 && (x * y).isMultiple(of: 3) ? (x, y) : nil
+            x + y > 12 && (x * y).isMultiple(of: 3)
+                ? (x, y)
+                : nil
         }
     }
 )
@@ -3335,13 +3681,19 @@ let results = Array(
     lines.lazy.compactMap { line -> HonorRollEntry? in
         let parts = line.split(separator: ",", maxSplits: 1)
         guard parts.count == 2,
-              let score = Int(String(parts[1]).trimmingCharacters(in: .whitespaces)),
+              let score = Int(
+                String(parts[1]).trimmingCharacters(
+                    in: .whitespaces
+                )
+              ),
               score > 80 else {
             return nil
         }
 
         return HonorRollEntry(
-            name: String(parts[0]).trimmingCharacters(in: .whitespaces),
+            name: String(parts[0]).trimmingCharacters(
+                in: .whitespaces
+            ),
             score: score
         )
     }
@@ -3370,8 +3722,13 @@ fun honorRoll(lines: Sequence<String>) =
         val parts = line.split(",", limit = 2)
         if (parts.size != 2) return@mapNotNull null
 
-        val score = parts[1].trim().toIntOrNull() ?: return@mapNotNull null
-        if (score > 80) HonorRollEntry(parts[0].trim(), score) else null
+        val score = parts[1].trim().toIntOrNull()
+            ?: return@mapNotNull null
+        if (score > 80) {
+            HonorRollEntry(parts[0].trim(), score)
+        } else {
+            null
+        }
     }
 
 val results = honorRoll(lines).toList()`,
@@ -3392,6 +3749,19 @@ function AidLogo({ className = "" }: { className?: string }) {
       className={className}
     />
   );
+}
+
+function useInView(threshold = 0.15): [React.RefObject<HTMLDivElement | null>, boolean] {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return [ref, visible];
 }
 
 function useReduceMotion(): boolean {
@@ -3598,7 +3968,7 @@ function ExplicitnessRadar({ isJa }: { isJa: boolean }) {
           const isOn = enabled.has(lid);
           const color = LANG_COLORS[lid];
           return (
-            <button key={lid} onClick={() => toggle(lid)}
+            <button key={lid} onClick={() => { playTabSound(lid); toggle(lid); }}
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all duration-200 cursor-pointer border"
               style={{
                 fontFamily: MONO,
@@ -3695,6 +4065,1018 @@ function DegradationCurve({ isJa }: { isJa: boolean }) {
   );
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   ANIMATED INTERACTIVE ELIXIR PRINCIPLE DEMOS
+   Inspired by effect.kitlangton.com — fun, cute, with sounds & animations
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Shared animation sound helper ── */
+function playNote(freq: number, type: OscillatorType = "sine", dur = 0.12, vol = 0.07) {
+  try {
+    if (!_audioCtx) _audioCtx = new AudioContext();
+    const ctx = _audioCtx;
+    if (ctx.state === "suspended") ctx.resume();
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.connect(g).connect(ctx.destination);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + dur + 0.02);
+  } catch { /* */ }
+}
+function playChime(notes: number[], delay = 0.08) {
+  notes.forEach((f, i) => setTimeout(() => playNote(f, "sine", 0.15, 0.06), i * delay * 1000));
+}
+
+/* ── Annotation sounds — completely unique synthesis per section ──
+   Echo grows with index: top items are dry, bottom items reverberate heavily.
+   Each function is a different synthesis technique. */
+
+function _aCtx(): AudioContext {
+  if (!_audioCtx) _audioCtx = new AudioContext();
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  return _audioCtx;
+}
+
+/** Helper: repeat a sound function N times with decay */
+function _withEcho(play: (ctx: AudioContext, t: number, vol: number, detune: number) => void, echoes: number) {
+  const ctx = _aCtx();
+  const t = ctx.currentTime;
+  for (let i = 0; i <= echoes; i++) {
+    play(ctx, t + i * 0.15, 0.07 * Math.pow(0.5, i), i * 18);
+  }
+}
+
+const ANNOTATION_SOUND_FNS: ((idx: number) => void)[] = [
+
+  /* 0 — WATER DROP: fast pitch-sweep downward, plop */
+  () => _withEcho((ctx, t, vol) => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(1800, t);
+    osc.frequency.exponentialRampToValueAtTime(280, t + 0.12);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    osc.connect(g).connect(ctx.destination);
+    osc.start(t); osc.stop(t + 0.2);
+  }, 2),
+
+  /* 1 — BUBBLE: quick pitch up then down, bubbly pop */
+  () => _withEcho((ctx, t, vol) => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(300, t);
+    osc.frequency.linearRampToValueAtTime(900, t + 0.04);
+    osc.frequency.exponentialRampToValueAtTime(350, t + 0.14);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+    osc.connect(g).connect(ctx.destination);
+    osc.start(t); osc.stop(t + 0.18);
+  }, 2),
+
+  /* 2 — METALLIC BELL: two detuned sines beating against each other */
+  () => _withEcho((ctx, t, vol, detune) => {
+    [440, 443.5].forEach(f => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = "sine"; osc.frequency.value = f; osc.detune.value = detune;
+      g.gain.setValueAtTime(vol * 0.7, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.5);
+    });
+  }, 3),
+
+  /* 3 — SPARKLE: rapid random high-freq pings like tiny stars */
+  () => _withEcho((ctx, t, vol) => {
+    const freqs = [1568, 2093, 1760, 2349, 1975];
+    freqs.forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = "sine"; osc.frequency.value = f;
+      const st = t + i * 0.03;
+      g.gain.setValueAtTime(vol * 0.5, st);
+      g.gain.exponentialRampToValueAtTime(0.001, st + 0.08);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(st); osc.stop(st + 0.1);
+    });
+  }, 3),
+
+  /* 4 — WOODEN KNOCK: filtered noise burst, percussive */
+  () => _withEcho((ctx, t, vol) => {
+    const bufLen = ctx.sampleRate * 0.06;
+    const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufLen * 0.15));
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const filt = ctx.createBiquadFilter();
+    filt.type = "bandpass"; filt.frequency.value = 800; filt.Q.value = 3;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(vol * 2.5, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+    src.connect(filt).connect(g).connect(ctx.destination);
+    src.start(t); src.stop(t + 0.12);
+  }, 4),
+
+  /* 5 — WHOOSH: filtered noise sweep, airy swoosh */
+  () => _withEcho((ctx, t, vol) => {
+    const bufLen = ctx.sampleRate * 0.25;
+    const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const filt = ctx.createBiquadFilter();
+    filt.type = "bandpass"; filt.Q.value = 5;
+    filt.frequency.setValueAtTime(200, t);
+    filt.frequency.exponentialRampToValueAtTime(4000, t + 0.1);
+    filt.frequency.exponentialRampToValueAtTime(300, t + 0.25);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(vol * 1.5, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+    src.connect(filt).connect(g).connect(ctx.destination);
+    src.start(t); src.stop(t + 0.3);
+  }, 5),
+
+  /* 6 — LASER ZAP: fast descending sawtooth sweep */
+  () => _withEcho((ctx, t, vol, detune) => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = "sawtooth"; osc.detune.value = detune;
+    osc.frequency.setValueAtTime(2400, t);
+    osc.frequency.exponentialRampToValueAtTime(120, t + 0.15);
+    g.gain.setValueAtTime(vol * 0.4, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    osc.connect(g).connect(ctx.destination);
+    osc.start(t); osc.stop(t + 0.2);
+  }, 5),
+
+  /* 7 — DEEP GONG: low fundamental + inharmonic overtones that beat slowly */
+  () => _withEcho((ctx, t, vol, detune) => {
+    [110, 277.5, 173, 342].forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = "sine"; osc.frequency.value = f; osc.detune.value = detune;
+      g.gain.setValueAtTime(vol * (i === 0 ? 1 : 0.35), t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.75);
+    });
+  }, 6),
+
+  /* 8 — CRYSTAL CASCADE: harmonics with staggered slow attack, massive echo */
+  () => _withEcho((ctx, t, vol, detune) => {
+    [523, 784, 1047, 1319, 1568].forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = "sine"; osc.frequency.value = f; osc.detune.value = detune;
+      const st = t + i * 0.045;
+      g.gain.setValueAtTime(0.001, st);
+      g.gain.linearRampToValueAtTime(vol * 0.6, st + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, st + 0.35);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(st); osc.stop(st + 0.38);
+    });
+  }, 7),
+];
+
+function playAnnotationSound(index: number) {
+  try {
+    ANNOTATION_SOUND_FNS[index % ANNOTATION_SOUND_FNS.length](index);
+  } catch { /* */ }
+}
+
+/* ── 1. PIPE FLOW ANIMATION ── data |> step1 |> step2 |> step3 ── */
+function PipeFlowDemo({ isJa }: { isJa: boolean }) {
+  const [step, setStep] = useState(-1);
+  const [particles, setParticles] = useState<{ id: number; x: number; y: number }[]>([]);
+  const pidRef = useRef(0);
+
+  const stages = isJa
+    ? [
+        { label: "data", code: '[3, 1, 4, 1, 5]', color: "#64748b" },
+        { label: "Enum.filter", code: '&(&1 > 2)', color: "#3B82F6" },
+        { label: "Enum.map", code: '&(&1 * 10)', color: "#8B5CF6" },
+        { label: "Enum.sum", code: '→ 120', color: "#10B981" },
+      ]
+    : [
+        { label: "data", code: '[3, 1, 4, 1, 5]', color: "#64748b" },
+        { label: "Enum.filter", code: '&(&1 > 2)', color: "#3B82F6" },
+        { label: "Enum.map", code: '&(&1 * 10)', color: "#8B5CF6" },
+        { label: "Enum.sum", code: '→ 120', color: "#10B981" },
+      ];
+
+  const values = [
+    '[3, 1, 4, 1, 5]',
+    '[3, 4, 5]',
+    '[30, 40, 50]',
+    '120',
+  ];
+
+  const runAnimation = () => {
+    setStep(-1);
+    setParticles([]);
+    const tones = [523, 659, 784, 1047]; // C5 E5 G5 C6 — ascending major
+    let s = 0;
+    const next = () => {
+      if (s >= stages.length) return;
+      setStep(s);
+      playNote(tones[s], "sine", 0.14, 0.06);
+      // spawn particles at stage position
+      const pid = pidRef.current++;
+      const xBase = (s / (stages.length - 1)) * 100;
+      setParticles(prev => [...prev, { id: pid, x: xBase, y: 50 }]);
+      setTimeout(() => setParticles(prev => prev.filter(p => p.id !== pid)), 1000);
+      s++;
+      if (s < stages.length) setTimeout(next, 1100);
+      else setTimeout(() => playChime([1047, 1319, 1568], 0.06), 500); // victory C6 E6 G6
+    };
+    setTimeout(next, 400);
+  };
+
+  return (
+    <div className="rounded-xl px-4 py-4 mt-3 mb-2 relative overflow-hidden" style={{ background: "rgba(155,89,182,0.04)", border: "1px solid rgba(155,89,182,0.15)" }}>
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-40" style={{ fontFamily: MONO }}>
+          {isJa ? "パイプ演算子アニメーション" : "Pipe Operator — Live"}
+        </span>
+        <button onClick={runAnimation}
+          className="px-3 py-1 rounded-full text-[10px] font-bold cursor-pointer border-none transition-all duration-200 hover:scale-105 active:scale-95"
+          style={{ background: "rgba(155,89,182,0.2)", color: "#C084FC", fontFamily: MONO }}>
+          ▶ {isJa ? "再生" : "Play"}
+        </button>
+      </div>
+
+      {/* Pipeline visualization */}
+      <div className="flex items-center gap-0 overflow-x-auto pb-2">
+        {stages.map((s, i) => (
+          <div key={i} className="contents">
+            {i > 0 && (
+              <div className="flex items-center mx-1 shrink-0">
+                <span className="text-[13px] font-bold transition-all duration-300"
+                  style={{ color: step >= i ? "#C084FC" : "rgba(255,255,255,0.15)", fontFamily: MONO,
+                    textShadow: step >= i ? "0 0 12px rgba(192,132,252,0.5)" : "none" }}>
+                  |&gt;
+                </span>
+              </div>
+            )}
+            <div className="flex flex-col items-center px-2 py-2 rounded-lg min-w-[80px] shrink-0 transition-all duration-400"
+              style={{
+                background: step >= i ? `${s.color}18` : "rgba(255,255,255,0.02)",
+                border: `1px solid ${step >= i ? `${s.color}40` : "rgba(255,255,255,0.06)"}`,
+                transform: step === i ? "scale(1.08)" : "scale(1)",
+                boxShadow: step === i ? `0 0 20px ${s.color}30` : "none",
+              }}>
+              <span className="text-[11px] font-bold mb-0.5" style={{ color: s.color, fontFamily: MONO }}>{s.label}</span>
+              <span className="text-[9px] opacity-60" style={{ fontFamily: MONO }}>{s.code}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Data value display */}
+      <div className="mt-3 h-7 flex items-center justify-center">
+        {step >= 0 && (
+          <div className="text-[13px] font-bold px-4 py-1 rounded-full transition-all duration-300"
+            style={{
+              fontFamily: MONO,
+              color: stages[step].color,
+              background: `${stages[step].color}12`,
+              border: `1px solid ${stages[step].color}30`,
+              animation: "tab-enter 300ms ease both",
+            }}>
+            {values[step]}
+          </div>
+        )}
+      </div>
+
+      {/* Floating particles */}
+      {particles.map(p => (
+        <div key={p.id} className="absolute w-2 h-2 rounded-full pointer-events-none"
+          style={{
+            left: `${p.x}%`, top: `${p.y}%`,
+            background: "#C084FC",
+            boxShadow: "0 0 8px rgba(192,132,252,0.6)",
+            animation: "booth-float 0.6s ease-out forwards",
+            opacity: 0.8,
+          }} />
+      ))}
+    </div>
+  );
+}
+
+/* ── 2. PATTERN MATCH ANIMATION ── shapes decomposing into branches ── */
+function PatternMatchDemo({ isJa }: { isJa: boolean }) {
+  const [selected, setSelected] = useState<number | null>(null);
+  const [sparkles, setSparkles] = useState<{ id: number; x: number; y: number }[]>([]);
+  const sparkleId = useRef(0);
+
+  const cases = isJa ? [
+    { input: '{:ok, "Alice"}',  branch: ':ok  → name',    result: '"ようこそ、Alice!"',  color: "#10B981", icon: "✓" },
+    { input: '{:error, :timeout}', branch: ':error → reason', result: '"リトライ: timeout"', color: "#EF4444", icon: "✗" },
+    { input: '{:ok, ""}',      branch: ':ok  → ""',       result: '"名前が空です"',       color: "#F59E0B", icon: "⚠" },
+  ] : [
+    { input: '{:ok, "Alice"}',    branch: ':ok  → name',     result: '"Welcome, Alice!"',  color: "#10B981", icon: "✓" },
+    { input: '{:error, :timeout}', branch: ':error → reason', result: '"Retry: timeout"',   color: "#EF4444", icon: "✗" },
+    { input: '{:ok, ""}',         branch: ':ok  → ""',        result: '"Name is empty"',    color: "#F59E0B", icon: "⚠" },
+  ];
+
+  const select = (i: number) => {
+    setSelected(i);
+    const tones = [[659, 880], [440, 349], [523, 659]]; // major up, minor down, gentle up
+    const t = tones[i] || tones[0];
+    playNote(t[0], "sine", 0.1, 0.06);
+    setTimeout(() => playNote(t[1], "triangle", 0.15, 0.05), 80);
+    // sparkles
+    for (let s = 0; s < 5; s++) {
+      const sid = sparkleId.current++;
+      const x = 30 + Math.random() * 40;
+      const y = 20 + Math.random() * 60;
+      setTimeout(() => {
+        setSparkles(prev => [...prev, { id: sid, x, y }]);
+        setTimeout(() => setSparkles(prev => prev.filter(p => p.id !== sid)), 700);
+      }, s * 60);
+    }
+  };
+
+  return (
+    <div className="rounded-xl px-4 py-4 mt-3 mb-2 relative overflow-hidden" style={{ background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.15)" }}>
+      <span className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-40 block mb-3" style={{ fontFamily: MONO }}>
+        {isJa ? "パターンマッチ — クリックして試す" : "Pattern Matching — Click to try"}
+      </span>
+
+      {/* Input selector */}
+      <div className="flex flex-wrap gap-2 mb-3">
+        {cases.map((c, i) => (
+          <button key={i} onClick={() => select(i)}
+            className="px-3 py-1.5 rounded-lg text-[11px] font-bold cursor-pointer border transition-all duration-200 hover:scale-[1.03] active:scale-95"
+            style={{
+              fontFamily: MONO,
+              background: selected === i ? `${c.color}20` : "rgba(255,255,255,0.03)",
+              borderColor: selected === i ? `${c.color}50` : "rgba(255,255,255,0.08)",
+              color: selected === i ? c.color : "rgba(255,255,255,0.4)",
+              boxShadow: selected === i ? `0 0 16px ${c.color}20` : "none",
+            }}>
+            {c.input}
+          </button>
+        ))}
+      </div>
+
+      {/* Match result */}
+      <div className="h-[72px] flex items-center justify-center">
+        {selected !== null && (
+          <div className="flex items-center gap-3" style={{ animation: "tab-enter 300ms ease both" }}>
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl text-xl"
+              style={{ background: `${cases[selected].color}15`, border: `1px solid ${cases[selected].color}30` }}>
+              {cases[selected].icon}
+            </div>
+            <div>
+              <div className="text-[10px] font-bold mb-0.5" style={{ color: cases[selected].color, fontFamily: MONO }}>
+                {cases[selected].branch}
+              </div>
+              <div className="text-[14px] font-bold" style={{ color: "#fff", fontFamily: MONO }}>
+                {cases[selected].result}
+              </div>
+            </div>
+          </div>
+        )}
+        {selected === null && (
+          <span className="text-[11px] opacity-25" style={{ fontFamily: MONO }}>
+            {isJa ? "↑ 入力値をクリック" : "↑ Click an input value"}
+          </span>
+        )}
+      </div>
+
+      {/* Sparkles */}
+      {sparkles.map(s => (
+        <div key={s.id} className="absolute pointer-events-none"
+          style={{
+            left: `${s.x}%`, top: `${s.y}%`,
+            width: 4, height: 4, borderRadius: "50%",
+            background: selected !== null ? cases[selected].color : "#fff",
+            boxShadow: `0 0 6px ${selected !== null ? cases[selected].color : "#fff"}`,
+            animation: "booth-float 0.7s ease-out forwards",
+            opacity: 0.7,
+          }} />
+      ))}
+    </div>
+  );
+}
+
+/* ── 3. {:ok}/{:error} CONTRACT FLOW ── animated branching pipeline ── */
+function ContractFlowDemo({ isJa }: { isJa: boolean }) {
+  const [running, setRunning] = useState(false);
+  const [phase, setPhase] = useState<"idle" | "call" | "ok" | "error">("idle");
+  const [trail, setTrail] = useState<string[]>([]);
+
+  const run = (outcome: "ok" | "error") => {
+    if (running) return;
+    setRunning(true);
+    setTrail([]);
+    setPhase("call");
+    playNote(523, "sine", 0.1);
+
+    setTimeout(() => {
+      setTrail(["call"]);
+      setPhase(outcome);
+      if (outcome === "ok") {
+        playChime([659, 784, 1047], 0.07); // E5 G5 C6
+      } else {
+        playNote(349, "triangle", 0.2, 0.06);
+        setTimeout(() => playNote(311, "triangle", 0.25, 0.05), 120);
+      }
+      setTrail(["call", outcome]);
+    }, 600);
+
+    setTimeout(() => {
+      setRunning(false);
+    }, 1800);
+  };
+
+  const nodeStyle = (id: string, color: string) => ({
+    background: trail.includes(id) ? `${color}20` : "rgba(255,255,255,0.02)",
+    borderColor: trail.includes(id) ? `${color}50` : "rgba(255,255,255,0.08)",
+    boxShadow: trail.includes(id) ? `0 0 20px ${color}25` : "none",
+    transform: trail.includes(id) ? "scale(1.05)" : "scale(1)",
+    transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+  });
+
+  return (
+    <div className="rounded-xl px-4 py-4 mt-3 mb-2 relative overflow-hidden" style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.15)" }}>
+      <span className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-40 block mb-3" style={{ fontFamily: MONO }}>
+        {isJa ? "明示的契約フロー" : "Explicit Contract Flow"}
+      </span>
+
+      {/* Flow diagram */}
+      <div className="flex flex-col items-center gap-3">
+        {/* Function call */}
+        <div className="px-4 py-2 rounded-lg border text-[12px] font-bold" style={{ fontFamily: MONO, color: "#94A3B8", ...nodeStyle("call", "#94A3B8") }}>
+          fetch_user(id)
+        </div>
+
+        {/* Arrow down */}
+        <svg width="20" height="24" viewBox="0 0 20 24" className="opacity-40">
+          <path d="M10 0v20M5 16l5 5 5-5" stroke={trail.includes("call") ? "#94A3B8" : "rgba(255,255,255,0.2)"} strokeWidth="1.5" fill="none" strokeLinecap="round"
+            style={{ transition: "stroke 0.4s ease" }} />
+        </svg>
+
+        {/* Branch: ok / error */}
+        <div className="flex items-start gap-6">
+          <div className="flex flex-col items-center gap-2">
+            <div className="px-3.5 py-2 rounded-lg border text-[12px] font-bold" style={{ fontFamily: MONO, color: "#10B981", ...nodeStyle("ok", "#10B981") }}>
+              {"{:ok, user}"}
+            </div>
+            <button onClick={() => run("ok")} disabled={running}
+              className="px-2.5 py-1 rounded-full text-[9px] font-bold cursor-pointer border-none transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
+              style={{ background: "rgba(16,185,129,0.2)", color: "#34D399", fontFamily: MONO }}>
+              ▶ {isJa ? "成功" : "Success"}
+            </button>
+            {phase === "ok" && (
+              <div className="text-[11px] font-bold px-3 py-1 rounded-full" style={{
+                fontFamily: MONO, color: "#10B981", background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)",
+                animation: "tab-enter 300ms ease both",
+              }}>
+                {isJa ? "→ プロフィール表示" : "→ render profile"}
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <div className="px-3.5 py-2 rounded-lg border text-[12px] font-bold" style={{ fontFamily: MONO, color: "#EF4444", ...nodeStyle("error", "#EF4444") }}>
+              {"{:error, reason}"}
+            </div>
+            <button onClick={() => run("error")} disabled={running}
+              className="px-2.5 py-1 rounded-full text-[9px] font-bold cursor-pointer border-none transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
+              style={{ background: "rgba(239,68,68,0.2)", color: "#F87171", fontFamily: MONO }}>
+              ▶ {isJa ? "失敗" : "Failure"}
+            </button>
+            {phase === "error" && (
+              <div className="text-[11px] font-bold px-3 py-1 rounded-full" style={{
+                fontFamily: MONO, color: "#EF4444", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)",
+                animation: "tab-enter 300ms ease both",
+              }}>
+                {isJa ? "→ エラーログ出力" : "→ log & fallback"}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="text-[9px] text-center mt-3 opacity-25" style={{ fontFamily: MONO }}>
+        {isJa ? "例外なし — 常にどちらかの値が返る" : "No exceptions — always one of two values"}
+      </div>
+    </div>
+  );
+}
+
+/* ── 4. IMMUTABILITY DEMO ── show that rebinding doesn't mutate ── */
+function ImmutabilityDemo({ isJa }: { isJa: boolean }) {
+  const [step, setStep] = useState(0);
+  const lines = [
+    { code: 'list = [1, 2, 3]',                      val: '[1, 2, 3]',       color: "#06B6D4", note: isJa ? "束縛" : "bind" },
+    { code: 'new_list = [0 | list]',                  val: '[0, 1, 2, 3]',   color: "#8B5CF6", note: isJa ? "新しいリスト" : "new list" },
+    { code: 'list',                                    val: '[1, 2, 3]',       color: "#06B6D4", note: isJa ? "元は不変！" : "original unchanged!" },
+  ];
+
+  const advance = () => {
+    const next = (step + 1) % (lines.length + 1);
+    setStep(next);
+    if (next > 0 && next <= lines.length) {
+      const n = next - 1;
+      if (n === 2) {
+        // The "aha" moment — original unchanged
+        playChime([880, 1047, 1319], 0.06);
+      } else {
+        playNote([523, 659, 784][n], "sine", 0.12, 0.06);
+      }
+    }
+  };
+
+  return (
+    <div className="rounded-xl px-4 py-4 mt-3 mb-2" style={{ background: "rgba(6,182,212,0.04)", border: "1px solid rgba(6,182,212,0.15)" }}>
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-40" style={{ fontFamily: MONO }}>
+          {isJa ? "不変性デモ" : "Immutability Demo"}
+        </span>
+        <button onClick={advance}
+          className="px-3 py-1 rounded-full text-[10px] font-bold cursor-pointer border-none transition-all duration-200 hover:scale-105 active:scale-95"
+          style={{ background: "rgba(6,182,212,0.2)", color: "#67E8F9", fontFamily: MONO }}>
+          {step === 0 ? (isJa ? "▶ 開始" : "▶ Start") : step >= lines.length ? (isJa ? "↻ リセット" : "↻ Reset") : (isJa ? "次へ →" : "Next →")}
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        {lines.map((l, i) => (
+          <div key={i} className="flex items-center gap-3 transition-all duration-300"
+            style={{ opacity: step > i ? 1 : 0.15, transform: step > i ? "translateX(0)" : "translateX(-8px)" }}>
+            <span className="text-[10px] w-4 text-right opacity-30" style={{ fontFamily: MONO }}>{i + 1}</span>
+            <code className="text-[12px] font-bold flex-1" style={{ fontFamily: MONO, color: l.color }}>{l.code}</code>
+            {step > i && (
+              <span className="text-[11px] px-2 py-0.5 rounded-full shrink-0" style={{
+                fontFamily: MONO, color: l.color, background: `${l.color}12`, border: `1px solid ${l.color}25`,
+                animation: "tab-enter 250ms ease both",
+              }}>
+                {l.val}
+                {i === 2 && <span className="ml-1.5 text-[9px]" style={{ color: "#10B981" }}>✓</span>}
+              </span>
+            )}
+            {step > i && (
+              <span className="text-[8px] opacity-40 shrink-0" style={{ fontFamily: MONO }}>{l.note}</span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── 5. FORMATTER UNIFORMITY DEMO ── messy code → formatted ── */
+type FormatterTokenKind = "keyword" | "function" | "punct" | "module" | "string" | "operator";
+
+interface FormatterToken {
+  text: string;
+  kind: FormatterTokenKind;
+}
+
+const FORMATTER_MESSY = `def hello( name ) do
+IO.puts( "Hello, " <> name <> "!" )
+end`;
+
+const FORMATTER_CLEAN = `def hello(name) do
+  IO.puts("Hello, " <> name <> "!")
+end`;
+
+const FORMATTER_TOKEN_LINES_BEFORE: FormatterToken[][] = [
+  [
+    { text: "def", kind: "keyword" },
+    { text: " hello", kind: "function" },
+    { text: "(", kind: "punct" },
+    { text: " name", kind: "function" },
+    { text: " )", kind: "punct" },
+    { text: " do", kind: "keyword" },
+  ],
+  [
+    { text: "IO.puts", kind: "module" },
+    { text: "(", kind: "punct" },
+    { text: " \"Hello, \"", kind: "string" },
+    { text: " <>", kind: "operator" },
+    { text: " name", kind: "function" },
+    { text: " <>", kind: "operator" },
+    { text: " \"!\"", kind: "string" },
+    { text: " )", kind: "punct" },
+  ],
+  [
+    { text: "end", kind: "keyword" },
+  ],
+];
+
+const FORMATTER_TOKEN_LINES_AFTER: FormatterToken[][] = [
+  [
+    { text: "def", kind: "keyword" },
+    { text: " hello", kind: "function" },
+    { text: "(name)", kind: "module" },
+    { text: " do", kind: "keyword" },
+  ],
+  [
+    { text: "  ", kind: "punct" },
+    { text: "IO.puts", kind: "module" },
+    { text: "(\"Hello, \"", kind: "string" },
+    { text: " <>", kind: "operator" },
+    { text: " name", kind: "function" },
+    { text: " <>", kind: "operator" },
+    { text: " \"!\")", kind: "string" },
+  ],
+  [
+    { text: "end", kind: "keyword" },
+  ],
+];
+
+const FORMATTER_TOKEN_STYLES = [
+  { bg: "rgba(196,113,237,0.22)", border: "rgba(196,113,237,0.36)", color: "#F4E8FF" },
+  { bg: "rgba(134,239,172,0.22)", border: "rgba(134,239,172,0.34)", color: "#E8FFE8" },
+  { bg: "rgba(253,224,71,0.22)", border: "rgba(253,224,71,0.34)", color: "#FFF8D6" },
+  { bg: "rgba(248,113,113,0.22)", border: "rgba(248,113,113,0.34)", color: "#FFE1E1" },
+  { bg: "rgba(125,211,252,0.22)", border: "rgba(125,211,252,0.34)", color: "#E3F5FF" },
+  { bg: "rgba(251,191,36,0.22)", border: "rgba(251,191,36,0.34)", color: "#FFF0CF" },
+];
+
+const FORMATTER_TOKENS_BEFORE = FORMATTER_TOKEN_LINES_BEFORE.reduce((sum, line) => sum + line.length, 0);
+const FORMATTER_TOKENS_AFTER = FORMATTER_TOKEN_LINES_AFTER.reduce((sum, line) => sum + line.length, 0);
+const FORMATTER_CHAR_DELTA = FORMATTER_MESSY.length - FORMATTER_CLEAN.length;
+
+function FormatterCodeBlock({
+  active,
+  reducedMotion,
+  lines,
+}: {
+  active: boolean;
+  reducedMotion: boolean;
+  lines: FormatterToken[][];
+}) {
+  return (
+    <div className="rounded-lg p-3" style={{
+      background: active ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.025)",
+      border: `1px solid ${active ? "rgba(251,191,36,0.22)" : "rgba(255,255,255,0.08)"}`,
+      boxShadow: active ? "0 0 0 1px rgba(251,191,36,0.08) inset, 0 18px 40px -28px rgba(251,191,36,0.45)" : "none",
+      transition: "all 280ms ease",
+    }}>
+      <code className="block text-[12px] leading-[1.85]" style={{ fontFamily: MONO }}>
+        {lines.map((line, lineIndex) => (
+          <div key={lineIndex} style={{ whiteSpace: "pre" }}>
+            {line.map((token, tokenIndex) => {
+              const style = FORMATTER_TOKEN_STYLES[(lineIndex * 10 + tokenIndex) % FORMATTER_TOKEN_STYLES.length];
+              const order = lineIndex * 8 + tokenIndex;
+
+              return (
+                <motion.span
+                  key={`${lineIndex}-${token.text}-${tokenIndex}`}
+                  initial={reducedMotion ? false : { opacity: 0, y: 10, scale: 0.94 }}
+                  animate={reducedMotion ? undefined : active ? {
+                    opacity: 1,
+                    y: [0, -3, 0],
+                    scale: [1, 1.07, 1],
+                    boxShadow: [
+                      "0 0 0 rgba(251,191,36,0)",
+                      "0 10px 24px rgba(251,191,36,0.28)",
+                      "0 0 0 rgba(251,191,36,0)",
+                    ],
+                  } : {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    boxShadow: "0 0 0 rgba(0,0,0,0)",
+                  }}
+                  transition={reducedMotion ? undefined : {
+                    duration: 0.42,
+                    delay: active ? order * 0.028 : 0,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="inline-block rounded-[3px] px-[1px] py-[1px]"
+                  style={{
+                    fontFamily: MONO,
+                    background: style.bg,
+                    color: style.color,
+                    border: `1px solid ${style.border}`,
+                  }}
+                >
+                  {token.text}
+                </motion.span>
+              );
+            })}
+          </div>
+        ))}
+      </code>
+    </div>
+  );
+}
+
+function FormatterDemo({ isJa }: { isJa: boolean }) {
+  const reducedMotion = useReduceMotion();
+  const [formatted, setFormatted] = useState(false);
+
+  const toggle = () => {
+    setFormatted(f => !f);
+    if (!formatted) {
+      playChime([784, 988, 1319], 0.05); // G5 B5 E6 — satisfying
+    } else {
+      playNote(440, "triangle", 0.1, 0.04);
+    }
+  };
+
+  return (
+    <div className="rounded-xl px-4 py-4 mt-3 mb-2 overflow-hidden relative" style={{
+      background: formatted
+        ? "radial-gradient(circle at top right, rgba(251,191,36,0.18), rgba(245,158,11,0.05) 34%, rgba(8,18,26,0.12) 72%)"
+        : "linear-gradient(180deg, rgba(245,158,11,0.06), rgba(245,158,11,0.025))",
+      border: `1px solid ${formatted ? "rgba(251,191,36,0.28)" : "rgba(245,158,11,0.15)"}`,
+      boxShadow: formatted ? "0 24px 70px -45px rgba(251,191,36,0.65)" : "none",
+      transition: "all 320ms ease",
+    }}>
+      <AnimatePresence>
+        {formatted && !reducedMotion && (
+          <motion.div
+            key="formatter-beam"
+            initial={{ x: "-120%", opacity: 0 }}
+            animate={{ x: "140%", opacity: [0, 0.75, 0] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute inset-y-0 w-28 pointer-events-none"
+            style={{
+              background: "linear-gradient(90deg, rgba(251,191,36,0), rgba(251,191,36,0.18), rgba(254,240,138,0.42), rgba(251,191,36,0))",
+              filter: "blur(12px)",
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-40" style={{ fontFamily: MONO }}>
+          {isJa ? "mix format デモ" : "mix format Demo"}
+        </span>
+        <button onClick={toggle}
+          className="px-3 py-1 rounded-full text-[10px] font-bold cursor-pointer border-none transition-all duration-200 hover:scale-105 active:scale-95"
+          style={{ background: "rgba(245,158,11,0.2)", color: "#FBBF24", fontFamily: MONO }}>
+          {formatted ? (isJa ? "↻ 元に戻す" : "↻ Undo") : "✨ mix format"}
+        </button>
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={formatted ? "formatted" : "messy"}
+          initial={reducedMotion ? false : { opacity: 0, y: 10, filter: "blur(6px)" }}
+          animate={reducedMotion ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
+          exit={reducedMotion ? undefined : { opacity: 0, y: -6, filter: "blur(4px)" }}
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          className="mb-3 rounded-xl px-3 py-2.5"
+          style={{
+            background: formatted ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.10)",
+            border: `1px solid ${formatted ? "rgba(16,185,129,0.22)" : "rgba(239,68,68,0.22)"}`,
+          }}
+        >
+          <div className="flex items-center gap-2 text-[10px] font-bold mb-1" style={{ fontFamily: MONO, color: formatted ? "#6EE7B7" : "#FCA5A5" }}>
+            <span>{formatted ? "✓" : "!"}</span>
+            <span>
+              {formatted
+                ? (isJa ? "実際の tokenizer 表示では、after のほうがピース数が減り結合も変わる。" : "In the actual tokenizer view, the after version has fewer pieces and different merges.")
+                : (isJa ? "これは有効な Elixir だが、actual tokenizer では before のほうが細かく割れる。" : "This is valid Elixir, but the actual tokenizer splits the before version into more pieces.")}
+            </span>
+          </div>
+          <div className="text-[10px] opacity-80 leading-[1.55]" style={{ fontFamily: MONO, color: formatted ? "#D1FAE5" : "rgba(255,255,255,0.72)" }}>
+            {formatted
+              ? (isJa ? "あなたが共有した actual tokenization に合わせて、before/after のピース分割を別々に表示している。" : "This now matches the actual tokenization you shared, with separate piece groupings for before and after.")
+              : (isJa ? "mix format は同じコード意味を保ちながら、tokenizer が見える境界まで変えうる。" : "mix format can preserve the same code meaning while still changing the boundaries the tokenizer sees.")}
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        {[
+          {
+            label: isJa ? "Tokenizer Pieces" : "Tokenizer Pieces",
+            value: `${FORMATTER_TOKENS_BEFORE}→${FORMATTER_TOKENS_AFTER}`,
+            sub: isJa ? "actual tokenization" : "actual tokenization",
+            color: "#C084FC",
+          },
+          {
+            label: isJa ? "文字数" : "Characters",
+            value: `${FORMATTER_MESSY.length}→${FORMATTER_CLEAN.length}`,
+            sub: isJa ? `${FORMATTER_CHAR_DELTA} 文字削減` : `${FORMATTER_CHAR_DELTA} chars removed`,
+            color: "#7DD3FC",
+          },
+          {
+            label: isJa ? "要点" : "Takeaway",
+            value: formatted ? (isJa ? "標準形" : "Canonical") : (isJa ? "崩れ" : "Noisy"),
+            sub: formatted ? (isJa ? "merge される" : "more merged") : (isJa ? "細かく割れる" : "more split"),
+            color: formatted ? "#34D399" : "#F59E0B",
+          },
+        ].map((stat) => (
+          <div key={stat.label} className="rounded-lg px-3 py-2" style={{
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}>
+            <div className="text-[9px] uppercase tracking-[0.14em] opacity-45 mb-1" style={{ fontFamily: MONO }}>
+              {stat.label}
+            </div>
+            <div className="text-[20px] font-bold leading-none" style={{ fontFamily: MONO, color: stat.color }}>
+              {stat.value}
+            </div>
+            <div className="text-[9px] mt-1 opacity-60" style={{ fontFamily: MONO }}>
+              {stat.sub}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-3">
+        {[
+          {
+            key: "before",
+            title: isJa ? "Before" : "Before",
+            source: FORMATTER_MESSY,
+            active: !formatted,
+            tone: "#F87171",
+            bg: "rgba(239,68,68,0.05)",
+            border: "rgba(239,68,68,0.18)",
+            codeColor: "rgba(255,255,255,0.62)",
+            caption: isJa ? "有効だが tokenizer 的には細かく分割" : "Valid code, but more split in tokenizer space",
+            tokenCaption: isJa ? `${FORMATTER_TOKENS_BEFORE} pieces` : `${FORMATTER_TOKENS_BEFORE} pieces`,
+            lines: FORMATTER_TOKEN_LINES_BEFORE,
+          },
+          {
+            key: "after",
+            title: isJa ? "After" : "After",
+            source: FORMATTER_CLEAN,
+            active: formatted,
+            tone: "#34D399",
+            bg: "rgba(16,185,129,0.06)",
+            border: "rgba(16,185,129,0.20)",
+            codeColor: "#D1FAE5",
+            caption: isJa ? "mix format 後は tokenizer 上でより結合" : "After mix format, pieces merge more cleanly",
+            tokenCaption: isJa ? `${FORMATTER_TOKENS_AFTER} pieces` : `${FORMATTER_TOKENS_AFTER} pieces`,
+            lines: FORMATTER_TOKEN_LINES_AFTER,
+          },
+        ].map((panel, panelIndex) => (
+          <div key={panel.key} className="space-y-2">
+            {panelIndex === 1 && (
+              <div className="flex items-center justify-center py-1">
+                <motion.div
+                  initial={reducedMotion ? false : { opacity: 0, y: -4 }}
+                  animate={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+                  transition={{ duration: 0.24 }}
+                  className="px-2.5 py-1 rounded-full text-[10px] font-bold"
+                  style={{
+                    fontFamily: MONO,
+                    color: formatted ? "#FDE68A" : "rgba(255,255,255,0.35)",
+                    background: formatted ? "rgba(251,191,36,0.12)" : "rgba(255,255,255,0.04)",
+                    border: `1px solid ${formatted ? "rgba(251,191,36,0.22)" : "rgba(255,255,255,0.08)"}`,
+                  }}
+                >
+                  {isJa ? "↓ mix format ↓" : "↓ mix format ↓"}
+                </motion.div>
+              </div>
+            )}
+
+            <motion.div
+              initial={reducedMotion ? false : { opacity: 0, y: 18 }}
+              animate={reducedMotion ? undefined : {
+                opacity: panel.active ? 1 : 0.82,
+                y: 0,
+                scale: panel.active ? 1 : 0.985,
+              }}
+              transition={{ duration: 0.3, delay: reducedMotion ? 0 : panelIndex * 0.05, ease: [0.22, 1, 0.36, 1] }}
+              className="rounded-xl p-3"
+              style={{
+                background: panel.bg,
+                border: `1px solid ${panel.border}`,
+                boxShadow: panel.active ? `0 18px 42px -26px ${panel.tone}` : "none",
+              }}
+            >
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ fontFamily: MONO, color: panel.tone }}>
+                    {panel.title}
+                  </div>
+                  <div className="text-[10px] opacity-55 mt-0.5" style={{ fontFamily: MONO }}>
+                    {panel.caption}
+                  </div>
+                </div>
+                <div className="text-right">
+                <div className="text-[18px] font-bold leading-none" style={{ fontFamily: MONO, color: panel.tone }}>
+                  {panel.source.length}
+                </div>
+                <div className="text-[9px] uppercase tracking-[0.14em] opacity-45" style={{ fontFamily: MONO }}>
+                  {isJa ? "chars" : "chars"}
+                </div>
+                <div className="text-[9px] mt-1 opacity-55" style={{ fontFamily: MONO }}>
+                  {panel.tokenCaption}
+                </div>
+              </div>
+            </div>
+
+              <FormatterCodeBlock
+                active={panel.active}
+                reducedMotion={reducedMotion}
+                lines={panel.lines}
+              />
+            </motion.div>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-[9px] text-center mt-3 opacity-40 leading-[1.6]" style={{ fontFamily: MONO }}>
+        {formatted
+          ? (isJa ? "このチップ列は syntax ではなく tokenizer piece の比較。formatting が merge を変える。" : "These chips compare tokenizer pieces, not syntax nodes. Formatting changes the merges.")
+          : (isJa ? "共有してもらった actual tokenization に合わせて、before と after で別のピース列を描画している。" : "The before and after rows now render different piece sequences to match the actual tokenization you shared.")}
+      </div>
+    </div>
+  );
+}
+
+/* ── 6. DOCTEST DEMO ── inline documentation with runnable tests ── */
+function DoctestDemo({ isJa }: { isJa: boolean }) {
+  const [ran, setRan] = useState(false);
+  const [testResult, setTestResult] = useState<"pass" | "fail" | null>(null);
+
+  const runTest = () => {
+    setRan(false);
+    setTestResult(null);
+    playNote(523, "sine", 0.08);
+
+    setTimeout(() => {
+      setRan(true);
+      setTestResult("pass");
+      playChime([784, 988, 1175, 1319], 0.05); // ascending — all tests pass!
+    }, 800);
+  };
+
+  return (
+    <div className="rounded-xl px-4 py-4 mt-3 mb-2" style={{ background: "rgba(224,36,122,0.04)", border: "1px solid rgba(224,36,122,0.15)" }}>
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-40" style={{ fontFamily: MONO }}>
+          {isJa ? "Doctest デモ" : "Doctest Demo"}
+        </span>
+        <button onClick={runTest}
+          className="px-3 py-1 rounded-full text-[10px] font-bold cursor-pointer border-none transition-all duration-200 hover:scale-105 active:scale-95"
+          style={{ background: "rgba(224,36,122,0.2)", color: "#F472B6", fontFamily: MONO }}>
+          ▶ mix test
+        </button>
+      </div>
+
+      <div className="p-3 rounded-lg text-[11px] leading-[1.8]" style={{ fontFamily: MONO, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ color: "#6B7280" }}>@doc """</div>
+        <div style={{ color: "rgba(255,255,255,0.55)" }}>  {isJa ? "2つの数値を足します。" : "Adds two numbers."}</div>
+        <div style={{ color: "#6B7280" }}>&nbsp;</div>
+        <div style={{ color: "#6B7280" }}>  ## Examples</div>
+        <div style={{ color: "#6B7280" }}>&nbsp;</div>
+        <div className="transition-all duration-300" style={{
+          color: testResult === "pass" ? "#34D399" : "#7DD3FC",
+          background: testResult === "pass" ? "rgba(16,185,129,0.08)" : "transparent",
+          borderRadius: 4, padding: "0 4px", margin: "0 -4px",
+        }}>
+          {'      iex> Math.add(1, 2)'}
+        </div>
+        <div className="transition-all duration-300" style={{
+          color: testResult === "pass" ? "#34D399" : "#7DD3FC",
+          background: testResult === "pass" ? "rgba(16,185,129,0.08)" : "transparent",
+          borderRadius: 4, padding: "0 4px", margin: "0 -4px",
+        }}>
+          {'      3'}
+        </div>
+        <div style={{ color: "#6B7280" }}>"""</div>
+        <div><span style={{ color: "#C084FC" }}>def</span> <span style={{ color: "#7DD3FC" }}>add</span>(a, b), <span style={{ color: "#C084FC" }}>do:</span> a + b</div>
+      </div>
+
+      {/* Test runner output */}
+      <div className="mt-2 h-6 flex items-center justify-center">
+        {ran && testResult === "pass" && (
+          <div className="flex items-center gap-2 text-[11px] font-bold" style={{ fontFamily: MONO, color: "#10B981", animation: "tab-enter 300ms ease both" }}>
+            <span>✓</span>
+            <span>1 doctest, 1 test, 0 failures</span>
+            <span className="text-[16px]" style={{ animation: "booth-pulse 1s ease-in-out" }}>🎉</span>
+          </div>
+        )}
+        {!ran && !testResult && (
+          <span className="text-[10px] opacity-20" style={{ fontFamily: MONO }}>
+            {isJa ? "↑ テストを実行" : "↑ Run the test"}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Map: principle icon → demo component ── */
+const PRINCIPLE_DEMOS: Record<string, (props: { isJa: boolean }) => ReactNode> = {
+  contract: (p) => <ContractFlowDemo {...p} />,
+  pattern:  (p) => <PatternMatchDemo {...p} />,
+  lock:     (p) => <ImmutabilityDemo {...p} />,
+  pipe:     (p) => <PipeFlowDemo {...p} />,
+  format:   (p) => <FormatterDemo {...p} />,
+  docs:     (p) => <DoctestDemo {...p} />,
+};
+
 /* ── Why It Matters Infographic ── */
 function WhyItMattersDiagram({ isJa }: { isJa: boolean }) {
   const items = isJa ? [
@@ -3740,17 +5122,17 @@ function WhyItMattersDiagram({ isJa }: { isJa: boolean }) {
 
 /* ── Code Section Visual Header ── */
 function CodeSectionDiagram({ isJa }: { isJa: boolean }) {
+  const [ref, visible] = useInView(0.25);
   const langs = [
-    { name: "Elixir", score: 87.4, color: "#9B59B6" },
-    { name: "Go", score: 56.2, color: "#06B6D4" },
-    { name: "Kotlin", score: 51.8, color: "#10B981" },
-    { name: "TypeScript", score: 48.9, color: "#3B82F6" },
-    { name: "Python", score: 43.9, color: "#F59E0B" },
+    { name: "Elixir", score: 87.4, color: "#C471ED" },
+    { name: "Go", score: 56.2, color: "#12D8FA" },
+    { name: "Kotlin", score: 51.8, color: "#22D694" },
+    { name: "TypeScript", score: 48.9, color: "#5B9EFF" },
+    { name: "Python", score: 43.9, color: "#FFB340" },
   ];
-  const maxW = 280;
 
   return (
-    <div className="rounded-xl px-4 py-4 mb-6" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+    <div ref={ref} className="rounded-xl px-4 py-4 mb-6" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
       <div className="text-[10px] font-bold uppercase tracking-[0.12em] mb-3 opacity-30" style={{ fontFamily: MONO }}>
         {isJa ? "言語別 Pass@1 スコア" : "Pass@1 Score by Language"}
       </div>
@@ -3759,9 +5141,13 @@ function CodeSectionDiagram({ isJa }: { isJa: boolean }) {
           <div key={l.name} className="flex items-center gap-3">
             <span className="w-[72px] text-right text-[10px] font-bold shrink-0" style={{ color: l.color, fontFamily: MONO }}>{l.name}</span>
             <div className="flex-1 h-5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
-              <div className="h-full rounded-full flex items-center justify-end pr-2 transition-all duration-700"
-                style={{ width: `${(l.score / 100) * 100}%`, background: `linear-gradient(90deg, ${l.color}30, ${l.color}80)` }}>
-                <span className="text-[9px] font-bold" style={{ color: "#fff", fontFamily: MONO }}>{l.score}%</span>
+              <div className="h-full rounded-full flex items-center justify-end pr-2"
+                style={{
+                  width: visible ? `${l.score}%` : "0%",
+                  background: `linear-gradient(90deg, ${l.color}40, ${l.color})`,
+                  transition: "width 0.9s cubic-bezier(0.22, 1, 0.36, 1)",
+                }}>
+                <span className="text-[9px] font-bold" style={{ color: "#fff", fontFamily: MONO, opacity: visible ? 1 : 0, transition: "opacity 0.4s ease 0.6s" }}>{l.score}%</span>
               </div>
             </div>
           </div>
@@ -3890,6 +5276,390 @@ const KEYWORD_TOOLTIPS: [RegExp, { en: string; ja: string }][] = [
   [/∀x ∈ S, P\(x\) → f\(x\)/g, {
     en: "Reads: \"For all x in set S, if predicate P(x) holds, apply f(x)\"\n\n- ∀x ∈ S  =  take every element x from collection S\n- P(x)  =  keep only elements where condition P is true (filter)\n- f(x)  =  transform each surviving element with function f (map)\n\nThis is set-builder notation - the mathematical origin of list comprehensions, LINQ, and .filter().map() chains.",
     ja: "読み方:「集合Sの全てのxについて、述語P(x)が真ならf(x)を適用」\n\n- ∀x ∈ S = コレクションSから全要素xを取り出す\n- P(x) = 条件Pが真の要素だけを残す（filter）\n- f(x) = 残った各要素に関数fを適用（map）\n\nこれは集合構成記法 - リスト内包表記・LINQ・.filter().map()チェーンの数学的起源。",
+  }],
+  [/f\s*∘\s*g\s*∘\s*h/g, {
+    en: "Function composition notation.\n\n`f ∘ g ∘ h` means: run `h` first, then feed its result into `g`, then feed that result into `f`.\n\nPipelines make this same idea readable left-to-right for humans.",
+    ja: "関数合成の記法。\n\n`f ∘ g ∘ h` は「先に `h` を実行し、その結果を `g` に渡し、最後に `f` に渡す」という意味。\n\nパイプラインはこの考え方を、人間に読みやすい左から右の形にしたもの。",
+  }],
+  [/TC39\s+Stage\s*2待ちpipe\(\)/g, {
+    en: "This means: TypeScript developers often use a library `pipe()` today because the official JavaScript pipe operator proposal is still not finalized.\n\nTC39 is the standards committee for JavaScript, and Stage 2 means the proposal is real but still not stable enough to ship everywhere.",
+    ja: "これは「JavaScript標準のパイプ演算子がまだ確定していないので、現時点ではライブラリの `pipe()` を使う」という意味。\n\nTC39 は JavaScript 標準化委員会で、Stage 2 は提案が本物ではあるが、まだ広く標準実装される段階ではないことを表す。",
+  }],
+  [/TC39 pipe is still Stage 2/gi, {
+    en: "The JavaScript pipe operator is still a proposal, not a shipped language feature.\n\nTC39 is the committee that standardizes JavaScript. Stage 2 means the design direction exists, but it is not finalized or broadly implemented yet.",
+    ja: "JavaScript のパイプ演算子は、まだ正式実装済みの言語機能ではなく提案段階。\n\nTC39 は JavaScript の標準化委員会で、Stage 2 は方向性はあるが、仕様確定や広範な実装にはまだ至っていない段階を意味する。",
+  }],
+  [/\bset-builder notation\b/gi, {
+    en: "Set-builder notation is the mathematical way of describing a collection by saying:\n\n- where elements come from\n- which ones are kept\n- how each surviving element is transformed\n\nComprehensions are the executable programming version of that notation.",
+    ja: "集合構成記法は、集合を\n\n- 要素の出所\n- 残す条件\n- 各要素をどう変換するか\n\nで定義する数学記法。内包表記はそのプログラミング版。",
+  }],
+  [/集合構成記法/g, {
+    en: "Set-builder notation: a mathematical way to describe a collection by source, filter, and transformation.",
+    ja: "集合構成記法: 要素の出所・条件・変換で集合を定義する数学記法。内包表記の元になっている。",
+  }],
+  [/\bmonadic composition\b/gi, {
+    en: "Monadic composition means chaining operations in a context like `Result`, `Either`, or `Promise`.\n\nEach step can pass along success automatically, while failures or special cases short-circuit without extra nested control flow.",
+    ja: "モナド合成とは、`Result` や `Either`、`Promise` のような文脈つき値を連鎖させること。\n\n成功はそのまま次へ流れ、失敗や特別なケースはネストした分岐なしで途中終了できる。",
+  }],
+  [/モナド合成/g, {
+    en: "Monadic composition: chaining context-carrying values such as Result or Either.",
+    ja: "モナド合成: Result や Either のような文脈つき値を、規則的に連鎖させること。",
+  }],
+  [/\bEither monad\b/gi, {
+    en: "The Either monad is a success-or-failure container, usually `Right` for success and `Left` for failure.\n\nIt lets multi-step workflows stop on the first error while keeping the happy path linear.",
+    ja: "Either モナドは、成功と失敗を保持するコンテナで、通常は `Right` が成功、`Left` が失敗。\n\n複数段の処理を、最初のエラーで止めつつハッピーパスは一直線に保てる。",
+  }],
+  [/Eitherモナド/g, {
+    en: "Either monad: a success/failure container used to chain fallible computations.",
+    ja: "Eitherモナド: 失敗しうる計算を連鎖させるための成功/失敗コンテナ。",
+  }],
+  [/\bdo-notation\b/gi, {
+    en: "Do-notation is syntax sugar for sequencing chained computations.\n\nInstead of explicit nested binds, it lets the code read like direct step-by-step assignment.",
+    ja: "do記法は、連鎖計算を順番に書けるようにする糖衣構文。\n\nbind をネストせず、普通の逐次代入のように読める形にする。",
+  }],
+  [/do記法/g, {
+    en: "Do-notation: syntax sugar for sequentially chaining wrapped computations.",
+    ja: "do記法: 文脈つき計算を順番に連鎖させるための糖衣構文。",
+  }],
+  [/\bactor model\b/gi, {
+    en: "The actor model organizes concurrency around isolated processes that communicate only by messages.\n\nEach actor owns its state, so shared-memory races are avoided by construction.",
+    ja: "アクターモデルは、独立したプロセス同士がメッセージだけで通信する並行モデル。\n\n各アクタが自分の状態を所有するため、共有メモリ由来の競合を構造的に避けられる。",
+  }],
+  [/アクターモデル/g, {
+    en: "Actor model: concurrency via isolated stateful processes and message passing.",
+    ja: "アクターモデル: 状態を隔離したプロセスとメッセージ通信で並行処理を組み立てる方式。",
+  }],
+  [/\bmessage passing\b/gi, {
+    en: "Message passing means components communicate by sending discrete messages instead of mutating shared state directly.",
+    ja: "メッセージパッシングとは、共有状態を直接変更せず、離散的なメッセージ送受信で通信すること。",
+  }],
+  [/メッセージパッシング/g, {
+    en: "Message passing: components talk by exchanging messages instead of sharing mutable memory.",
+    ja: "メッセージパッシング: 可変メモリ共有ではなく、メッセージ交換でやり取りする方式。",
+  }],
+  [/\bcallback structure\b/gi, {
+    en: "Callback structure means the runtime expects a fixed set of named entry points like `init`, `handle_call`, and `handle_cast`.\n\nThat regular template makes concurrent code easier for both humans and LLMs to complete correctly.",
+    ja: "コールバック構造とは、`init` や `handle_call`、`handle_cast` のような決まった入口をランタイムが期待する構造。\n\nこの規則的テンプレートが、人間にもLLMにも並行コードを埋めやすくする。",
+  }],
+  [/コールバック構造/g, {
+    en: "Callback structure: a fixed template of runtime entry points such as init/handle_call.",
+    ja: "コールバック構造: init や handle_call のような固定エントリポイントのテンプレート。",
+  }],
+  [/\bdiscriminated unions\b/gi, {
+    en: "A discriminated union is a union type where each variant carries a tag like `kind: \"circle\"`.\n\nThat tag lets the compiler and the reader know which fields are valid in each branch.",
+    ja: "判別共用体とは、`kind: \"circle\"` のようなタグを持つ union 型。\n\nそのタグにより、各分岐でどのフィールドが有効かをコンパイラと読者の両方が判断できる。",
+  }],
+  [/\bstructural matching\b/gi, {
+    en: "Structural matching means branching based on the shape of the data itself, not just a boolean condition.\n\nThe match can validate and destructure in one step.",
+    ja: "構造的マッチとは、単なる真偽条件ではなくデータの形そのものに基づいて分岐すること。\n\n形の検証と分解を1ステップで行える。",
+  }],
+  [/\bshort-circuit(?:ing)?\b/gi, {
+    en: "Short-circuiting means a chain stops as soon as one step fails or determines the final result.\n\nLater steps are skipped automatically.",
+    ja: "ショートサーキットとは、途中の1ステップが失敗したり結論を確定した時点で連鎖全体を止めること。\n\n後続ステップは自動的に実行されない。",
+  }],
+  [/ショートサーキット(?:する|セマンティクス)?/g, {
+    en: "Short-circuiting: stopping the chain immediately when one step already determines the outcome.",
+    ja: "ショートサーキット: 途中の1ステップで結果が決まった時点で残りを止めること。",
+  }],
+  [/\bTC39\b/g, {
+    en: "TC39 is the standards committee that designs and advances new JavaScript language features.",
+    ja: "TC39 は JavaScript の新しい言語機能を策定・推進する標準化委員会。",
+  }],
+  [/\bStage 2\b/g, {
+    en: "Stage 2 means a JavaScript proposal has a concrete direction, but it is still not final or widely shipped yet.",
+    ja: "Stage 2 は、JavaScript 提案に具体的な方向性はあるが、まだ最終仕様でも広範な実装済みでもない段階。",
+  }],
+  [/\bpipe\(\)/g, {
+    en: "`pipe()` is a library helper that feeds a value through a sequence of functions.\n\nIt gives TypeScript and JavaScript a practical pipeline style today, even without a native `|>` operator.",
+    ja: "`pipe()` は値を関数列に順番に流すためのライブラリ補助関数。\n\nネイティブの `|>` がなくても、TypeScript / JavaScript で今日すぐパイプライン風に書ける。",
+  }],
+  [/\bexplicit staging\b/gi, {
+    en: "Explicit staging means naming each intermediate step with a variable instead of hiding all transformations inside one expression.",
+    ja: "明示的ステージングとは、中間段階を変数として名前付けし、変換を1つの巨大式に隠さないこと。",
+  }],
+  [/明示的ステージング/g, {
+    en: "Explicit staging: naming intermediate steps instead of relying on nested expressions.",
+    ja: "明示的ステージング: 中間段階を変数で明示し、深いネストに埋め込まない書き方。",
+  }],
+  [/\bgenerator DSL\b/gi, {
+    en: "A generator DSL is an API that uses generator syntax to express sequential effects in a more direct, imperative-looking form.",
+    ja: "generator DSL とは、ジェネレータ構文を使って副作用の連鎖をより直接的に書けるAPIスタイル。",
+  }],
+  [/\bconventions\b/gi, {
+    en: "Conventions are the unwritten but widely repeated patterns a community follows, such as naming, error-return style, module layout, and formatting habits.",
+    ja: "慣習とは、命名・エラー返却スタイル・モジュール構成・フォーマット習慣など、コミュニティ内で繰り返される事実上の標準パターン。",
+  }],
+  [/慣習/g, {
+    en: "Conventions: the common patterns a language community repeats across real codebases.",
+    ja: "慣習: 実際のコードベースで繰り返される、その言語コミュニティの共通パターン。",
+  }],
+  [/\bintent\b/gi, {
+    en: "Intent means what the programmer is trying to express: success vs failure, data shape, transformation steps, ownership, and so on.",
+    ja: "意図とは、プログラマーが何を表現したいかということ。成功/失敗、データ形、変換段階、所有関係などが含まれる。",
+  }],
+  [/意図/g, {
+    en: "Intent: what the programmer wants the code to mean or guarantee.",
+    ja: "意図: コードに何を意味させ、何を保証させたいか。",
+  }],
+  [/\bcontracts\b/gi, {
+    en: "Contracts are the promises code makes at its boundaries: what shapes it accepts, what shapes it returns, and what failures are possible.",
+    ja: "契約とは、コードの境界で交わされる約束のこと。受け取る形、返す形、起こりうる失敗を明示する。",
+  }],
+  [/契約/g, {
+    en: "Contracts: explicit promises about inputs, outputs, and failure behavior.",
+    ja: "契約: 入力・出力・失敗挙動についての明示的な約束。",
+  }],
+  [/\bdata flow\b/gi, {
+    en: "Data flow is the path values take through a program: where they come from, how they are transformed, and where they end up.",
+    ja: "データフローとは、値がプログラム内をどう流れるかのこと。どこから来て、どう変換され、どこへ行くかを指す。",
+  }],
+  [/データフロー/g, {
+    en: "Data flow: how values move and transform through the program.",
+    ja: "データフロー: 値がプログラム内でどう流れ、変換されるか。",
+  }],
+  [/\bguesswork\b/gi, {
+    en: "Guesswork is the extra inference burden on the reader or model when code leaves key information implicit rather than stating it directly.",
+    ja: "推測とは、本来明示できる情報が省略されているために、読み手やモデルが補完しなければならない余分な推論負荷。",
+  }],
+  [/推測しなくてよい|推測/g, {
+    en: "Guesswork: the hidden inference burden caused by implicit code.",
+    ja: "推測: 暗黙のコードによって読み手側に押し付けられる補完負荷。",
+  }],
+  [/\bportable signal\b/gi, {
+    en: "A portable signal is a feature that predicts good LLM behavior across multiple languages, not just inside one ecosystem.",
+    ja: "ポータブルシグナルとは、特定の言語だけでなく複数言語にまたがってLLM性能を予測できる特徴のこと。",
+  }],
+  [/ポータブルシグナル/g, {
+    en: "Portable signal: a feature that transfers as a predictor across languages.",
+    ja: "ポータブルシグナル: 言語をまたいで予測因子として通用する特徴。",
+  }],
+  [/\bcross-language predictor\b/gi, {
+    en: "A cross-language predictor is a property that correlates with outcomes across many languages rather than being specific to one of them.",
+    ja: "言語横断的予測因子とは、1言語固有ではなく複数言語にまたがって結果と相関する性質。",
+  }],
+  [/言語横断的LLM性能予測因子|言語横断的予測因子/g, {
+    en: "Cross-language predictor: a property that predicts outcomes across many languages.",
+    ja: "言語横断的予測因子: 複数言語にまたがって結果を予測する性質。",
+  }],
+  [/\balgebraic data typ(?:e|es|ing)\b/gi, {
+    en: "Algebraic data types build larger types from smaller ones using variants and records. They make data shape explicit, which is why they pair so well with pattern matching.",
+    ja: "代数的データ型は、バリアントやレコードを組み合わせて型を作る考え方。データの形を明示しやすいため、パターンマッチと相性が良い。",
+  }],
+  [/代数的データ型/g, {
+    en: "Algebraic data types: types built from explicit variants and records.",
+    ja: "代数的データ型: バリアントやレコードを明示的に組み合わせて作る型。",
+  }],
+  [/\bvariant\b/gi, {
+    en: "A variant is one possible case of a sum type, such as `circle` vs `rect` vs `triangle`.",
+    ja: "バリアントとは、和型における各ケースのこと。たとえば `circle`、`rect`、`triangle` のような別々の形。",
+  }],
+  [/バリアント/g, {
+    en: "Variant: one possible case of a tagged or sum type.",
+    ja: "バリアント: タグ付き型や和型における各ケース。",
+  }],
+  [/\bfunction clause(?:s)?\b/gi, {
+    en: "A function clause is one head/body variant of a multi-clause function. Elixir can pick the clause directly from argument shape and guards.",
+    ja: "関数句とは、複数句関数の各ヘッド/本体ペアのこと。Elixirでは引数の形やガードから直接その句が選ばれる。",
+  }],
+  [/関数句/g, {
+    en: "Function clause: one branch of a multi-clause function definition.",
+    ja: "関数句: 複数句関数定義の中の1つの分岐。",
+  }],
+  [/\bconditional tree(?:s)?\b/gi, {
+    en: "A conditional tree is a nested structure of `if`, `switch`, or similar branches where the reader must keep track of branching depth and earlier tests.",
+    ja: "条件分岐ツリーとは、`if` や `switch` が入れ子になった構造のこと。読み手は分岐の深さや先行条件を追い続ける必要がある。",
+  }],
+  [/条件分岐ツリー/g, {
+    en: "Conditional tree: nested branching logic that readers must mentally trace.",
+    ja: "条件分岐ツリー: 読み手が頭の中で追跡しなければならない入れ子分岐構造。",
+  }],
+  [/\breferential transparency\b/gi, {
+    en: "Referential transparency means an expression can be replaced with its value without changing program behavior. It is the key property behind equational reasoning.",
+    ja: "参照透過性とは、式をその値で置き換えてもプログラムの振る舞いが変わらない性質。等式的推論の基盤になる。",
+  }],
+  [/\bstale references\b/gi, {
+    en: "Stale references are pointers, bindings, or variables that still exist but no longer reflect the current intended state.",
+    ja: "古い参照とは、存在はしているが、もはや現在の意図した状態を表していない参照や変数のこと。",
+  }],
+  [/古い参照/g, {
+    en: "Stale references: bindings that still exist but no longer represent the intended current state.",
+    ja: "古い参照: 残ってはいるが、現在の意図した状態を表していない束縛。",
+  }],
+  [/\bshared-state races\b/gi, {
+    en: "Shared-state races happen when multiple parts of a program can read and write the same mutable state without a guaranteed order.",
+    ja: "共有状態の競合は、複数の部分が同じ可変状態を順序保証なしに読み書きできる時に起こる。",
+  }],
+  [/共有状態の競合/g, {
+    en: "Shared-state races: bugs caused by unsafely sharing mutable state.",
+    ja: "共有状態の競合: 可変状態の危険な共有によって起こるバグ。",
+  }],
+  [/\btemporal coupling\b/gi, {
+    en: "Temporal coupling means code only works if actions happen in the right order. The order dependency is part of the hidden contract.",
+    ja: "時間的結合とは、処理が正しい順序で行われた時だけコードが成立する状態。順序依存が隠れた契約になっている。",
+  }],
+  [/時間的結合/g, {
+    en: "Temporal coupling: hidden dependence on doing steps in the right order.",
+    ja: "時間的結合: 手順の順番に隠れた依存があること。",
+  }],
+  [/\bmutation history\b/gi, {
+    en: "Mutation history is the chain of prior in-place changes you must reconstruct to understand a variable's current meaning.",
+    ja: "変異履歴とは、ある変数の現在の意味を理解するために遡る必要がある、過去の破壊的変更の連鎖。",
+  }],
+  [/変異履歴/g, {
+    en: "Mutation history: the prior in-place updates behind a current value.",
+    ja: "変異履歴: 現在の値の背後にある過去の破壊的更新の履歴。",
+  }],
+  [/\bpipeline style\b/gi, {
+    en: "Pipeline style means expressing transformations as a visible sequence of stages rather than nested calls.",
+    ja: "パイプラインスタイルとは、変換をネストした呼び出しではなく、見える段階列として表現する書き方。",
+  }],
+  [/パイプラインスタイル/g, {
+    en: "Pipeline style: writing transformations as a visible series of stages.",
+    ja: "パイプラインスタイル: 変換を見える段階列として書く方法。",
+  }],
+  [/\bnesting depth\b/gi, {
+    en: "Nesting depth is how many layers of expressions or control flow are inside one another. Greater depth raises local cognitive load.",
+    ja: "ネスト深度とは、式や制御フローが何層入れ子になっているかの尺度。深くなるほど局所的な認知負荷が上がる。",
+  }],
+  [/ネスト深度/g, {
+    en: "Nesting depth: how many layers of nested logic or expressions a reader must track.",
+    ja: "ネスト深度: 読み手が追うべき入れ子ロジックの層の深さ。",
+  }],
+  [/\bcanonical formatter\b/gi, {
+    en: "A canonical formatter is the one accepted house style for an ecosystem. It removes personal formatting choices from normal code review.",
+    ja: "標準フォーマッタとは、そのエコシステムで事実上の唯一の標準書式を与えるフォーマッタ。個人の整形好みを通常のレビューから外せる。",
+  }],
+  [/標準フォーマッタ/g, {
+    en: "Canonical formatter: the standard formatting tool an ecosystem converges on.",
+    ja: "標準フォーマッタ: エコシステム全体が収束する標準的な整形ツール。",
+  }],
+  [/\bdeterministic\b/gi, {
+    en: "Deterministic means the same input always produces the same output. For formatting, it means the tool makes the layout choice for you every time.",
+    ja: "決定論的とは、同じ入力から常に同じ出力が得られること。フォーマットでは、毎回同じ整形結果になることを意味する。",
+  }],
+  [/決定論的/g, {
+    en: "Deterministic: always producing the same result from the same input.",
+    ja: "決定論的: 同じ入力から常に同じ結果が得られること。",
+  }],
+  [/\bsemantics\b/gi, {
+    en: "Semantics are the actual meaning and behavior of code, as distinct from surface syntax or formatting.",
+    ja: "セマンティクスとは、表面的な構文や見た目ではなく、コードが実際に意味し、どう振る舞うかという部分。",
+  }],
+  [/セマンティクス/g, {
+    en: "Semantics: the actual meaning and behavior of the code.",
+    ja: "セマンティクス: コードの実際の意味や振る舞い。",
+  }],
+  [/\bco-located\b/gi, {
+    en: "Co-located means the related information lives right next to the code it explains, instead of in a separate file or layer.",
+    ja: "共配置とは、説明対象のコードのすぐ隣に関連情報が置かれていること。別ファイルや別層に離れていない。",
+  }],
+  [/共配置/g, {
+    en: "Co-located: kept right next to the code or concept it explains.",
+    ja: "共配置: 説明対象のすぐ隣に置かれていること。",
+  }],
+  [/\bverified input\/output pairs\b/gi, {
+    en: "Verified input/output pairs are concrete examples whose outputs have been checked, not just described. They act like small executable specs.",
+    ja: "検証済みの入出力ペアとは、出力が実際に確認された具体例のこと。小さな実行可能仕様として働く。",
+  }],
+  [/検証済みの入出力ペア/g, {
+    en: "Verified input/output pairs: checked examples of inputs and expected outputs.",
+    ja: "検証済みの入出力ペア: 実際に確認された入力と期待出力の組。",
+  }],
+  [/\bidiomatic equivalent\b/gi, {
+    en: "An idiomatic equivalent is the way developers in that language would naturally write the same idea, not a literal syntax translation.",
+    ja: "最も自然な等価表現とは、文字通りの直訳ではなく、その言語の開発者が普通に書く自然な書き方のこと。",
+  }],
+  [/最も自然な等価表現/g, {
+    en: "Idiomatic equivalent: the natural, community-standard way to express the same idea in another language.",
+    ja: "最も自然な等価表現: 他言語で同じ考えを自然に表す、そのコミュニティ標準の書き方。",
+  }],
+  [/\bidiomatic\b/gi, {
+    en: "Idiomatic means written in the style experienced users of that language would consider natural and conventional.",
+    ja: "idiomatic とは、その言語の熟練者が自然で慣用的だと感じる書き方のこと。",
+  }],
+  [/\bcurrent language features\b/gi, {
+    en: "Current language features means the comparison is using modern, shipped capabilities of the language, not outdated syntax or future proposals.",
+    ja: "最新の言語機能とは、古い構文や未来の提案ではなく、現在実際に使えるモダンな言語機能を指す。",
+  }],
+  [/最新の言語機能/g, {
+    en: "Current language features: modern language capabilities that are already available today.",
+    ja: "最新の言語機能: 現在すでに利用可能なモダン機能。",
+  }],
+  [/\bbuilt-in\b/gi, {
+    en: "Built-in means the capability ships with the language or standard toolchain, so developers do not need an extra dependency to get it.",
+    ja: "組み込みとは、その機能が言語や標準ツールチェーンに最初から含まれており、追加依存なしで使えること。",
+  }],
+  [/組み込み/g, {
+    en: "Built-in: included in the language or its standard toolchain.",
+    ja: "組み込み: 言語や標準ツールチェーンに最初から含まれていること。",
+  }],
+  [/\bthird-party\b/gi, {
+    en: "Third-party means provided by an external library or tool rather than the language's official standard library or compiler toolchain.",
+    ja: "サードパーティとは、その言語の標準ライブラリや公式ツールチェーンではなく、外部のライブラリやツールが提供すること。",
+  }],
+  [/サードパーティ/g, {
+    en: "Third-party: supplied by an external library or tool, not the official standard tooling.",
+    ja: "サードパーティ: 公式標準ではなく外部のライブラリやツールが提供すること。",
+  }],
+  [/\bcompile-time\b/gi, {
+    en: "Compile-time means the property is checked or enforced while the code is being compiled or type-checked, before the program runs.",
+    ja: "コンパイル時とは、プログラム実行前のコンパイルや型検査の段階で性質が確認・強制されること。",
+  }],
+  [/コンパイル時/g, {
+    en: "Compile-time: enforced before execution, during compilation or type checking.",
+    ja: "コンパイル時: 実行前のコンパイルや型検査段階。",
+  }],
+  [/\bruntime enforcement\b/gi, {
+    en: "Runtime enforcement means the property is actually guaranteed while the program executes, not just checked by a linter or type system beforehand.",
+    ja: "実行時保証とは、リントや型検査だけでなく、プログラム実行中にも実際に性質が保証されること。",
+  }],
+  [/実行時(?:保証|未保証)/g, {
+    en: "Runtime enforcement: a property that is guaranteed while the program actually runs.",
+    ja: "実行時保証: プログラムが実際に動く時点でも性質が守られること。",
+  }],
+  [/\bvalue type(?:s)?\b/gi, {
+    en: "A value type is copied by value rather than shared by reference by default. That often makes reasoning about local changes simpler.",
+    ja: "値型とは、既定で参照共有ではなく値としてコピーされる型のこと。ローカルな変化を追いやすくすることが多い。",
+  }],
+  [/値型/g, {
+    en: "Value type: a type normally copied by value rather than shared by reference.",
+    ja: "値型: 既定で参照共有ではなく値コピーされる型。",
+  }],
+  [/\bshallow(?:-|\s)frozen\b/gi, {
+    en: "Shallow-frozen means only the outer object is protected. Nested objects or collections may still remain mutable.",
+    ja: "浅いフリーズとは、外側のオブジェクトだけが保護されること。内部のオブジェクトやコレクションは可変のままかもしれない。",
+  }],
+  [/浅いフリーズ/g, {
+    en: "Shallow-frozen: only the outer container is frozen, not nested contents.",
+    ja: "浅いフリーズ: 外側だけ固定され、中の内容物までは固定されないこと。",
+  }],
+  [/\bmethod chaining\b/gi, {
+    en: "Method chaining means expressing a sequence of operations by calling one method after another on intermediate results.",
+    ja: "メソッドチェーンとは、中間結果に対してメソッドを連続で呼び出し、処理の列を表す書き方。",
+  }],
+  [/メソッドチェーン/g, {
+    en: "Method chaining: expressing a pipeline as successive method calls.",
+    ja: "メソッドチェーン: 連続したメソッド呼び出しでパイプラインを表すこと。",
+  }],
+  [/\bsequence\/yield builders\b/gi, {
+    en: "Sequence/yield builders are constructs that let code describe a stream of produced values step by step, often lazily.",
+    ja: "sequence/yield ビルダとは、値の列を段階的に、しばしば遅延評価で生成する構文やAPIのこと。",
+  }],
+  [/sequence\/yieldビルダ|sequence\/yield ビルダ/g, {
+    en: "Sequence/yield builders: constructs for describing produced sequences step by step.",
+    ja: "sequence/yield ビルダ: 値列を段階的に生成するための構文やAPI。",
+  }],
+  [/\bcollector(?:s)?\b/gi, {
+    en: "A collector is the target structure a comprehension or pipeline is building into, such as a list, map, or stream.",
+    ja: "collector とは、内包表記やパイプラインが結果を書き込んでいく先の構造のこと。リスト、マップ、ストリームなどがある。",
+  }],
+  [/\bcomplexity grows\b/gi, {
+    en: "This phrase means the advantage becomes more visible as the task requires more steps, more state, or more branching.",
+    ja: "複雑さに強く効いているとは、必要な段階数や状態、分岐が増えるほど、その利点がはっきり現れるという意味。",
+  }],
+  [/複雑さに強く効いている/g, {
+    en: "Advantage grows with complexity: the benefit becomes clearer on harder, more multi-step tasks.",
+    ja: "複雑さに強く効いている: 難しく多段な課題ほど、その利点が目立つということ。",
   }],
   [/\bexplicitness\b/gi, {
     en: "Explicitness: the degree to which a language forces the programmer to state intent, contracts, and data flow directly in code - leaving nothing implicit for the reader (or an LLM) to guess.",
@@ -4261,13 +6031,27 @@ function FootnoteSection({ sample, lang }: { sample: CodeSample; lang: Lang }) {
   );
 }
 
-function CodeComparison({ sample, lang, activeLang, setActiveLang, accentColor = "#10B981" }: { sample: CodeSample; lang: Lang; activeLang: LangId; setActiveLang: (lid: LangId) => void; accentColor?: string }) {
+function CodeComparison({
+  sample,
+  lang,
+  activeLang,
+  setActiveLang,
+  accentColor = "#10B981",
+  highlights,
+}: {
+  sample: CodeSample;
+  lang: Lang;
+  activeLang: LangId;
+  setActiveLang: (lid: LangId) => void;
+  accentColor?: string;
+  highlights: HighlightMap;
+}) {
   const [mobileLang, setMobileLang] = useState<LangId>("elixir");
   const isJa = lang === "ja";
   const fontBody = isJa ? JA_SANS : SANS;
 
   return (
-    <div className="mb-14">
+    <div className="mb-20">
       {/* Section header */}
       <div className="mb-4 px-1">
         <div className="flex items-center gap-2.5 mb-2">
@@ -4303,6 +6087,7 @@ function CodeComparison({ sample, lang, activeLang, setActiveLang, accentColor =
             language={LANG_SHIKI[mobileLang]}
             annotations={sample.annotations?.[mobileLang] ?? []}
             uiLang={lang}
+            highlightedHtml={highlights[sample.id]?.[mobileLang]}
           />
         </div>
         <FootnoteSection sample={sample} lang={lang} />
@@ -4339,6 +6124,7 @@ function CodeComparison({ sample, lang, activeLang, setActiveLang, accentColor =
                   language={LANG_SHIKI.elixir}
                   annotations={sample.annotations?.elixir ?? []}
                   uiLang={lang}
+                  highlightedHtml={highlights[sample.id]?.elixir}
                 />
               </div>
             </div>
@@ -4349,6 +6135,7 @@ function CodeComparison({ sample, lang, activeLang, setActiveLang, accentColor =
                   language={LANG_SHIKI[activeLang]}
                   annotations={sample.annotations?.[activeLang] ?? []}
                   uiLang={lang}
+                  highlightedHtml={highlights[sample.id]?.[activeLang]}
                 />
               </div>
             </div>
@@ -4364,7 +6151,30 @@ function CodeComparison({ sample, lang, activeLang, setActiveLang, accentColor =
 
 
 /* ── Difficulty Bar ── */
-function DifficultyRow({ data, isJa }: { data: typeof difficultyData[0]; isJa: boolean }) {
+function DifficultyBars({ isJa }: { isJa: boolean }) {
+  const [ref, visible] = useInView(0.2);
+  return (
+    <div ref={ref}>
+      {/* Header */}
+      <div className="flex items-center gap-3 pb-2 mb-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="w-[80px] sm:w-[100px] shrink-0 text-[9px] uppercase tracking-[0.15em]" style={{ color: "rgba(255,255,255,0.3)", fontFamily: MONO }}>
+          {isJa ? "言語" : "Lang"}
+        </div>
+        <div className="flex-1 text-[9px] uppercase tracking-[0.15em] text-center" style={{ color: "rgba(255,255,255,0.3)", fontFamily: MONO }}>
+          {isJa ? "易 / 中 / 難" : "Easy / Med / Hard"}
+        </div>
+        <div className="w-[60px] text-right text-[9px] uppercase tracking-[0.15em] shrink-0" style={{ color: "rgba(255,255,255,0.3)", fontFamily: MONO }}>
+          {isJa ? "低下" : "Drop"}
+        </div>
+      </div>
+      {difficultyData.map((d) => (
+        <DifficultyRow key={d.lang} data={d} isJa={isJa} visible={visible} />
+      ))}
+    </div>
+  );
+}
+
+function DifficultyRow({ data, isJa, visible }: { data: typeof difficultyData[0]; isJa: boolean; visible: boolean }) {
   return (
     <div className="flex items-center gap-3 py-2">
       <div
@@ -4383,15 +6193,16 @@ function DifficultyRow({ data, isJa }: { data: typeof difficultyData[0]; isJa: b
           <div key={d.label} className="flex-1">
             <div className="flex items-center justify-between mb-0.5">
               <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)", fontFamily: MONO }}>{d.label}</span>
-              <span className="text-[11px] font-bold" style={{ color: data.color, fontFamily: MONO }}>{d.value}%</span>
+              <span className="text-[11px] font-bold" style={{ color: data.color, fontFamily: MONO, opacity: visible ? 1 : 0, transition: "opacity 0.5s ease" }}>{d.value}%</span>
             </div>
             <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
               <div
-                className="h-full rounded-full transition-all duration-700"
+                className="h-full rounded-full"
                 style={{
-                  width: `${d.value}%`,
+                  width: visible ? `${d.value}%` : "0%",
                   background: data.color,
                   opacity: d.label === (isJa ? "難" : "Hard") ? 1 : 0.5,
+                  transition: "width 0.9s cubic-bezier(0.22, 1, 0.36, 1)",
                 }}
               />
             </div>
@@ -4403,6 +6214,8 @@ function DifficultyRow({ data, isJa }: { data: typeof difficultyData[0]; isJa: b
         style={{
           fontFamily: MONO,
           color: Math.abs(data.degradation) <= 15 ? "#10B981" : Math.abs(data.degradation) <= 37 ? "#F59E0B" : "#EF4444",
+          opacity: visible ? 1 : 0,
+          transition: "opacity 0.6s ease 0.5s",
         }}
       >
         {data.degradation}
@@ -4415,7 +6228,11 @@ function DifficultyRow({ data, isJa }: { data: typeof difficultyData[0]; isJa: b
    MAIN PAGE COMPONENT
    ══════════════════════════════════════════════════════════════════════════ */
 
-export default function LanguageIsThePromptPage() {
+export default function LanguageIsThePromptPage({
+  highlights = {},
+}: {
+  highlights?: HighlightMap;
+}) {
   const [lang, setLang] = useState<Lang>("ja");
   const [activeLang, setActiveLang] = useState<LangId>("python");
   useEffect(() => {
@@ -4498,7 +6315,7 @@ export default function LanguageIsThePromptPage() {
           HERO
          ═══════════════════════════════════════════════════════════════════ */}
       <div
-        className="rounded-[28px] p-6 sm:p-10 border relative overflow-hidden mb-14"
+        className="rounded-[28px] p-6 sm:p-10 border relative overflow-hidden mb-20"
         style={{
           background:
             "linear-gradient(135deg, rgba(155,89,182,0.10) 0%, rgba(16,185,129,0.08) 52%, rgba(51,112,254,0.08) 100%)",
@@ -4603,7 +6420,7 @@ export default function LanguageIsThePromptPage() {
           TL;DR
          ═══════════════════════════════════════════════════════════════════ */}
       <div
-        className="rounded-[24px] px-6 sm:px-8 py-6 border mb-14"
+        className="rounded-[24px] px-6 sm:px-8 py-6 border mb-20"
         style={{
           background: "linear-gradient(135deg, rgba(155,89,182,0.06), rgba(8,18,26,0.28))",
           borderColor: "rgba(155,89,182,0.15)",
@@ -4625,7 +6442,7 @@ export default function LanguageIsThePromptPage() {
           WHY IT MATTERS
          ═══════════════════════════════════════════════════════════════════ */}
       <section
-        className="rounded-[24px] px-6 sm:px-8 py-6 border mb-14"
+        className="rounded-[24px] px-6 sm:px-8 py-6 border mb-20"
         style={{
           background: "linear-gradient(135deg, rgba(16,185,129,0.05), rgba(8,18,26,0.26))",
           borderColor: "rgba(16,185,129,0.12)",
@@ -4659,7 +6476,7 @@ export default function LanguageIsThePromptPage() {
       {/* ═══════════════════════════════════════════════════════════════════
           THE EXPLICITNESS HYPOTHESIS
          ═══════════════════════════════════════════════════════════════════ */}
-      <section className="mb-16">
+      <section className="mb-24">
         <h2
           className="text-[28px] sm:text-[36px] font-black mb-3"
           style={{
@@ -4679,7 +6496,7 @@ export default function LanguageIsThePromptPage() {
           <Linkify text={l.hypothesisSub} isJa={isJa} />
         </p>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 gap-5">
           {l.principles.map((p, i) => {
             const colors = ["#10B981", "#3B82F6", "#9B59B6", "#F59E0B", "#06B6D4", "#E0247A"];
             const c = colors[i % colors.length];
@@ -4703,6 +6520,11 @@ export default function LanguageIsThePromptPage() {
                 <div className="text-[13px] sm:text-sm leading-[1.75]" style={{ color: "rgba(255,255,255,0.58)", fontFamily: fontBody }}>
                   <Linkify text={p.desc} isJa={isJa} />
                 </div>
+                {PRINCIPLE_DEMOS[p.icon] && (
+                  <div className="mt-4 pt-3 border-t" style={{ borderColor: `${c}20` }}>
+                    {PRINCIPLE_DEMOS[p.icon]({ isJa })}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -4714,7 +6536,7 @@ export default function LanguageIsThePromptPage() {
           DIFFICULTY RESILIENCE
          ═══════════════════════════════════════════════════════════════════ */}
       <section
-        className="rounded-[24px] px-6 sm:px-8 py-6 border mb-16"
+        className="rounded-[24px] px-6 sm:px-8 py-6 border mb-24"
         style={{
           background: "linear-gradient(180deg, rgba(255,255,255,0.035), rgba(8,18,26,0.26))",
           borderColor: "rgba(255,255,255,0.08)",
@@ -4732,24 +6554,7 @@ export default function LanguageIsThePromptPage() {
 
         <DegradationCurve isJa={isJa} />
 
-        <div>
-          {/* Header */}
-          <div className="flex items-center gap-3 pb-2 mb-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-            <div className="w-[80px] sm:w-[100px] shrink-0 text-[9px] uppercase tracking-[0.15em]" style={{ color: "rgba(255,255,255,0.3)", fontFamily: MONO }}>
-              {isJa ? "言語" : "Lang"}
-            </div>
-            <div className="flex-1 text-[9px] uppercase tracking-[0.15em] text-center" style={{ color: "rgba(255,255,255,0.3)", fontFamily: MONO }}>
-              {isJa ? "易 / 中 / 難" : "Easy / Med / Hard"}
-            </div>
-            <div className="w-[60px] text-right text-[9px] uppercase tracking-[0.15em] shrink-0" style={{ color: "rgba(255,255,255,0.3)", fontFamily: MONO }}>
-              {isJa ? "低下" : "Drop"}
-            </div>
-          </div>
-
-          {difficultyData.map((d) => (
-            <DifficultyRow key={d.lang} data={d} isJa={isJa} />
-          ))}
-        </div>
+        <DifficultyBars isJa={isJa} />
 
         <p className="text-[12px] mt-5" style={{ color: "rgba(255,255,255,0.35)", fontFamily: fontBody }}>
           <Linkify text={l.difficultyNote} isJa={isJa} />
@@ -4759,7 +6564,7 @@ export default function LanguageIsThePromptPage() {
       {/* ═══════════════════════════════════════════════════════════════════
           CODE COMPARISONS
          ═══════════════════════════════════════════════════════════════════ */}
-      <section className="mb-14">
+      <section className="mb-20">
         <div className="flex items-center gap-3 mb-2">
           <Code2 className="w-6 h-6" style={{ color: "#3B82F6" }} />
           <h2
@@ -4796,7 +6601,15 @@ export default function LanguageIsThePromptPage() {
         <CodeSectionDiagram isJa={isJa} />
 
         {codeSamples.map((sample, idx) => (
-          <CodeComparison key={sample.id} sample={sample} lang={lang} activeLang={activeLang} setActiveLang={setActiveLang} accentColor={["#10B981","#3B82F6","#9B59B6","#F59E0B","#06B6D4","#E0247A","#8B5CF6"][idx % 7]} />
+          <CodeComparison
+            key={sample.id}
+            sample={sample}
+            lang={lang}
+            activeLang={activeLang}
+            setActiveLang={setActiveLang}
+            accentColor={["#10B981", "#3B82F6", "#9B59B6", "#F59E0B", "#06B6D4", "#E0247A", "#8B5CF6"][idx % 7]}
+            highlights={highlights}
+          />
         ))}
       </section>
 

@@ -8,6 +8,9 @@ interface Props {
   lang?: "en" | "ja";
   siteName?: string;
   ogImageAlt?: string;
+  canonicalPath?: string;
+  alternateJaPath?: string;
+  alternateEnPath?: string;
 }
 
 const {
@@ -22,13 +25,18 @@ const {
   ogImageAlt = lang === "ja"
     ? "AIモデル比較ダッシュボード — AIドリブン推進室"
     : "AI Model Comparison Dashboard — AI Driven Office",
+  canonicalPath = Astro.url.pathname,
+  alternateJaPath = canonicalPath,
+  alternateEnPath = canonicalPath,
 } = Astro.props;
 
 const ogLocale = lang === "ja" ? "ja_JP" : "en_US";
 const altLocale = lang === "ja" ? "en_US" : "ja_JP";
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const siteUrl = Astro.site ?? Astro.url;
-const canonicalUrl = new URL(base, siteUrl).href;
+const canonicalUrl = new URL(canonicalPath, siteUrl).href;
+const alternateJaUrl = new URL(alternateJaPath, siteUrl).href;
+const alternateEnUrl = new URL(alternateEnPath, siteUrl).href;
 const ogImageUrl = new URL(`${base}og.jpg`, siteUrl).href;
 const mdUrl = new URL(`${base}data.md`, siteUrl).href;
 const llmsTxtUrl = new URL(`${base}llms.txt`, siteUrl).href;
@@ -51,10 +59,9 @@ const analyticsEnabled = import.meta.env.PROD;
     <meta name="date" content={buildDate} />
     <meta name="last-modified" content={buildDate} />
 
-    <!-- hreflang — same URL serves both languages client-side -->
-    <link rel="alternate" hreflang="ja" href={canonicalUrl} />
-    <link rel="alternate" hreflang="en" href={canonicalUrl} />
-    <link rel="alternate" hreflang="x-default" href={canonicalUrl} />
+    <link rel="alternate" hreflang="ja" href={alternateJaUrl} />
+    <link rel="alternate" hreflang="en" href={alternateEnUrl} />
+    <link rel="alternate" hreflang="x-default" href={alternateJaUrl} />
 
     <!-- RSS feed -->
     <link rel="alternate" type="application/rss+xml" title="AI Model Comparison — News" href={`${base}feed.xml`} />
@@ -161,15 +168,10 @@ const analyticsEnabled = import.meta.env.PROD;
       }
     })} />
 
-    <!-- Detect stored/browser lang before paint to avoid flash -->
+    <!-- Persist route language for client-side helpers -->
     <script is:inline>
       (function(){
-        var s=localStorage.getItem('aid-lang');
-        if(s==='en'||s==='ja'){document.documentElement.lang=s;return}
-        var b=(navigator.language||'').toLowerCase();
-        var l=b.startsWith('ja')?'ja':'en';
-        document.documentElement.lang=l;
-        localStorage.setItem('aid-lang',l);
+        localStorage.setItem('aid-lang', {JSON.stringify(lang)});
       })();
     </script>
 

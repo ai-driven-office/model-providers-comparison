@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense, type ReactNode } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense, startTransition, type ReactNode } from "react";
 import {
   Trophy,
   DollarSign,
@@ -9,19 +9,17 @@ import {
   ChevronDown,
 } from "lucide-react";
 import type { Model, Provider, NewsPost } from "../data/types";
-import { formatPrice, useLang, type Lang } from "../data/i18n";
+import { formatPrice, type Lang } from "../data/i18n";
 import { buildColorMap } from "../data/colors";
 import { ModelIcon, ProviderIcon } from "./ui/ProviderIcon";
 import ThroughputChart from "./ui/ThroughputChart";
 import DataTable from "./ui/DataTable";
 import AbilityTable from "./ui/AbilityTable";
 import NewsTimeline from "./ui/NewsTimeline";
-import { MeshGradient, Dithering, NeuroNoise } from "@paper-design/shaders-react";
 import { sfxTab, sfxLang, sfxClick, sfxShare } from "../data/sfx";
 import NewsTicker from "./ui/NewsTicker";
-import Testimonials from "./ui/Testimonials";
 import ShareButtons, { ShareCta } from "./ui/ShareButtons";
-import { trackTabSwitch, trackLangSwitch, trackShare } from "../data/analytics";
+import { trackTabSwitch, trackLangSwitch } from "../data/analytics";
 
 /* ── HDR trigger: ~1 KB HEVC video with PQ HDR metadata (5 000 nit peak white).
    Embedding it activates the browser's Extended Dynamic Range pipeline so that
@@ -36,11 +34,15 @@ const pricingImport = () => import("./ui/PricingChart");
 const scatterImport = () => import("./ui/ScatterPlot");
 const radarImport = () => import("./ui/AbilityRadar");
 const resultsImport = () => import("./ui/ResultsPanel");
+const shaderImport = () => import("@paper-design/shaders-react");
 
 const PricingChart = lazy(pricingImport);
 const ScatterPlot = lazy(scatterImport);
 const AbilityRadar = lazy(radarImport);
 const ResultsPanel = lazy(resultsImport);
+const MeshGradient = lazy(async () => ({ default: (await shaderImport()).MeshGradient }));
+const Dithering = lazy(async () => ({ default: (await shaderImport()).Dithering }));
+const NeuroNoise = lazy(async () => ({ default: (await shaderImport()).NeuroNoise }));
 
 interface Props {
   models: Model[];
@@ -48,9 +50,31 @@ interface Props {
   news: NewsPost[];
   i18n: Record<string, Record<string, string>>;
   buildDate: string;
+  lang: Lang;
 }
 
 type Tab = "throughput" | "pricing" | "scatter" | "abilities" | "recommendations";
+type DeferredTab = Exclude<Tab, "throughput">;
+
+const deferredTabImports: Record<DeferredTab, () => Promise<unknown>> = {
+  pricing: pricingImport,
+  scatter: scatterImport,
+  abilities: radarImport,
+  recommendations: resultsImport,
+};
+
+function deferIdleWork(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+  if ("requestIdleCallback" in window) {
+    const requestIdleCallback = window.requestIdleCallback.bind(window);
+    const cancelIdleCallback = window.cancelIdleCallback.bind(window);
+    const id = requestIdleCallback(callback, { timeout: 1500 });
+    return () => cancelIdleCallback(id);
+  }
+
+  const id = window.setTimeout(callback, 1200);
+  return () => window.clearTimeout(id);
+}
 
 function AidLogo({ className = "" }: { className?: string }) {
   const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
@@ -203,9 +227,33 @@ function MobileTabSelect({
   );
 }
 
-export default function ModelDashboard({ models, providers, news, i18n, buildDate }: Props) {
+function TabPanel({
+  active,
+  mounted,
+  children,
+}: {
+  active: boolean;
+  mounted: boolean;
+  children: ReactNode;
+}) {
+  if (!mounted) return null;
+
+  return (
+    <section hidden={!active} aria-hidden={!active}>
+      {children}
+    </section>
+  );
+}
+
+export default function ModelDashboard({ models, providers, news, i18n, buildDate, lang }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("throughput");
-  const [lang, setLang] = useLang("ja");
+  const [mountedTabs, setMountedTabs] = useState<Record<Tab, boolean>>({
+    throughput: true,
+    pricing: false,
+    scatter: false,
+    abilities: false,
+    recommendations: false,
+  });
   const fallbackCopy =
     i18n.en ?? Object.values(i18n)[0] ?? ({} as Record<string, string>);
   const l = i18n[lang] ?? fallbackCopy;
@@ -216,11 +264,29 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
   const bottomGlow = useInView("200px");
 
   useEffect(() => {
-    pricingImport();
-    scatterImport();
-    radarImport();
-    resultsImport();
-  }, []);
+    localStorage.setItem("aid-lang", lang);
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  useEffect(() => {
+    setMountedTabs((current) =>
+      current[activeTab] ? current : { ...current, [activeTab]: true },
+    );
+  }, [activeTab]);
+
+  useEffect(() => {
+    const cancelIdle = deferIdleWork(() => {
+      void pricingImport();
+      void scatterImport();
+      void radarImport();
+      void resultsImport();
+      if (!reduceMotion) {
+        void shaderImport();
+      }
+    });
+
+    return cancelIdle;
+  }, [reduceMotion]);
 
   const colorMap = useMemo(() => buildColorMap(providers), [providers]);
   const heroModel = models.find((m) => m.hero);
@@ -260,6 +326,20 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
     if (!reduceMotion) sfxShare();
   }, [reduceMotion]);
 
+  const warmTab = useCallback((tab: Tab) => {
+    if (tab === "throughput") return;
+    void deferredTabImports[tab]();
+  }, []);
+
+  const handleTabChange = useCallback((tab: Tab) => {
+    warmTab(tab);
+    startTransition(() => {
+      setActiveTab(tab);
+    });
+    trackTabSwitch(tab);
+    if (!reduceMotion) sfxTab();
+  }, [reduceMotion, warmTab]);
+
   const tabs: { id: Tab; label: string; icon: ReactNode }[] = [
     { id: "throughput", label: l.tabThroughput, icon: <Zap className="w-3.5 h-3.5" /> },
     { id: "pricing", label: l.tabPricing, icon: <DollarSign className="w-3.5 h-3.5" /> },
@@ -267,6 +347,11 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
     { id: "abilities", label: l.tabAbilities, icon: <Brain className="w-3.5 h-3.5" /> },
     { id: "recommendations", label: l.tabRecommendations, icon: <Sparkles className="w-3.5 h-3.5" /> },
   ];
+  const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+  const langLinks = {
+    ja: base,
+    en: `${base}en/`,
+  } as const;
 
   return (
     <div className={`max-w-[960px] mx-auto relative isolate${!reduceMotion ? ' hdr-active' : ''}`}>
@@ -297,22 +382,24 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         }}
       >
         {!reduceMotion && topGlow.inView && (
-          <MeshGradient
-            colors={["#3370FE", "#8A3CB8", "#E0247A", "#FF0413"]}
-            speed={0.25}
-            distortion={0.7}
-            swirl={0.15}
-            grainOverlay={0.06}
-            style={{
-              width: "100%",
-              height: "100%",
-              opacity: 0.18,
-              maskImage:
-                "linear-gradient(to bottom, black 20%, transparent 85%)",
-              WebkitMaskImage:
-                "linear-gradient(to bottom, black 20%, transparent 85%)",
-            }}
-          />
+          <Suspense fallback={null}>
+            <MeshGradient
+              colors={["#3370FE", "#8A3CB8", "#E0247A", "#FF0413"]}
+              speed={0.25}
+              distortion={0.7}
+              swirl={0.15}
+              grainOverlay={0.06}
+              style={{
+                width: "100%",
+                height: "100%",
+                opacity: 0.18,
+                maskImage:
+                  "linear-gradient(to bottom, black 20%, transparent 85%)",
+                WebkitMaskImage:
+                  "linear-gradient(to bottom, black 20%, transparent 85%)",
+              }}
+            />
+          </Suspense>
         )}
       </div>
 
@@ -425,11 +512,13 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               { code: "ja" as Lang, label: "日本語" },
             ] as const
           ).map((opt) => (
-            <button
+            <a
               key={opt.code}
-              onClick={() => { setLang(opt.code); trackLangSwitch(opt.code); if (!reduceMotion) sfxLang(); }}
+              href={langLinks[opt.code]}
+              onClick={() => { trackLangSwitch(opt.code); if (!reduceMotion) sfxLang(); }}
               className="px-3.5 py-1 rounded-md border-none cursor-pointer transition-all duration-200"
               style={{
+                textDecoration: "none",
                 fontFamily:
                   opt.code === "ja"
                     ? "'Zen Kaku Gothic New', sans-serif"
@@ -446,7 +535,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
               }}
             >
               {opt.label}
-            </button>
+            </a>
           ))}
         </div>
         </div>
@@ -534,7 +623,7 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
       <MobileTabSelect
         tabs={tabs}
         activeTab={activeTab}
-        onSelect={(id) => { setActiveTab(id); trackTabSwitch(id); if (!reduceMotion) sfxTab(); }}
+        onSelect={handleTabChange}
       />
 
       {/* Desktop: horizontal tab bar */}
@@ -547,7 +636,9 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           return (
             <button
               key={tab.id}
-              onClick={() => { setActiveTab(tab.id); trackTabSwitch(tab.id); if (!reduceMotion) sfxTab(); }}
+              onClick={() => handleTabChange(tab.id)}
+              onMouseEnter={() => warmTab(tab.id)}
+              onFocus={() => warmTab(tab.id)}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 border-none cursor-pointer text-[13px] font-medium transition-all duration-200 relative whitespace-nowrap shrink-0"
               style={{
                 background: "transparent",
@@ -572,10 +663,9 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         })}
       </div>
 
-      {/* Tab content — keyed for entrance animation */}
-      <div key={activeTab} className="animate-tab-enter">
-        {/* Speed Hero Card */}
-        {activeTab === "throughput" && heroModel && (
+      {/* Tab content */}
+      <TabPanel active={activeTab === "throughput"} mounted={Boolean(heroModel)}>
+        {heroModel && (
           <div
             className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 rounded-2xl px-4 sm:px-6 py-4 sm:py-5 mb-6 sm:mb-8 relative overflow-hidden"
             style={{
@@ -584,23 +674,25 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           }}
         >
           {!reduceMotion && (
-            <Dithering
-              colorBack="#00000000"
-              colorFront="#3370FE"
-              shape="warp"
-              type="4x4"
-              size={2}
-              speed={0.4}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                opacity: 0.1,
-                pointerEvents: "none",
-              }}
-            />
+            <Suspense fallback={null}>
+              <Dithering
+                colorBack="#00000000"
+                colorFront="#3370FE"
+                shape="warp"
+                type="4x4"
+                size={2}
+                speed={0.4}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  opacity: 0.1,
+                  pointerEvents: "none",
+                }}
+              />
+            </Suspense>
           )}
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
@@ -648,9 +740,10 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             </div>
           </div>
         )}
+      </TabPanel>
 
-        {/* Pricing Hero Card */}
-        {activeTab === "pricing" && priceHero && (
+      <TabPanel active={activeTab === "pricing"} mounted={Boolean(priceHero)}>
+        {priceHero && (
           <div
             className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 rounded-2xl px-4 sm:px-6 py-4 sm:py-5 mb-6 sm:mb-8 relative overflow-hidden"
             style={{
@@ -659,23 +752,25 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           }}
         >
           {!reduceMotion && (
-            <Dithering
-              colorBack="#00000000"
-              colorFront="#FF0413"
-              shape="warp"
-              type="4x4"
-              size={2}
-              speed={0.4}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                opacity: 0.1,
-                pointerEvents: "none",
-              }}
-            />
+            <Suspense fallback={null}>
+              <Dithering
+                colorBack="#00000000"
+                colorFront="#FF0413"
+                shape="warp"
+                type="4x4"
+                size={2}
+                speed={0.4}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  opacity: 0.1,
+                  pointerEvents: "none",
+                }}
+              />
+            </Suspense>
           )}
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
@@ -723,14 +818,16 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
             </div>
           </div>
         )}
+      </TabPanel>
 
-        {/* Chart Container */}
-        <div
-          ref={chartGlow.ref}
-          className="rounded-xl sm:rounded-2xl pt-4 sm:pt-6 pr-2 sm:pr-4 pb-3 sm:pb-4 relative overflow-hidden isolate hdr-vivid"
-          style={{ background: "rgba(51,112,254,0.02)", border: "1px solid rgba(51,112,254,0.06)" }}
-        >
-          {!reduceMotion && chartGlow.inView && (
+      {/* Chart Container */}
+      <div
+        ref={chartGlow.ref}
+        className="rounded-xl sm:rounded-2xl pt-4 sm:pt-6 pr-2 sm:pr-4 pb-3 sm:pb-4 relative overflow-hidden isolate hdr-vivid"
+        style={{ background: "rgba(51,112,254,0.02)", border: "1px solid rgba(51,112,254,0.06)" }}
+      >
+        {!reduceMotion && chartGlow.inView && (
+          <Suspense fallback={null}>
             <NeuroNoise
               colorFront="#5C8DFE"
               colorMid="#8A3CB8"
@@ -751,125 +848,126 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
                 borderRadius: "1rem",
               }}
             />
-          )}
-          {activeTab === "throughput" && (
-            <div>
-              <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
-                  {l.tpsTitle}{" "}
-                  <span className="font-normal text-[13px] sm:text-[13px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
-                    {l.tpsUnit}
-                  </span>
-                </h2>
-              </div>
-              <ThroughputChart data={models} lang={lang} colorMap={colorMap} />
-            </div>
-          )}
+          </Suspense>
+        )}
 
-          {activeTab === "pricing" && (
-            <div>
-              <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
-                  {l.priceTitle}{" "}
-                  <span className="font-normal text-[13px] sm:text-[13px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
-                    {l.priceUnit}
-                  </span>
-                </h2>
-              </div>
-              <Suspense fallback={<ChartSkeleton />}>
-                <PricingChart
-                  data={pricedModels}
-                  lang={lang}
-                  colorMap={colorMap}
-                  labels={{
-                    inputLegend: l.inputLegend,
-                    outputLegend: l.outputLegend,
-                    longContext: l.longContext,
-                  }}
-                />
-              </Suspense>
+        <TabPanel active={activeTab === "throughput"} mounted={mountedTabs.throughput}>
+          <div>
+            <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
+              <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
+                {l.tpsTitle}{" "}
+                <span className="font-normal text-[13px] sm:text-[13px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
+                  {l.tpsUnit}
+                </span>
+              </h2>
             </div>
-          )}
+            <ThroughputChart data={models} lang={lang} colorMap={colorMap} />
+          </div>
+        </TabPanel>
 
-          {activeTab === "scatter" && (
-            <div>
-              <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
-                  {l.scatterTitle}
-                </h2>
-                <p className="text-[11px] sm:text-xs m-0 mt-1" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>{l.scatterSub}</p>
-              </div>
-              <Suspense fallback={<ChartSkeleton />}>
-                <ScatterPlot
-                  data={pricedModels}
-                  lang={lang}
-                  colorMap={colorMap}
-                  labels={{
-                    xLabel: l.scatterXLabel,
-                    yLabel: l.scatterYLabel,
-                    sub: l.scatterSub,
-                  }}
-                />
-              </Suspense>
+        <TabPanel active={activeTab === "pricing"} mounted={mountedTabs.pricing}>
+          <div>
+            <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
+              <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
+                {l.priceTitle}{" "}
+                <span className="font-normal text-[13px] sm:text-[13px]" style={{ color: "rgba(255,255,255,0.35)", mixBlendMode: "plus-lighter" }}>
+                  {l.priceUnit}
+                </span>
+              </h2>
             </div>
-          )}
+            <Suspense fallback={<ChartSkeleton />}>
+              <PricingChart
+                data={pricedModels}
+                lang={lang}
+                colorMap={colorMap}
+                labels={{
+                  inputLegend: l.inputLegend,
+                  outputLegend: l.outputLegend,
+                  longContext: l.longContext,
+                }}
+              />
+            </Suspense>
+          </div>
+        </TabPanel>
 
-          {activeTab === "abilities" && (
-            <div>
-              <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
-                  {l.abilityTitle}
-                </h2>
-                <p className="text-[11px] sm:text-xs m-0 mt-1" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>{l.abilitySub}</p>
-              </div>
-              <Suspense fallback={<ChartSkeleton height={580} />}>
-                <AbilityRadar
-                  data={models}
-                  lang={lang}
-                  colorMap={colorMap}
-                  labels={{
-                    abilityTitle: l.abilityTitle,
-                    abilitySub: l.abilitySub,
-                    benchmarkTitle: l.benchmarkTitle,
-                    benchmarkSub: l.benchmarkSub,
-                    selectModels: l.selectModels,
-                    selectAll: l.selectAll,
-                    deselectAll: l.deselectAll,
-                  }}
-                />
-              </Suspense>
+        <TabPanel active={activeTab === "scatter"} mounted={mountedTabs.scatter}>
+          <div>
+            <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
+              <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
+                {l.scatterTitle}
+              </h2>
+              <p className="text-[11px] sm:text-xs m-0 mt-1" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>{l.scatterSub}</p>
             </div>
-          )}
+            <Suspense fallback={<ChartSkeleton />}>
+              <ScatterPlot
+                data={pricedModels}
+                lang={lang}
+                colorMap={colorMap}
+                labels={{
+                  xLabel: l.scatterXLabel,
+                  yLabel: l.scatterYLabel,
+                  sub: l.scatterSub,
+                }}
+              />
+            </Suspense>
+          </div>
+        </TabPanel>
 
-          {activeTab === "recommendations" && (
-            <div>
-              <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
-                <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
-                  {l.resultsTitle}
-                </h2>
-                <p className="text-[11px] sm:text-xs m-0 mt-1 max-w-[580px]" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>
-                  {l.resultsSub}
-                </p>
-              </div>
-              <Suspense fallback={<ChartSkeleton />}>
-                <ResultsPanel
-                  data={models}
-                  lang={lang}
-                  colorMap={colorMap}
-                  reduceMotion={reduceMotion}
-                  labels={{
-                    resultsTitle: l.resultsTitle,
-                    resultsSub: l.resultsSub,
-                    resultsDisclaimer: l.resultsDisclaimer,
-                    bestAbsolute: l.bestAbsolute,
-                    bestValue: l.bestValue,
-                    bestSpeed: l.bestSpeed,
-                  }}
-                />
-              </Suspense>
+        <TabPanel active={activeTab === "abilities"} mounted={mountedTabs.abilities}>
+          <div>
+            <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
+              <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
+                {l.abilityTitle}
+              </h2>
+              <p className="text-[11px] sm:text-xs m-0 mt-1" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>{l.abilitySub}</p>
             </div>
-          )}
-        </div>
+            <Suspense fallback={<ChartSkeleton height={580} />}>
+              <AbilityRadar
+                data={models}
+                lang={lang}
+                colorMap={colorMap}
+                labels={{
+                  abilityTitle: l.abilityTitle,
+                  abilitySub: l.abilitySub,
+                  benchmarkTitle: l.benchmarkTitle,
+                  benchmarkSub: l.benchmarkSub,
+                  selectModels: l.selectModels,
+                  selectAll: l.selectAll,
+                  deselectAll: l.deselectAll,
+                }}
+              />
+            </Suspense>
+          </div>
+        </TabPanel>
+
+        <TabPanel active={activeTab === "recommendations"} mounted={mountedTabs.recommendations}>
+          <div>
+            <div className="pl-4 sm:pl-6 mb-3 sm:mb-4">
+              <h2 className="text-[15px] sm:text-base font-bold m-0 hdr-text">
+                {l.resultsTitle}
+              </h2>
+              <p className="text-[11px] sm:text-xs m-0 mt-1 max-w-[580px]" style={{ color: "rgba(255,255,255,0.3)", mixBlendMode: "plus-lighter" }}>
+                {l.resultsSub}
+              </p>
+            </div>
+            <Suspense fallback={<ChartSkeleton />}>
+              <ResultsPanel
+                data={models}
+                lang={lang}
+                colorMap={colorMap}
+                reduceMotion={reduceMotion}
+                labels={{
+                  resultsTitle: l.resultsTitle,
+                  resultsSub: l.resultsSub,
+                  resultsDisclaimer: l.resultsDisclaimer,
+                  bestAbsolute: l.bestAbsolute,
+                  bestValue: l.bestValue,
+                  bestSpeed: l.bestSpeed,
+                }}
+              />
+            </Suspense>
+          </div>
+        </TabPanel>
       </div>
 
       {/* Provider Legend */}
@@ -912,23 +1010,25 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         }}
       >
         {!reduceMotion && (
-          <Dithering
-            colorBack="#00000000"
-            colorFront="#3370FE"
-            shape="swirl"
-            type="8x8"
-            size={1.5}
-            speed={0.3}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              opacity: 0.06,
-              pointerEvents: "none",
-            }}
-          />
+          <Suspense fallback={null}>
+            <Dithering
+              colorBack="#00000000"
+              colorFront="#3370FE"
+              shape="swirl"
+              type="8x8"
+              size={1.5}
+              speed={0.3}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                opacity: 0.06,
+                pointerEvents: "none",
+              }}
+            />
+          </Suspense>
         )}
         <div className="flex items-center gap-3 min-w-0">
           <div
@@ -972,23 +1072,25 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
         }}
       >
         {!reduceMotion && (
-          <Dithering
-            colorBack="#00000000"
-            colorFront="#FF6A00"
-            shape="swirl"
-            type="8x8"
-            size={1.5}
-            speed={0.3}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              opacity: 0.06,
-              pointerEvents: "none",
-            }}
-          />
+          <Suspense fallback={null}>
+            <Dithering
+              colorBack="#00000000"
+              colorFront="#FF6A00"
+              shape="swirl"
+              type="8x8"
+              size={1.5}
+              speed={0.3}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                opacity: 0.06,
+                pointerEvents: "none",
+              }}
+            />
+          </Suspense>
         )}
         <div className="flex items-center gap-3 min-w-0">
           <div
@@ -1181,22 +1283,24 @@ export default function ModelDashboard({ models, providers, news, i18n, buildDat
           }}
         >
           {!reduceMotion && bottomGlow.inView && (
-            <MeshGradient
-              colors={["#FF0413", "#E0247A", "#8A3CB8", "#3370FE"]}
-              speed={0.2}
-              distortion={0.6}
-              swirl={0.12}
-              grainOverlay={0.06}
-              style={{
-                width: "100%",
-                height: "100%",
-                opacity: 0.15,
-                maskImage:
-                  "linear-gradient(to top, black 30%, transparent 90%)",
-                WebkitMaskImage:
-                  "linear-gradient(to top, black 30%, transparent 90%)",
-              }}
-            />
+            <Suspense fallback={null}>
+              <MeshGradient
+                colors={["#FF0413", "#E0247A", "#8A3CB8", "#3370FE"]}
+                speed={0.2}
+                distortion={0.6}
+                swirl={0.12}
+                grainOverlay={0.06}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  opacity: 0.15,
+                  maskImage:
+                    "linear-gradient(to top, black 30%, transparent 90%)",
+                  WebkitMaskImage:
+                    "linear-gradient(to top, black 30%, transparent 90%)",
+                }}
+              />
+            </Suspense>
           )}
         </div>
         {/* Gradient bar — AID signature element */}

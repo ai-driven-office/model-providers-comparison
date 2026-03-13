@@ -1,4 +1,4 @@
-import { Newspaper, ExternalLink, Cpu, Lightbulb } from "lucide-react";
+import { Newspaper, ExternalLink, Cpu } from "lucide-react";
 import type { NewsPost, Provider } from "../../data/types";
 import type { Lang } from "../../data/i18n";
 

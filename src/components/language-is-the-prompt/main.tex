@@ -1,0 +1,1044 @@
+
+\documentclass[11pt]{article}
+
+% ── Engine detection ─────────────────────────────────────────────────
+\usepackage{iftex}
+
+% ── Encoding & fonts ─────────────────────────────────────────────────
+\ifpdftex
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+\fi
+
+% Libertinus: beautiful modern serif with true small-caps,
+% old-style figures, and full ligature support (fi fl ff ffi ffl ct st).
+% Auto-detects engine: Type1 on pdfLaTeX, OpenType on XeTeX/LuaTeX.
+\usepackage{libertinus}
+
+% ── Microtypography ──────────────────────────────────────────────────
+\ifpdftex
+  % pdfLaTeX: full feature set
+  \usepackage[
+    activate={true,nocompatibility},
+    tracking=true,
+    kerning=true,
+    spacing=true,
+    factor=1100,
+    stretch=10,
+    shrink=10
+  ]{microtype}
+  \microtypecontext{spacing=nonfrench}
+  \SetTracking{encoding={*},shape=sc}{40}
+\else
+  % XeTeX/LuaTeX: protrusion only
+  \usepackage[protrusion=true]{microtype}
+\fi
+
+% ── Page geometry ────────────────────────────────────────────────────
+\usepackage[margin=1in]{geometry}
+
+% ── Mathematics ──────────────────────────────────────────────────────
+\ifpdftex
+  \usepackage{amsmath,amssymb,amsthm,bm}
+\else
+  % amssymb conflicts with Libertinus OpenType math on XeTeX/LuaTeX
+  \usepackage{amsmath,amsthm,bm}
+\fi
+
+% ── Tables & figures ─────────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{caption}
+\usepackage{subcaption}
+\renewcommand{\arraystretch}{1.15}    % breathe in tables
+\setlength{\heavyrulewidth}{0.10em}   % thicker top/bottom rules
+\setlength{\lightrulewidth}{0.05em}   % finer mid-rules
+\setlength{\cmidrulewidth}{0.04em}
+
+% ── Lists ────────────────────────────────────────────────────────────
+\usepackage{enumitem}
+
+% ── Colour palette ───────────────────────────────────────────────────
+\usepackage{xcolor}
+\definecolor{TitlePurple}{HTML}{5B4B8A}
+\definecolor{AccentBlue}{HTML}{2F5D8A}
+\definecolor{AccentGreen}{HTML}{2A7F62}
+\definecolor{AccentOrange}{HTML}{C97A00}
+\definecolor{SoftGray}{HTML}{6B7280}
+
+% ── Code & verbatim ──────────────────────────────────────────────────
+\usepackage{fancyvrb}
+
+% ── Citations & cross-refs ───────────────────────────────────────────
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+\usepackage{url}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=TitlePurple,
+  citecolor=AccentBlue,
+  urlcolor=AccentBlue,
+  pdftitle={The Language Is the Prompt},
+  pdfauthor={G{\"u}nther Brunner}
+}
+\urlstyle{same}   % URLs in body font, not disruptive monospace
+
+% ── Spacing & layout ────────────────────────────────────────────────
+\setlength{\parskip}{0.4em}
+\setlength{\parindent}{0pt}
+\setlist[itemize]{leftmargin=1.4em, topsep=0.25em, itemsep=0.2em}
+\setlist[enumerate]{leftmargin=1.6em, topsep=0.25em, itemsep=0.2em}
+\captionsetup{
+  font={small},
+  labelfont={bf,sc},           % bold small-caps "Figure 1"
+  labelsep=period,             % period after label
+  textfont={},
+  margin=1em                   % slight inset for wrapped captions
+}
+\emergencystretch=3em
+
+% ── Section heading refinements ──────────────────────────────────────
+\usepackage{titlesec}
+\titleformat{\section}
+  {\Large\bfseries\color{TitlePurple}}
+  {\thesection}{0.7em}{}
+\titleformat{\subsection}
+  {\large\bfseries\color{AccentBlue}}
+  {\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries}
+  {\thesubsubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.4em plus 0.3em minus 0.2em}{0.6em}
+\titlespacing*{\subsection}{0pt}{1.0em plus 0.2em}{0.4em}
+
+% ── Header rule ──────────────────────────────────────────────────────
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\small\textsc{The Language Is the Prompt}}
+\fancyhead[R]{\small\thepage}
+\fancypagestyle{plain}{%  first page
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \fancyfoot[C]{\small\thepage}
+}
+
+% ── Theorems ─────────────────────────────────────────────────────────
+\newtheorem{proposition}{Proposition}
+
+% ── Epigraph support ─────────────────────────────────────────────────
+\usepackage{epigraph}
+\setlength{\epigraphwidth}{0.72\textwidth}
+\renewcommand{\epigraphflush}{center}
+\renewcommand{\epigraphrule}{0pt}
+\renewcommand{\textflush}{center}
+
+% ── Convenience macros ───────────────────────────────────────────────
+\newcommand{\acb}{AutoCodeBench}
+\newcommand{\passatone}{Pass@1}
+\newcommand{\pp}{pp}
+\newcommand{\elixir}{Elixir}
+\newcommand{\pythonlang}{Python}
+\newcommand{\tslang}{TypeScript}
+\newcommand{\cfscore}{S_{\mathrm{cf}}}
+\newcommand{\mutscore}{M}
+\newcommand{\expectedp}{\hat{p}_{\mathrm{expected}}}
+% Small-caps abbreviations for consistent typography
+\newcommand{\acro}[1]{\textsc{\MakeLowercase{#1}}}
+
+% ── Title ────────────────────────────────────────────────────────────
+\title{\vspace{-1.5em}
+  \includegraphics[width=1.5cm]{assets/logos/elixir-devicon-original.pdf}\\[0.55em]
+  \bfseries\LARGE
+  The Language Is the Prompt:\\[0.35em]
+  \Large Why Elixir Nearly Doubled Python on AutoCodeBench,\\
+  and What 3{,}920 Tasks Reveal About \acro{LLM}-Friendly Language Design}
+\author{G{\"u}nther Brunner\\
+CyberAgent, Inc.\\[0.3em]
+\small\texttt{\href{mailto:contact@guntherbrunner.com}{contact@guntherbrunner.com}}\\
+\small\url{https://guntherbrunner.com}}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+\vspace{-1.0em}
+
+\epigraph{\itshape The limits of my language mean the limits of my world.}{--- Ludwig Wittgenstein, \textup{Tractatus Logico-Philosophicus} (1922)}
+
+\vspace{-0.8em}
+
+\begin{abstract}
+\elixir{}, a low-share language on the Erlang VM, scores 87.4\% \passatone{} on \acb{} while \pythonlang{} scores 43.9\%. That is not merely a leaderboard curiosity. It is a clue about what code-generating models reward. This paper reproduces the 20-language \acb{} result with GPT-5.4 (medium reasoning), shows that the advantage survives difficulty controls, and then asks the question the leaderboard itself cannot answer: \emph{why}? Across four completed active-ablation suites (2{,}970 condition-level evaluations), a 144-row exact-task multilingual panel, and a 384-row fractional-factorial follow-up, the strongest within-\elixir{} causal signal is documentation structure, while the strongest portable cross-language intervention is explicit contract wording. Within \elixir{}, collapsing structured documentation cuts performance by roughly 40 percentage points. Across matched tasks in \elixir{}, \pythonlang{}, and \tslang{}, the only portable intervention surviving Holm correction is explicit contract wording ($\Delta = +0.359$ on the 0--1 pass scale), with the largest gains in \pythonlang{} ($+0.469$) and \tslang{} ($+0.453$).
+
+We formalize these results as the \emph{Explicitness Hypothesis}: languages and ecosystems that make intent, contracts, control flow, and data transformations locally visible reduce the \emph{predictive burden} on a code-generating model. \elixir{} is the strongest case study in the current data, but the paper's durable claim is broader and more controversial: as AI-assisted programming becomes normal, language design will increasingly be judged not only by performance, ergonomics, or popularity, but by how legible it is to machines.
+\end{abstract}
+
+\vspace{0.5em}
+{\small\textsc{Keywords}\enspace---\enspace code generation \enspace$\cdot$\enspace \acro{LLM} evaluation \enspace$\cdot$\enspace programming languages \enspace$\cdot$\enspace \elixir{} \enspace$\cdot$\enspace \pythonlang{}\\
+documentation \enspace$\cdot$\enspace benchmark analysis \enspace$\cdot$\enspace software engineering}
+
+\vspace{0.3em}
+\noindent\rule{\textwidth}{0.4pt}
+\vspace{0.6em}
+
+\section{Introduction}
+
+Start with one striking number: 87.4.
+
+That is \elixir{}'s \passatone{} on \acb{}, a benchmark of 3,920 automatically generated code tasks across 20 programming languages. \pythonlang{} --- the default language of modern machine learning and one of the most represented languages in public code corpora --- scores 43.9\%. JavaScript scores 42.9\%. \elixir{}, a language with tiny market share relative to both, nearly doubles them.
+
+The first instinct is to call it noise. Perhaps \elixir{} received easier tasks. Perhaps the benchmark over-samples repositories with unusually polished documentation. Perhaps the effect is an artifact of prompt style or evaluation mechanics. The second instinct is to treat the result as a victory lap for functional programming. Both instincts are too shallow. The effect is large, but the explanation is subtler.
+
+This paper begins from the \acb{} leaderboard released by Tencent Hunyuan AI \cite{acb}. We reproduce the full 20-language evaluation with GPT-5.4 (medium reasoning), verify that \elixir{} remains a large positive outlier after difficulty controls, and then move beyond leaderboard description into causal investigation. The headline finding is clear: \elixir{}'s edge is most consistent not with syntax minimalism or functional purity alone, but with a stack of design decisions that make program intent and task semantics unusually easy to recover from local context.
+
+The most controversial claim of this paper is therefore \emph{not} that \elixir{} is universally superior. It is that the next serious axis of language competition may be \emph{model legibility}. Languages and ecosystems that make contracts, state transitions, and expected behavior explicit will enjoy a structural advantage in code generation, code review, and agentic software construction.
+
+\subsection*{Contributions}
+
+This paper makes six concrete contributions.
+
+\begin{enumerate}
+  \item \textbf{Reproduction with artifact control.} We reproduce the 20-language \acb{} result and show that \elixir{} remains the largest positive outlier after difficulty-bucket controls and leave-one-language-out expectation analysis.
+  \item \textbf{Causal evidence from active ablations.} Across four completed active-ablation suites (A, D, E, F), the dominant within-\elixir{} signal is documentation structure. Removing examples alone does nothing; collapsing structured documentation cuts performance by roughly 40 \pp.
+  \item \textbf{Cross-language portability analysis.} In a 144-row exact-task panel and 384-row fractional-factorial follow-up, explicit contract wording is the only portable intervention that survives Holm correction.
+  \item \textbf{A new conceptual formalization.} We introduce the \emph{predictive burden} framework and a visibility-based interaction model that explains both \elixir{}'s benchmark advantage and the diminishing marginal returns of further explicitness in already-high-visibility languages.
+  \item \textbf{A reframing of language design.} We argue that \emph{LLM-friendliness} is becoming a real design axis, and we identify documentation architecture as a first-class part of that axis rather than an afterthought.
+  \item \textbf{Platform-level implications.} We connect the explicitness story to the BEAM virtual machine's actor model and discuss how the same design philosophy that makes \elixir{} legible for code generation may also align with agentic AI deployment requirements.
+\end{enumerate}
+
+\paragraph{Outline.}
+Section~2 reviews related work. Section~3 details the benchmark reproduction and artifact controls. Section~4 outlines our experimental design, and Section~5 maps the language design space. Section~6 presents causal evidence from active ablations; Section~7 reports exact-task multilingual studies. Sections~8--12 develop the interpretive framework, documentation-architecture comparison, practical implications, and platform-level discussion, and Section~13 concludes.
+
+\section{Related work}
+
+\paragraph{AutoCodeBench.}
+\acb{} introduces an automated pipeline for mining repository functions, generating natural-language tasks, constructing public and private tests, and evaluating code generation across 20 languages \cite{acb}. Its scale and multilingual coverage make it especially useful for comparative analysis, but also create a challenge: the tasks are not shared across languages, so raw leaderboard gaps cannot by themselves isolate causal language effects.
+
+\paragraph{Functional-language evaluation.}
+FPEval provides an independent control for the ``maybe functional languages are just better for code LLMs'' hypothesis \cite{fpeval}. In that study, more purely functional languages remain difficult for current models, which implies that \elixir{}'s result is not explained by functional purity in the abstract.
+
+\paragraph{Low-resource language expectations.}
+The low-resource literature generally predicts the opposite of what we observe here: smaller languages should underperform because they are less represented in pretraining corpora \cite{lowresource}. The fact that \elixir{} dramatically outperforms \pythonlang{} therefore deserves special scrutiny.
+
+\paragraph{Language confusion and popularity bias.}
+Recent work documents both programming-language confusion in multilingual code generation \cite{plconfusion} and a strong baseline preference for Python and familiar libraries \cite{llmpreferences}. In that context, \elixir{}'s outperformance is doubly surprising: it wins despite being lower-resource and despite not being the obvious ``default'' language.
+
+\paragraph{Community observations.}
+The \elixir{} community quickly noticed the benchmark result, and practitioner commentary has emphasized documentation quality, local reasoning, and ecosystem consistency as candidate explanations \cite{dashbit,ronacher}. This paper turns those intuitions into a controlled empirical analysis.
+
+\paragraph{BEAM runtime and agentic AI.}
+Independent of the benchmark story, recent work has noted structural parallels between the BEAM actor model and emerging AI agent architectures. Guimar\~{a}es argues that the actor model Erlang introduced in 1986 closely resembles the agent model being rediscovered for LLM orchestration \cite{guimaraes}. NVLang provides additional evidence on BEAM language performance in code generation tasks \cite{nvlang}. We revisit these connections, cautiously, in Section~\ref{sec:beam}.
+
+\section{Benchmark and headline result}
+
+\subsection{The leaderboard}
+
+Table~\ref{tab:topbottom} shows the top and bottom of the reproduced 20-language leaderboard. Figure~\ref{fig:leaderboard} presents the full ranking.
+
+Unless otherwise noted, leaderboard numbers in this paper refer to the March 11, 2026 local fork reproduction with corrected host-native scoring paths. That snapshot retains 3{,}920 total rows but has slightly uneven per-language totals rather than a uniform 196 tasks. Elixir's reproduced slice contains 198 tasks; the active-ablation suites later in the paper reuse that same 198-task Elixir slice.
+
+\begin{table}[H]
+\centering
+\caption{Top 5 and bottom 5 languages by \passatone{} on the March 11, 2026 local \acb{} reproduction.}
+\label{tab:topbottom}
+\begin{tabular}{llrr}
+\toprule
+Rank & Language & \passatone{} & Hard\% \\
+\midrule
+1 & Elixir & 87.4 & 70.2 \\
+2 & Kotlin & 76.5 & 43.5 \\
+3 & C\# & 72.4 & 46.2 \\
+4 & Ruby & 63.0 & 54.0 \\
+5 & Julia & 57.0 & 62.5 \\
+\midrule
+16 & Python & 43.9 & 68.4 \\
+17 & Swift & 43.5 & 60.5 \\
+18 & Go & 42.9 & 61.3 \\
+19 & JavaScript & 42.9 & 64.1 \\
+20 & PHP & 35.7 & 55.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/figure_1_leaderboard.pdf}
+\caption{Full 20-language leaderboard. The bar chart shows \passatone{}; the overlaid markers show each language's share of hard tasks. \elixir{} is both the top performer and one of the languages with the heaviest hard-task mix.}
+\label{fig:leaderboard}
+\end{figure}
+
+The first important point is simply that this is not a narrow win. \elixir{} leads second-place Kotlin by 10.9 \pp{} and \pythonlang{} by 43.5 \pp{}. The second important point is that this lead does not come from receiving unusually easy problems: \elixir{}'s hard-task share is above the benchmark median.
+
+\paragraph{The Go comparison.}
+A particularly illuminating qualitative contrast is with Go. Both languages target concurrent, server-side workloads; both emphasize explicit error handling (Go via multiple returns, \elixir{} via tagged tuples); both favor relatively small core syntaxes and straightforward operational models. Yet Go scores 42.9\% --- identical to JavaScript and 44.5 \pp{} behind \elixir{}. This paper does not directly measure Go's documentation architecture, so we treat the comparison as a hypothesis rather than a result: the Go--\elixir{} gap is consistent with the idea that explicitness at the \emph{individual-function} level is necessary but not sufficient, and that architectural integration of contracts, documentation, and examples may matter more than any single feature.
+
+\subsection{Difficulty resilience}
+
+Table~\ref{tab:difficulty} and Figure~\ref{fig:difficulty} show the difficulty-bucket breakdown for five reference languages.
+
+\begin{table}[H]
+\centering
+\caption{Selected languages by difficulty bucket.}
+\label{tab:difficulty}
+\begin{tabular}{lrrr}
+\toprule
+Language & Easy & Medium & Hard \\
+\midrule
+Elixir & 96.6 & 86.7 & 86.3 \\
+Kotlin & 100.0 & 88.1 & 63.6 \\
+C\# & 97.8 & 81.1 & 63.1 \\
+Python & 82.0 & 48.6 & 31.6 \\
+JavaScript & 78.6 & 43.7 & 31.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/figure_3_difficulty_resilience.pdf}
+\caption{Elixir's edge is strongest where brittle generation should fail: hard tasks. Python drops by 50.4 \pp{} from easy to hard; Elixir drops by only 10.3 \pp{}.}
+\label{fig:difficulty}
+\end{figure}
+
+This is a qualitatively important pattern. \elixir{} does not merely start high. It degrades unusually little as task difficulty increases. That is what one expects from a language-task combination that reduces ambiguity rather than from one that benefits from accidental benchmark quirks.
+
+\subsection{Artifact control}
+
+To test whether the leaderboard gap could be explained by task composition, we compute an expected success rate for each language by using the other 19 languages' pass rates within each difficulty bucket:
+\begin{equation}
+\expectedp(L) = \sum_{d \in \{E,M,H\}} \frac{n_d(L)}{N(L)} \cdot \bar{p}_d(\neg L).
+\label{eq:expected}
+\end{equation}
+
+For \elixir{}, the observed rate of 87.4\% exceeds its difficulty-adjusted expectation of 44.7\% by 42.7 \pp{}. That is the largest positive residual in the dataset.
+
+\section{Design and methodology}
+
+\subsection{Hypothesis suites}
+
+We organized the investigation into nine hypothesis suites, shown in Table~\ref{tab:suites}.
+
+\begin{table}[H]
+\centering
+\caption{Hypothesis suites used to investigate the \elixir{} advantage.}
+\label{tab:suites}
+\small
+\begin{tabularx}{\textwidth}{>{\bfseries}c l X l}
+\toprule
+Suite & Dimension & Method & Status \\
+\midrule
+A & Documentation and task framing & Strip and degrade prompt-side documentation in \elixir{} tasks & Completed \\
+B & Pattern matching scope & Proxy metric across 20 languages & Proxy only \\
+C & Pipeline composition & Proxy metric across 20 languages & Proxy only \\
+D & Control-flow style & Rewrite pattern-dispatch structures into alternative forms & Completed \\
+E & Error-handling conventions & Replace tagged tuples with alternative return conventions & Completed \\
+F & State and data flow & Vary pipeline, rebinding, and state-threading styles & Completed \\
+G & Type-system signals & Proxy metric from specs and annotations & Proxy only \\
+H & Difficulty-composition artifact & Leave-one-language-out expected-rate analysis & Completed \\
+I & Repo-scale ecosystem effects & Full-project evaluation & Future work \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Suites A, D, E, and F cover 792 suite-task slots and 2{,}970 condition-level evaluations in total. Suite H is the core artifact control. Suites B, C, and G provide descriptive context rather than causal claims.
+
+The active-ablation suites operate on a fixed 198-task Elixir slice drawn from the same local fork snapshot used for the leaderboard reproduction. That matched-slice design is intentional: all within-suite deltas compare conditions on identical tasks, but the resulting \texttt{full\_docs} baseline (84.3\%) should not be read as a second estimate of the 87.4\% full-benchmark score.
+
+\subsection{Proxy metrics}
+
+We use three summary metrics to compare the 20 languages.
+
+\textbf{Control-flow explicitness}
+\begin{equation}
+\cfscore(L) = \alpha \bar{P}(L) + \beta \bar{D}(L) - \gamma \bar{B}(L),
+\label{eq:cf}
+\end{equation}
+where $\bar{P}(L)$ is mean pattern-match density, $\bar{D}(L)$ is pipeline or dispatch density, and $\bar{B}(L)$ is branch density.
+
+\textbf{Mutability burden}
+\begin{equation}
+\mutscore(L) = \bar{A}(L) + \bar{U}(L) + \bar{W}(L),
+\label{eq:mut}
+\end{equation}
+where assignments, updates, and writes all contribute to hidden state that the model must track.
+
+\textbf{First-failure taxonomy}
+Each failed generation is classified by its first non-passed state: syntax or compilation error, runtime exception, wrong output, timeout, or other runtime failure. Wilson intervals and Fisher exact tests are used for rate comparisons.
+
+For Suites A, D, E, and F, condition effects are estimated from matched task outcomes and tested with two-sided exact McNemar tests, with Holm correction across all non-baseline intervention contrasts. For the 384-row factorial, each main effect is summarized as a matched mean delta and tested with a two-sided exact sign test on win/loss counts after excluding ties, with Holm correction across the four main effects.
+
+\subsection{Claim tiers}
+
+To avoid rhetorical overreach, the paper separates claims by evidence tier.
+
+\begin{table}[H]
+\centering
+\caption{Claim-level summary.}
+\label{tab:claims}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.06\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.18\textwidth} >{\raggedright\arraybackslash}p{0.26\textwidth}}
+\toprule
+\# & Claim & Evidence tier & Key evidence \\
+\midrule
+1 & \elixir{}'s 87.4\% survives artifact controls & Strong & Difficulty controls and +42.7 \pp{} residual \\
+2 & Documentation structure is the dominant within-\elixir{} driver & Strong (causal) & Suite A: roughly -38 to -41 \pp{} \\
+3 & Pattern-matching dispatch style is not independently significant & Strong (null) & Suite D: all effects within $\pm$3 \pp{} \\
+4 & Error-handling style is not independently significant & Strong (null) & Suite E: all effects within $\pm$3 \pp{} \\
+5 & State-flow style is suggestive but unestablished & Directional & Suite F: +5.1 to +5.6 \pp{} \\
+6 & Explicit contracts are the main portable cross-language intervention & Moderate (causal) & Factorial: $\Delta=+0.359$, Holm-adjusted $p=0.030$ \\
+7 & The Explicitness Hypothesis is a useful unifying interpretation & Framework & Integrates all completed evidence \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Design-space analysis}
+
+Before turning to the active ablations, it is useful to ask whether \elixir{} already looks unusual in the 20-language design space. Figure~\ref{fig:designspace} answers yes.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.96\textwidth]{figures/figure_2_design_space.pdf}
+\caption{Design-space map built from the 20-language proxy table. The horizontal axis measures control-flow explicitness; the vertical axis is state clarity, defined as negative mutability burden so that higher is better. Bubble size reflects the documentation proxy. \elixir{} is the only far-upper-right outlier.}
+\label{fig:designspace}
+\end{figure}
+
+Three descriptive facts matter here.
+
+First, \elixir{} is the only language with a strongly positive control-flow explicitness score ($+6.517$). Second, its mutability burden is near the bottom of the dataset. Third, its documentation proxy is not uniquely maximal --- Java and C++ are higher on raw volume --- which already hints that \emph{structure} matters more than \emph{quantity}.
+
+The proxy analysis does not establish causality, but it does suggest a more precise target: \elixir{} combines explicit dispatch, low hidden state, and a documentation culture that appears unusually integrated with the code itself.
+
+\section{Causal evidence from active ablations}
+
+\subsection{Suite A: documentation structure is the dominant driver}
+
+The strongest result in the paper is Suite A, shown in Table~\ref{tab:suitea} and Figure~\ref{fig:suitea}.
+Because Suite A uses the fixed 198-task Elixir ablation slice described above, its \texttt{full\_docs} baseline is the matched-slice baseline rather than the 87.4\% full-benchmark figure.
+
+\begin{table}[H]
+\centering
+\caption{Suite A active ablation (198 tasks per condition).}
+\label{tab:suitea}
+\begin{tabular}{lrrr}
+\toprule
+Condition & Passed & \passatone{} & $\Delta$ vs.\ full docs \\
+\midrule
+full\_docs & 167 & 84.3\% & --- \\
+reference\_no\_examples & 167 & 84.3\% & 0.0 \\
+minimal\_docs & 91 & 46.0\% & -38.4 \\
+signature\_only & 85 & 42.9\% & -41.4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/figure_4_suite_a_ablation.pdf}
+\caption{Within \elixir{}, examples alone do not matter, but collapsing documentation structure roughly halves \passatone{}. Under signature-only framing, \elixir{} falls to the neighborhood of Python's overall ACB baseline.}
+\label{fig:suitea}
+\end{figure}
+
+Three points deserve emphasis.
+
+\begin{enumerate}
+  \item \textbf{Examples by themselves do not move the benchmark.} Removing examples from the full \elixir{} framing does nothing.
+  \item \textbf{Structure is everything.} Removing structured documentation cuts performance by about 40 \pp{}.
+  \item \textbf{Volume is not the key variable.} The gap between \texttt{minimal\_docs} and \texttt{signature\_only} is small. A little unstructured prose is not enough. What matters is a locally complete specification.
+\end{enumerate}
+
+Both large drops remain Holm-significant under the matched McNemar analysis across all active-ablation contrasts.
+
+That pattern is the central causal result of the paper. It reframes the \elixir{} question from ``what syntax does the model like?'' to ``what information can the model recover without searching elsewhere?''
+
+\subsection{Other within-\elixir{} suites}
+
+Suites D, E, and F do not overturn the story; they sharpen it. Rewriting control flow away from pattern-dispatch structures does not produce large or significant effects. Rewriting error-handling conventions does not either. Alternative state-flow styles show small positive deltas, but these do not survive multiple-comparison correction. The full summary appears in Appendix~\ref{app:ablations}.
+
+This negative evidence is valuable. It shows that the best explanation is not a single fetishized language feature. \elixir{}'s advantage is not ``the pipe operator won'' or ``tagged tuples won.'' The signal is concentrated higher in the semantic stack: documentation, contracts, and task framing.
+
+\subsection{Failure taxonomy and common-task sanity check}
+
+In the 198-task full-docs evaluation, there are only 25 failures. Of those, 7 are wrong-output failures, 2 are language-level exceptions, and 16 are other runtime or environment failures. The very small exception count is at least directionally consistent with a language that makes many control paths explicit rather than exception-driven.
+
+A recurring-task fixed-effects sanity check also points in the same direction. On the small subset of recurring task titles where \elixir{} appears, the mean residual relative to the cluster mean is positive (+0.2143), although the interval is wide because the cluster count is small. This does not prove that topic composition is irrelevant, but it weakens the strongest purely observational objection.
+
+\section{Exact-task multilingual studies}
+
+\subsection{144-row exact-task panel}
+
+The main leaderboard compares languages on different tasks. To partially neutralize that limitation, we constructed a 144-row exact-task panel: 16 hand-authored executable tasks, each implemented in \elixir{}, \pythonlang{}, and \tslang{} under three framing conditions.
+
+The aggregate condition results are:
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Condition & \passatone{} (48 rows) \\
+\midrule
+baseline\_compact & 35/48 = 72.9\% \\
+rich\_contract & 35/48 = 72.9\% \\
+rich\_contract\_examples & 40/48 = 83.3\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Two points matter.
+
+First, \elixir{} no longer dominates when all languages are given identical task specifications. That is important. It suggests that the \acb{} result is partly an interaction between language properties and the benchmark's native framing style.
+
+Second, examples become directionally helpful in this exact-task setting: 7 matched improvements versus 2 degradations. That is not contradictory to Suite A. In Suite A, examples were removed from a framing that was already rich and structured. In the exact-task panel, examples were \emph{added} to compact specifications.
+
+\subsection{384-row fractional-factorial follow-up}
+
+The most informative same-task result comes from the 384-row regular $2^{(4-1)}$ fractional-factorial design, which varies four prompt-side factors: richer prose, examples, explicit contracts, and state-flow guidance. Main effects are estimated as matched deltas and tested with two-sided exact sign tests over win/loss counts, excluding ties, with Holm correction across the four factors.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/figure_5_factorial_effects.pdf}
+\caption{In the exact-task factorial study, explicit contract wording is the only portable intervention that survives Holm correction. Its gains are largest in Python and TypeScript, where comparable contract information is less native to the surrounding ecosystem.}
+\label{fig:factorial}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Main effects in the 384-row fractional-factorial study.}
+\label{tab:factorial}
+\begin{tabular}{lrrr}
+\toprule
+Factor & Matched $\Delta$ & Exact sign $p$ & Holm-adjusted $p$ \\
+\midrule
+docs\_rich & +0.047 & 0.549 & 1.000 \\
+examples & +0.203 & 0.039 & 0.116 \\
+contracts\_explicit & \textbf{+0.359} & \textbf{0.007} & \textbf{0.030} \\
+state\_guidance & -0.026 & 0.727 & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+By language, the contract effect is:
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+Language & Contract $\Delta$ & Holm-adjusted $p$ \\
+\midrule
+Elixir & +0.156 & 0.774 \\
+Python & \textbf{+0.469} & \textbf{0.001} \\
+TypeScript & \textbf{+0.453} & \textbf{0.004} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This is precisely the kind of pattern a visibility-based explanation predicts. The languages that benefit most from explicit contract wording are the languages whose ecosystems do not already surface that information as aggressively and as locally as \elixir{} does.
+
+\section{Discussion: predictive burden, visibility, and benchmark alignment}
+
+The empirical picture is now crisp enough to formalize. The best interpretation of the data is not a one-feature story but a visibility story.
+
+\subsection{Local semantic visibility}
+
+Let
+\begin{equation}
+V(L,T) = \lambda_t E_{\mathrm{task}} + \lambda_c E_{\mathrm{contract}} + \lambda_f E_{\mathrm{flow}} + \lambda_d E_{\mathrm{dispatch}},
+\label{eq:visibility}
+\end{equation}
+where each $E$ term captures the local visibility of a different semantic dimension for language $L$ and task $T$:
+\begin{itemize}
+  \item $E_{\mathrm{task}}$: how clearly the task description states purpose and edge cases;
+  \item $E_{\mathrm{contract}}$: how clearly the input/output and error contracts are stated;
+  \item $E_{\mathrm{flow}}$: how visible state transitions and data transformations are;
+  \item $E_{\mathrm{dispatch}}$: how explicit control-flow selection is.
+\end{itemize}
+
+We then model success conceptually as
+\begin{equation}
+\Pr(\mathrm{pass} \mid L,T) = \sigma\!\left(\alpha + \beta V(L,T) - \kappa D(T)\right),
+\label{eq:logistic}
+\end{equation}
+where $D(T)$ is intrinsic task difficulty and $\sigma(\cdot)$ is the logistic function.
+
+Equations~\eqref{eq:visibility}--\eqref{eq:logistic} are \emph{interpretive}, not fitted estimates. Their value is explanatory. They tell us what kind of mechanism can jointly explain the within-\elixir{} ablation, the exact-task multilingual follow-ups, and the weak role of several lower-level feature rewrites.
+
+\subsection{Benchmark alignment}
+
+The full \acb{} result suggests more than a main effect. It suggests an interaction between language design and benchmark framing richness:
+\begin{equation}
+\Pr(\mathrm{pass} \mid L,T) =
+\sigma\!\left(
+\alpha + \beta V_L + \gamma R_T + \delta V_L R_T - \kappa D_T
+\right),
+\label{eq:interaction}
+\end{equation}
+where $V_L$ is a language-level visibility prior and $R_T$ is the richness of task framing.
+
+This interaction model immediately explains the two most important empirical facts in the paper.
+
+\begin{itemize}
+  \item On native \acb{} tasks, \elixir{} wins big because both $V_L$ and the benchmark's framing style are favorable.
+  \item On exact-task panels, where framing is controlled and equalized across languages, \elixir{} no longer enjoys the same unique interaction bonus.
+\end{itemize}
+
+That is why the paper's real lesson is broader than ``use \elixir{}.'' The benchmark appears to reward \emph{aligned explicitness}.
+
+\subsection{A saturation result}
+
+The contract-effect asymmetry between \elixir{} and \pythonlang{}/\tslang{} also falls naturally out of the visibility model.
+
+\begin{proposition}[Saturation of explicitness gains]
+Under Equation~\eqref{eq:logistic}, the marginal gain from improving any visibility dimension $E_k$ is
+\begin{equation}
+\frac{\partial}{\partial E_k} \Pr(\mathrm{pass} \mid L,T)
+=
+\beta \lambda_k \, P(1-P),
+\label{eq:derivative}
+\end{equation}
+where $P = \Pr(\mathrm{pass} \mid L,T)$. Therefore, identical visibility improvements yield smaller absolute gains when baseline performance is already near ceiling.
+\end{proposition}
+
+\textit{Proof sketch.} Differentiate the logistic form in Equation~\eqref{eq:logistic} with respect to $E_k$. The multiplier $P(1-P)$ is maximal near $P=0.5$ and shrinks as $P \to 0$ or $P \to 1$.
+
+This matters empirically. \elixir{} already begins with strong local contract visibility, so the same explicit-contract intervention produces a smaller marginal benefit than it does in \pythonlang{} or \tslang{}, where baseline contract visibility is weaker.
+
+\subsection{Mechanism summary}
+
+\begin{table}[H]
+\centering
+\caption{Mechanism-level evidence summary.}
+\label{tab:mechanisms}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.22\textwidth}
+                >{\raggedright\arraybackslash}X
+                >{\raggedright\arraybackslash}X
+                >{\raggedright\arraybackslash}p{0.18\textwidth}}
+\toprule
+Mechanism & Within-Elixir evidence & Cross-language evidence & Verdict \\
+\midrule
+Documentation structure & +38 to +41 \pp{}, Holm-significant in matched McNemar tests & Not tested portably & \textbf{Dominant driver} \\
+Contract explicitness & Baseline already high & +0.359, Holm-significant exact-sign effect & \textbf{Portable intervention} \\
+Control-flow style & $\leq 3$ \pp{}, null & Not isolated & Not a primary driver \\
+Error-handling style & $\leq 3$ \pp{}, null & Not isolated & Not a primary driver \\
+State-flow style & +5.1 to +5.6 \pp{}, non-significant & Not isolated & Suggestive only \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Relation to information density}
+
+The visibility account also connects naturally to the idea of uniform information density in human language processing \cite{jaeger2010}. Distributed, locally available information is easier to process than information that arrives in sparse, high-surprise bursts. In code, pattern-dispatch heads, explicit pipelines, nearby contracts, and executable examples all have the same general effect: they flatten semantic surprise. We do not claim to have measured token-level entropy here, but the theoretical connection is strong enough to motivate direct follow-up work.
+
+\section{Documentation architecture: why Elixir is structurally different}
+
+The empirical results repeatedly point upward, from syntax to architecture. What exactly is special about \elixir{}'s documentation stack?
+
+\begin{table}[H]
+\centering
+\caption{Documentation architecture comparison.}
+\label{tab:docscomp}
+\small
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{0.20\textwidth}
+                >{\raggedright\arraybackslash}X
+                >{\raggedright\arraybackslash}X
+                >{\raggedright\arraybackslash}X}
+\toprule
+Feature & Elixir & Python & TypeScript \\
+\midrule
+In-source module docs & \texttt{@moduledoc} attribute & module docstring & no built-in first-class equivalent \\
+In-source function docs & \texttt{@doc} attribute & function docstring & JSDoc or TSDoc comments \\
+Executable examples & built-in doctest workflow & stdlib doctest exists but is unevenly used & no native equivalent \\
+Types near docs & \texttt{@spec} adjacent to docs & type hints often separate from prose & types often separate from comments \\
+Doc generation & ExDoc & Sphinx, pdoc, others & TypeDoc and related tools \\
+Central hosting norm & HexDocs & fragmented, opt-in hosting & fragmented, opt-in hosting \\
+Runtime retrieval & \texttt{Code.fetch\_docs/1}, IEx help & \texttt{help()} via pydoc & editor and build-tool centric \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/figure_6_docs_pipeline.pdf}
+\caption{Elixir's advantage is architectural, not merely stylistic. The language, testing framework, doc generator, package ecosystem, and runtime help facilities form a single documentation pipeline.}
+\label{fig:docspipeline}
+\end{figure}
+
+The key difference is not that \elixir{} has more prose. Raw documentation volume does not explain the result. The difference is that purpose, examples, contracts, publication, and retrieval are all co-located in a stable pipeline. Source-level documentation attributes, executable doctests, ExDoc generation, HexDocs publication, and runtime retrieval via IEx or \texttt{Code.fetch\_docs/1} are part of one system \cite{writingdocs,codefetchdocs,exunitdoctest,exdoc,hexdocs}. Python and TypeScript certainly support rich documentation, but they support it through looser conventions and more fragmented tooling \cite{pydoc,pydoctest,tsjsdoc,typedoc}.
+
+That structural integration matters because code-generating models operate under context constraints. They benefit when the explanation of a function is physically and semantically nearby, not hidden in another file, another tool, or another social convention \cite{zachdaniel}.
+
+\subsection{Why this is not just an Elixir vanity argument}
+
+A healthy version of the claim is portable. If explicit contracts produce the biggest cross-language gains in \pythonlang{} and \tslang{}, then the paper is not telling teams to rewrite their stack in \elixir{}. It is telling them to reduce predictive burden wherever they already are:
+\begin{itemize}
+  \item state input and output contracts explicitly;
+  \item keep examples adjacent to the code they explain;
+  \item make state transitions linear and named;
+  \item prefer conventions that preserve local reasoning.
+\end{itemize}
+
+That is a stronger and more practical conclusion than language tribalism.
+
+\section{Implications}
+
+\subsection{For language designers}
+
+If these results continue to replicate, language design will need a new question: \emph{what does this language force into local view?} The immediate design lessons are simple.
+
+\begin{enumerate}
+  \item \textbf{Make contracts first-class.} Return conventions, invalid-input behavior, and side effects should be visible from nearby syntax or nearby docs.
+  \item \textbf{Integrate documentation into the development loop.} Verified examples age better than ornamental examples.
+  \item \textbf{Prefer visible flow over hidden state.} Every extra mutation is another thing the model must silently remember.
+  \item \textbf{Treat doc architecture as language architecture.} If the ecosystem standardizes explanation, publication, and retrieval, the model sees a more regular world.
+\end{enumerate}
+
+\subsection{For software teams}
+
+The paper also yields a straightforward operational recipe.
+
+\begin{itemize}
+  \item In Python or TypeScript, add explicit return and error contracts.
+  \item Use a consistent documentation shape across the codebase.
+  \item Keep examples executable whenever possible.
+  \item Design functions so that a reviewer can understand them from the signature, nearby docs, and local body.
+\end{itemize}
+
+In plain English: write code so that neither a human nor a model needs to go on a scavenger hunt.
+
+\section{Beyond benchmarks: the BEAM platform and agentic implications}
+\label{sec:beam}
+
+The evidence in this paper concerns code \emph{generation}: given a prompt, how reliably does a model produce correct code? But \elixir{}'s runtime --- the BEAM virtual machine --- has properties that make the story larger than benchmark scores alone.
+
+\subsection{The BEAM as an agent runtime}
+
+The Erlang/OTP platform, on which \elixir{} runs, was designed for telephone switches that must never stop. Its core abstractions --- lightweight processes (each starting with approximately 2\,KB of heap), preemptive scheduling, per-process garbage collection, supervision trees, and transparent distribution --- were originally motivated by fault tolerance \cite{nvlang}. Those same abstractions are at least suggestively aligned with several requirements of modern AI agent frameworks:
+
+\begin{itemize}
+  \item \textbf{Lightweight isolation.} BEAM processes are cheaper than OS threads and cheaper than most language-runtime green threads. In practice, that supports very large numbers of concurrent isolated workers.
+  \item \textbf{Fault isolation and recovery.} Each process has its own heap and crash boundary. A failing agent does not poison its neighbors; supervisors restart it according to a declared policy. This is the ``let it crash'' philosophy, and it maps directly onto the reliability requirements of agentic systems where individual tool calls or reasoning steps may fail.
+  \item \textbf{Hot code reloading.} The BEAM supports upgrading running code without stopping the system. For long-running agent deployments, this means model updates, prompt changes, or tool registrations can be rolled out without service interruption.
+  \item \textbf{Message passing as a first-class primitive.} BEAM processes communicate exclusively through asynchronous message passing. That closely resembles the agent-to-agent communication pattern in multi-agent frameworks, where agents exchange structured messages rather than sharing mutable state.
+\end{itemize}
+
+As Guimar\~{a}es has observed, the actor model that Erlang introduced in 1986 bears a strong family resemblance to the agent model that AI is rediscovering today \cite{guimaraes}. The supervision tree can be read as a policy engine; the process mailbox resembles an agent inbox; the GenServer callback protocol resembles a tool-use interface. The parallel is suggestive, not dispositive.
+
+\subsection{From legibility to liveness}
+
+This connection feeds back into the legibility story. A language that is easy for models to \emph{generate} and also provides a runtime where generated agents can be \emph{deployed, isolated, and recovered} may enjoy a compounding advantage. The documentation pipeline that makes \elixir{} legible to a code-generating model also makes the generated code self-documenting when it runs as an agent: \texttt{@moduledoc} and \texttt{@doc} attributes survive into production, and \texttt{Code.fetch\_docs/1} allows agents to introspect their own or each other's interfaces at runtime \cite{codefetchdocs}.
+
+\subsection{What this paper does not claim}
+
+We do not claim that \elixir{} is the only viable agent runtime, nor that BEAM properties caused the benchmark scores observed here. The benchmark evaluation is purely about code generation from prompts; it does not test deployment, orchestration, or fault recovery. The argument is instead that the same design philosophy --- make intent visible, keep state explicit, enforce isolation boundaries --- manifests as legibility in code generation and as reliability in runtime execution. These are two faces of the same coin.
+
+\section{Limitations and future work}
+
+This paper is strong on one point and deliberately modest on several others.
+
+\begin{enumerate}
+  \item \textbf{Single-model limitation.} All completed evaluations use GPT-5.4 with medium reasoning. A strong result should survive model-family variation.
+  \item \textbf{Benchmark specificity.} \acb{} is large and useful, but it is still one benchmark with one task-generation pipeline.
+  \item \textbf{No shared task IDs in the main leaderboard.} The exact-task panels help, but they do not fully replace a truly shared-task multilingual benchmark.
+  \item \textbf{Small matched studies.} The 144-row panel and 384-row factorial are informative, but they remain small relative to the 3,920-task benchmark.
+  \item \textbf{Proxy metrics are approximations.} Our control-flow and mutability summaries are descriptive instruments, not direct measurements of language essence.
+\end{enumerate}
+
+Future work should therefore do three things: scale the exact-task multilingual panels, replicate the active-ablation ordering on other frontier model families, and move beyond benchmark snippets into repo-scale comparisons among production frameworks (for example, Phoenix or Ecto versus comparable Django, Rails, or Express codebases).
+
+\paragraph{Implications for new language design.}
+Perhaps the most consequential implication of this study is what it suggests about languages that do not yet exist. The conventional assumption in \acro{LLM}-assisted programming has been that \emph{corpus size determines generation quality}: models perform best in languages with the most training data \cite{lowresource}. \elixir{}'s result challenges that assumption directly. A language with tiny market share nearly doubles the score of the most represented language in public code corpora --- not because models memorized more \elixir{}, but because \elixir{}'s design makes intent recoverable from local context.
+
+If the binding constraint is structural legibility rather than corpus volume, then the design space for new programming languages is wider than previously believed. A language engineered from first principles around the traits identified in this paper --- explicit contracts, pattern-driven control flow, structured documentation as a first-class artifact, pipeline-oriented data transformation, and immutable-by-default semantics --- could in principle match or exceed \elixir{}'s \acro{LLM} legibility without inheriting its ecosystem size limitations. The \acro{BEAM} platform story (Section~\ref{sec:beam}) adds a further dimension: pairing these generation-friendly design choices with an agent-native runtime may compound the advantage.
+The possibility has already motivated exploratory language-design work beyond the scope of this paper.\footnote{The author is separately exploring some of these design questions in DreamLang (\url{https://dreamlang.dev}). This note is included as a disclosure of relevant ongoing work, not as an evaluated artifact in the present study.} Whether purpose-built \acro{LLM}-legible languages ultimately outperform evolved ecosystems is an empirical question this paper cannot answer, but the data presented here suggest that the question is now worth asking seriously.
+
+\section{Conclusion}
+
+We began with a striking result: \elixir{} scores 87.4\% on \acb{}, while \pythonlang{} scores 43.9\%.
+
+After artifact controls and causal follow-up, the cleanest interpretation is now visible. The result is not a simple morality play about functional programming. It is about \emph{legibility}. \elixir{} performs unusually well because it often makes the function's purpose, contract, data flow, and failure modes readable from nearby context. When that structure is removed, performance collapses. When explicit contracts are added to weaker ecosystems, performance rises.
+
+The durable claim of the paper is therefore larger than \elixir{} and sharper than hype: \emph{LLM-oriented software engineering rewards explicitness}. Languages and ecosystems that reduce predictive burden will be easier for models to generate, repair, review, and extend.
+
+Moreover, the BEAM virtual machine's lightweight processes, fault-isolated supervision trees, and hot code reloading motivate a broader hypothesis, not tested directly here, about deployment as well as generation. A language that is both easy for models to generate \emph{and} provides a platform where generated agents can be deployed, isolated, and recovered may enjoy a compounding advantage in agentic systems.
+
+In that sense, the future language wars may not be decided only by speed, safety, or popularity. They may also be decided by who makes intent the easiest to recover --- and which runtimes provide the best operational home for the agents that act on it.
+
+\bigskip
+\begin{center}
+$\ast\quad\ast\quad\ast$
+\end{center}
+
+\section*{Data and Code Availability}
+All task-generation scripts, prompt templates, execution harnesses, raw evaluation logs, and the manual audit pack referenced in this study are available at:
+
+\begin{center}
+\url{https://github.com/gunta/AutoCodeBenchmark}
+\end{center}
+
+\noindent The repository includes the fractional-factorial design matrices, per-task pass/fail CSVs, and the figure-generation code needed to reproduce every table and plot in this paper.
+
+\clearpage
+\appendix
+
+\section{Full language proxy data}
+\label{app:proxy}
+
+\begin{table}[H]
+\centering
+\caption{Proxy metrics for all 20 languages, sorted by \passatone{}.}
+\label{tab:proxyfull}
+\small
+\begin{tabular}{lrrrrrrr}
+\toprule
+Language & \passatone{} & CF score & Mutability & Docs & Pattern & Assign. & Hard\% \\
+\midrule
+Elixir & 87.4 & 6.517 & 4.289 & 17.694 & 3.545 & 4.970 & 70.2 \\
+Kotlin & 76.5 & -1.285 & 11.780 & 26.144 & 0.000 & 10.665 & 43.5 \\
+C\# & 72.4 & -1.196 & 19.964 & 30.210 & 0.000 & 20.693 & 46.2 \\
+Ruby & 63.0 & -0.678 & 11.297 & 19.840 & 0.000 & 11.265 & 54.0 \\
+Julia & 57.0 & -2.208 & 9.060 & 18.166 & 0.000 & 9.540 & 62.5 \\
+Dart & 56.5 & -0.698 & 14.050 & 28.481 & 0.000 & 13.635 & 68.0 \\
+R & 54.5 & -1.588 & 5.844 & 18.255 & 0.000 & 5.389 & 64.1 \\
+Java & 51.1 & -1.322 & 14.851 & 35.082 & 0.000 & 12.410 & 56.4 \\
+Racket & 51.0 & 0.103 & 1.897 & 15.944 & 0.000 & 1.051 & 56.6 \\
+Scala & 50.8 & 1.553 & 17.202 & 29.427 & 0.000 & 17.653 & 68.8 \\
+Shell & 50.5 & -0.555 & 7.320 & 25.757 & 0.000 & 7.580 & 61.2 \\
+C++ & 50.0 & -2.959 & 29.284 & 35.156 & 0.000 & 23.704 & 63.4 \\
+TypeScript & 49.2 & -0.676 & 12.308 & 11.356 & 0.000 & 10.271 & 75.4 \\
+Perl & 44.5 & -1.326 & 7.281 & 15.299 & 0.000 & 7.155 & 61.5 \\
+Python & 43.9 & -2.014 & 10.671 & 21.264 & 0.000 & 10.020 & 68.4 \\
+Swift & 43.5 & -1.945 & 9.434 & 16.783 & 0.000 & 10.220 & 60.5 \\
+Go & 42.9 & -0.194 & 9.821 & 16.338 & 0.000 & 9.885 & 61.3 \\
+JavaScript & 42.9 & -0.574 & 13.891 & 15.844 & 0.000 & 11.190 & 64.1 \\
+Rust & 40.2 & -2.718 & 22.566 & 26.343 & 0.000 & 19.070 & 76.9 \\
+PHP & 35.7 & -1.217 & 17.849 & 11.497 & 0.000 & 18.698 & 55.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Active ablation summary}
+\label{app:ablations}
+
+\begin{table}[H]
+\centering
+\caption{Active ablation conditions across Suites A, D, E, and F.}
+\label{tab:ablationfull}
+\small
+\begin{tabular}{llrrrr}
+\toprule
+Suite & Condition & Passed & Total & \passatone{} & $\Delta$ vs.\ baseline \\
+\midrule
+A & full\_docs & 167 & 198 & 84.3\% & --- \\
+A & reference\_no\_examples & 167 & 198 & 84.3\% & 0.0 \\
+A & minimal\_docs & 91 & 198 & 46.0\% & -38.4 \\
+A & signature\_only & 85 & 198 & 42.9\% & -41.4 \\
+\midrule
+D & baseline & 167 & 198 & 84.3\% & --- \\
+D & case\_with & 161 & 198 & 81.3\% & -3.0 \\
+D & cond\_if & 172 & 198 & 86.9\% & +2.5 \\
+D & function\_heads & 164 & 198 & 82.8\% & -1.5 \\
+\midrule
+E & baseline & 166 & 198 & 83.8\% & --- \\
+E & tagged\_tuple\_helpers & 172 & 198 & 86.9\% & +3.0 \\
+E & sentinel\_helpers & 166 & 198 & 83.8\% & 0.0 \\
+\midrule
+F & baseline & 162 & 198 & 81.8\% & --- \\
+F & immutable\_pipeline & 162 & 198 & 81.8\% & 0.0 \\
+F & explicit\_state\_threading & 172 & 198 & 86.9\% & +5.1 \\
+F & rebinding\_stepwise & 173 & 198 & 87.4\% & +5.6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Robustness checks for the matched studies}
+\label{app:robustness}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/figure_A1_robustness.pdf}
+\caption{Quick robustness summary for the matched studies. The examples effect remains modest and low-power. The contract effect remains positive under both bootstrap and leave-one-out perturbations.}
+\label{fig:robustness}
+\end{figure}
+
+For the 16-task explicit panel, the \texttt{rich\_contract\_examples} minus \texttt{baseline\_compact} paired delta is $+0.104$, with a task-cluster bootstrap 95\% interval of $[-0.063, +0.292]$. Leave-one-task-out deltas range from $+0.044$ to $+0.156$, and leave-one-language-out deltas range from $+0.031$ to $+0.156$.
+
+For the 384-row factorial, the main-effect robustness ranges are:
+\begin{itemize}
+  \item \texttt{docs\_rich}: bootstrap $[-0.021, +0.125]$; leave-one-task-out $[+0.028, +0.061]$
+  \item \texttt{examples}: bootstrap $[+0.089, +0.323]$; leave-one-task-out $[+0.172, +0.228]$
+  \item \texttt{contracts\_explicit}: bootstrap $[+0.198, +0.531]$; leave-one-task-out $[+0.317, +0.394]$; leave-one-language-out $[+0.305, +0.461]$
+  \item \texttt{state\_guidance}: bootstrap $[-0.099, +0.031]$; leave-one-task-out $[-0.033, -0.006]$
+\end{itemize}
+
+\section{Task-level summary for the 16-task panel}
+
+\begin{table}[H]
+\centering
+\caption{Outcome pattern in the 16-task explicit-task panel.}
+\label{tab:paneltasks}
+\small
+\begin{tabularx}{\textwidth}{l X}
+\toprule
+Task & Outcome pattern \\
+\midrule
+Account Balance Rollup & Elixir fails under all three conditions; Python and TypeScript pass all three \\
+Bracket Balance Report & Invariant across all three conditions \\
+CSV Split With Quotes & Invariant across all three conditions \\
+Dense Rankings & Rescued by examples for Elixir \\
+Dependency Batches & Invariant across all three conditions \\
+Inventory Reconcile & Invariant across all three conditions \\
+Merge Touching Intervals & Invariant across all three conditions \\
+Normalize Phone Book & Elixir fails under all three conditions; Python and TypeScript regress when examples are added \\
+Queue Wait Times & Invariant across all three conditions \\
+Rule Based Discount & Rescued by examples for Elixir and TypeScript \\
+Session Durations & Rescued by examples for all three languages \\
+Stable Group Runs & Rescued by examples for Elixir \\
+Threshold Bursts & Invariant across all three conditions \\
+Token Bucket Decisions & All three languages fail under all three conditions \\
+Top K Frequencies & Invariant across all three conditions \\
+Sliding Window Majority & Invariant across all three conditions \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Reviewer checklist}
+
+\begin{table}[H]
+\centering
+\caption{Reviewer-concern map.}
+\label{tab:reviewer}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+Reviewer concern & Mitigation in this version & Residual status \\
+\midrule
+Main leaderboard is observational & Difficulty controls plus exact-task auxiliary studies & Narrowed, not eliminated \\
+Matched-task panel may be too small & 16 tasks, paired tests, task appendix, robustness checks & Still small \\
+Matched conclusions may be one-task artifacts & Bootstrap and leave-one-out scans & Materially improved \\
+Factorial may be fragile & Holm correction plus robustness ranges & Scoped, not universal \\
+Elixir may simply have easier tasks & Leave-one-language-out expectation and hard-task controls & Materially improved \\
+Failure analysis may be noisy & First-failure taxonomy and manual audit pack in repository & Partially improved \\
+Paper may overclaim secondary mechanisms & Claim-tier table and explicit null results & Addressed \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+\begin{thebibliography}{99}
+
+\bibitem{acb}
+Jason Chou, Ao Liu, Yuchi Deng, Zhiying Zeng, Tao Zhang, Haotian Zhu, Jianwei Cai, Yue Mao, Chenchen Zhang, Lingyun Tan, Ziyan Xu, Bohui Zhai, Hengyi Liu, Speed Zhu, Wiggin Zhou, and Fengzong Lian.
+\newblock AutoCodeBench: Large Language Models are Automatic Code Benchmark Generators.
+\newblock \emph{arXiv preprint arXiv:2508.09101}, 2025.
+
+\bibitem{fpeval}
+Nguyet-Anh H. Lang, Eric Lang, Thanh Le-Cong, Bach Le, and Quyet-Thang Huynh.
+\newblock Perish or Flourish? A Holistic Evaluation of Large Language Models for Code Generation in Functional Programming.
+\newblock \emph{arXiv preprint arXiv:2601.02060}, 2026.
+
+\bibitem{lowresource}
+Sathvik Joel, Jie JW Wu, and Fatemeh H. Fard.
+\newblock A Survey on LLM-based Code Generation for Low-Resource and Domain-Specific Programming Languages.
+\newblock \emph{arXiv preprint arXiv:2410.03981}, 2024.
+
+\bibitem{plconfusion}
+Micheline B\'en\'edicte Moumoula, Serge Lionel Nikiema, Abdoul Kader Kabore, Jacques Klein, and Tegawend\'e F. Bissyande.
+\newblock Programming Language Confusion: When Code LLMs Can't Keep their Languages Straight.
+\newblock \emph{arXiv preprint arXiv:2503.13620}, 2025.
+
+\bibitem{llmpreferences}
+Lukas Twist, Jie M. Zhang, Mark Harman, Don Syme, Joost Noppen, Helen Yannakoudakis, and Detlef Nauck.
+\newblock A Study of LLMs' Preferences for Libraries and Programming Languages.
+\newblock \emph{arXiv preprint arXiv:2503.17181}, 2025.
+
+\bibitem{dashbit}
+Dashbit.
+\newblock Why Elixir is the Best Language for AI.
+\newblock Dashbit blog, 2025.
+
+\bibitem{ronacher}
+Armin Ronacher.
+\newblock A Language for Agents.
+\newblock lucumr.pocoo.org, February 2026.
+\newblock \url{https://lucumr.pocoo.org/2026/2/9/a-language-for-agents/}.
+
+\bibitem{jaeger2010}
+T. Florian Jaeger.
+\newblock Redundancy and Reduction: Speakers Manage Syntactic Information Density.
+\newblock \emph{Cognitive Psychology}, 61(1):23--62, 2010.
+
+\bibitem{writingdocs}
+Elixir Documentation Team.
+\newblock Writing Documentation.
+\newblock HexDocs.
+\newblock \url{https://hexdocs.pm/elixir/writing-documentation.html}.
+
+\bibitem{codefetchdocs}
+Elixir Documentation Team.
+\newblock Code.fetch\_docs/1.
+\newblock HexDocs.
+\newblock \url{https://hexdocs.pm/elixir/Code.html#fetch_docs/1}.
+
+\bibitem{exunitdoctest}
+ExUnit Documentation Team.
+\newblock ExUnit.DocTest.
+\newblock HexDocs.
+\newblock \url{https://hexdocs.pm/ex_unit/ExUnit.DocTest.html}.
+
+\bibitem{exdoc}
+ExDoc Documentation Team.
+\newblock ExDoc.
+\newblock HexDocs.
+\newblock \url{https://hexdocs.pm/ex_doc/ExDoc.html}.
+
+\bibitem{hexdocs}
+Hex.pm Team.
+\newblock HexDocs.
+\newblock Hex package manager documentation.
+\newblock \url{https://hex.pm/docs}.
+
+\bibitem{pydoc}
+Python Documentation Team.
+\newblock pydoc --- documentation generator and online help system.
+\newblock Python standard library documentation.
+\newblock \url{https://docs.python.org/3/library/pydoc.html}.
+
+\bibitem{pydoctest}
+Python Documentation Team.
+\newblock doctest --- test interactive Python examples.
+\newblock Python standard library documentation.
+\newblock \url{https://docs.python.org/3/library/doctest.html}.
+
+\bibitem{tsjsdoc}
+TypeScript Team.
+\newblock JSDoc Reference.
+\newblock Official TypeScript documentation.
+\newblock \url{https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html}.
+
+\bibitem{typedoc}
+TypeDoc Team.
+\newblock Overview.
+\newblock TypeDoc documentation.
+\newblock \url{https://typedoc.org/documents/Overview.html}.
+
+\bibitem{guimaraes}
+George Guimar\~{a}es.
+\newblock The Actor Model is the Agent Model.
+\newblock Dashbit blog, 2026.
+
+\bibitem{nvlang}
+Nguyet-Anh H. Lang, Eric Lang, Bach Le, and Quyet-Thang Huynh.
+\newblock NVLang: A Benchmark for Evaluating LLM Code Generation in Niche Languages on the BEAM.
+\newblock \emph{arXiv preprint arXiv:2512.05224}, 2025.
+
+\bibitem{zachdaniel}
+Zach Daniel.
+\newblock Context-Aware Documentation and LLM Output Quality.
+\newblock Blog post, 2025.
+
+\end{thebibliography}
+
+\end{document}

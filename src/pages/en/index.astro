@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import ModelDashboard from "../components/ModelDashboard";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ModelDashboard from "../../components/ModelDashboard";
 
 const i18nEntries = await getCollection("i18n");
 const i18n = Object.fromEntries(
@@ -37,12 +37,12 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 ---
 
 <BaseLayout
-  lang="ja"
-  title={i18n.ja?.ogTitle ?? "AIモデル比較 — AIドリブン推進室"}
-  description={i18n.ja?.ogDescription}
-  siteName={i18n.ja?.ogSiteName}
-  ogImageAlt={i18n.ja?.ogImageAlt}
-  canonicalPath={base}
+  lang="en"
+  title={i18n.en?.ogTitle ?? "AI Model Comparison — AI Driven Office"}
+  description={i18n.en?.ogDescription}
+  siteName={i18n.en?.ogSiteName}
+  ogImageAlt={i18n.en?.ogImageAlt}
+  canonicalPath={`${base}en/`}
   alternateJaPath={base}
   alternateEnPath={`${base}en/`}
 >
@@ -52,7 +52,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
     news={news}
     i18n={i18n}
     buildDate={buildDate}
-    lang="ja"
+    lang="en"
     client:load
   />
 </BaseLayout>

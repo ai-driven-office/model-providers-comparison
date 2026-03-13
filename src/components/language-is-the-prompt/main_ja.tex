@@ -1,0 +1,1076 @@
+
+\documentclass[11pt]{article}
+
+% ── 日本語組版設定（XeTeX専用）─────────────────────────────────────
+% このドキュメントはtectonic (XeTeXベース) で組版する前提である。
+\usepackage{xeCJK}
+
+% --- CJK フォント設定 ---
+% 本文（明朝体）：Hiragino Mincho ProN — 上品で読みやすい学術向け書体
+% Ligatures=TeX で `` '' --- -- 等の TeX リガチャを有効化
+% Mapping=tex-text で同等のスマートクォート変換を適用
+\setCJKmainfont[
+  BoldFont=Hiragino Mincho ProN W6,
+  Ligatures=TeX,
+]{Hiragino Mincho ProN W3}
+
+% 見出し・ゴシック体：Hiragino Sans — モダンで視認性の高いゴシック体
+\setCJKsansfont[
+  BoldFont=Hiragino Sans W6,
+  Ligatures=TeX,
+]{Hiragino Sans W3}
+
+% 等幅：コード表示用
+\setCJKmonofont{Hiragino Sans W3}
+
+% --- CJK 組版微調整 ---
+% 句読点・括弧のカーニング（詰め組み：JIS X 4051 準拠に近い配置）
+\xeCJKsetup{
+  CJKmath=true,
+  PunctStyle=kaiming,
+  CheckSingle=true,
+  AllowBreakBetweenPuncts=true,
+}
+
+% Latin / Math: Libertinus（英語版と同一、リガチャ有効）
+\usepackage{libertinus}
+
+% 日本語行分割ルール（禁則処理）
+\XeTeXlinebreaklocale "ja"
+\XeTeXlinebreakskip=0pt plus 1pt minus 0.5pt
+\XeTeXlinebreakpenalty=0
+
+% ── 行間・読みやすさ ─────────────────────────────────────────────
+% 日本語組版は1.5〜1.7倍の行間が標準的。
+% 1.62 はゴールデンレシオに近く、視覚的に最も美しいとされる。
+\linespread{1.62}
+
+% ── マイクロタイポグラフィ ──────────────────────────────────────
+\usepackage[protrusion=true]{microtype}
+
+% ── ページレイアウト ────────────────────────────────────────────
+\usepackage[margin=1in]{geometry}
+
+% ── 数式 ──────────────────────────────────────────────────────
+\usepackage{amsmath,amsthm,bm}
+
+% ── 表・図 ────────────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{caption}
+\usepackage{subcaption}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\heavyrulewidth}{0.10em}
+\setlength{\lightrulewidth}{0.05em}
+\setlength{\cmidrulewidth}{0.04em}
+
+% ── リスト ────────────────────────────────────────────────────
+\usepackage{enumitem}
+
+% ── カラーパレット ─────────────────────────────────────────────
+\usepackage{xcolor}
+\definecolor{TitlePurple}{HTML}{5B4B8A}
+\definecolor{AccentBlue}{HTML}{2F5D8A}
+\definecolor{AccentGreen}{HTML}{2A7F62}
+\definecolor{AccentOrange}{HTML}{C97A00}
+\definecolor{SoftGray}{HTML}{6B7280}
+
+% ── コード・逐語引用 ──────────────────────────────────────────
+\usepackage{fancyvrb}
+
+% ── 引用・相互参照 ────────────────────────────────────────────
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+\usepackage{url}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=TitlePurple,
+  citecolor=AccentBlue,
+  urlcolor=AccentBlue,
+  pdftitle={言語こそがプロンプトである},
+  pdfauthor={Günther Brunner}
+}
+\urlstyle{same}
+
+% ── 段落・レイアウト調整 ──────────────────────────────────────
+\setlength{\parskip}{0.5em plus 0.15em minus 0.1em}
+\setlength{\parindent}{1em}  % 日本語標準：全角1文字分の字下げ（xeCJKでは1em≒1zw）
+\setlist[itemize]{leftmargin=1.6em, topsep=0.4em, itemsep=0.3em, parsep=0.15em}
+\setlist[enumerate]{leftmargin=1.8em, topsep=0.4em, itemsep=0.3em, parsep=0.15em}
+\captionsetup{
+  font={small},
+  labelfont={bf},
+  labelsep=period,
+  textfont={},
+  margin=1em,
+  skip=10pt,
+}
+\emergencystretch=3em
+
+% ── 余白を少し広げて日本語の広い行間に対応 ──────────────────────
+\setlength{\textfloatsep}{14pt plus 4pt minus 3pt}
+\setlength{\floatsep}{12pt plus 3pt minus 2pt}
+\setlength{\intextsep}{12pt plus 3pt minus 2pt}
+\setlength{\abovecaptionskip}{8pt}
+\setlength{\belowcaptionskip}{4pt}
+
+% ── 見出し書式 ────────────────────────────────────────────────
+\usepackage{titlesec}
+\titleformat{\section}
+  {\Large\bfseries\sffamily\color{TitlePurple}}
+  {\thesection}{0.7em}{}
+\titleformat{\subsection}
+  {\large\bfseries\sffamily\color{AccentBlue}}
+  {\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\sffamily}
+  {\thesubsubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.8em plus 0.4em minus 0.2em}{0.7em}
+\titlespacing*{\subsection}{0pt}{1.3em plus 0.3em minus 0.1em}{0.5em}
+\titlespacing*{\subsubsection}{0pt}{1.0em plus 0.2em}{0.35em}
+
+% ── ヘッダー ──────────────────────────────────────────────────
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\small 言語こそがプロンプトである}
+\fancyhead[R]{\small\thepage}
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \fancyfoot[C]{\small\thepage}
+}
+
+% ── 定理環境 ──────────────────────────────────────────────────
+\newtheorem{proposition}{命題}
+
+% ── エピグラフ ─────────────────────────────────────────────────
+\usepackage{epigraph}
+\setlength{\epigraphwidth}{0.72\textwidth}
+\renewcommand{\epigraphflush}{center}
+\renewcommand{\epigraphrule}{0pt}
+\renewcommand{\textflush}{center}
+
+% ── 便利マクロ ─────────────────────────────────────────────────
+\newcommand{\acb}{AutoCodeBench}
+\newcommand{\passatone}{Pass@1}
+\newcommand{\pp}{pp}
+\newcommand{\elixir}{Elixir}
+\newcommand{\pythonlang}{Python}
+\newcommand{\tslang}{TypeScript}
+\newcommand{\cfscore}{S_{\mathrm{cf}}}
+\newcommand{\mutscore}{M}
+\newcommand{\expectedp}{\hat{p}_{\mathrm{expected}}}
+\newcommand{\acro}[1]{\textsc{\MakeLowercase{#1}}}
+
+% ── タイトル ──────────────────────────────────────────────────
+\title{\vspace{-1.5em}
+  \includegraphics[width=1.5cm]{assets/logos/elixir-devicon-original.pdf}\\[0.55em]
+  \bfseries\LARGE\sffamily
+  言語こそがプロンプトである：\\[0.35em]
+  \Large Elixir が AutoCodeBench で Python をほぼ倍増させた理由と、\\
+  3{,}920タスクが明らかにする LLM に適した言語設計}
+\author{Günther Brunner \quad {\normalsize グンター・ブルンナー}\\
+CyberAgent, Inc.（株式会社サイバーエージェント）\\[0.3em]
+\small\texttt{\href{mailto:contact@guntherbrunner.com}{contact@guntherbrunner.com}}\\
+\small\url{https://guntherbrunner.com}}
+\date{2026年3月}
+
+\begin{document}
+\maketitle
+\vspace{-1.0em}
+
+\epigraph{\itshape 私の言語の限界は、私の世界の限界を意味する。}{--- ルートヴィヒ・ヴィトゲンシュタイン\quad\textup{『論理哲学論考』}（1922年）}
+
+\vspace{-0.8em}
+
+\begin{abstract}
+Erlang VM上で動作するマイナー言語である\elixir{}は、\acb{}で87.4\%の\passatone{}を記録した。一方、\pythonlang{}は43.9\%である。これは単なるリーダーボード上の珍事ではない。コード生成モデルが何を報酬として捉えているかを示す重要な手がかりである。本論文では、GPT-5.4（中推論）を用いて20言語による\acb{}の結果を再現し、\elixir{}の優位性が難易度統制後も持続することを確認した上で、リーダーボードだけでは答えられない問いに踏み込む。すなわち、\emph{なぜ}この結果が生じるのか、という問いである。
+
+4つの能動的アブレーション実験（計2{,}970条件評価）、144行の完全一致タスク多言語パネル、および384行の分割要因計画による追加実験の結果、\elixir{}内部で最も強い因果的シグナルはドキュメント構造であり、言語横断で最も強いポータブルな介入は明示的な契約記述であることが判明した。\elixir{}内部では、構造化ドキュメントを除去するとパフォーマンスが約40パーセントポイント低下する。\elixir{}・\pythonlang{}・\tslang{}にまたがる完全一致タスクにおいて、Holm補正を生き残る唯一のポータブルな介入は明示的な契約記述（$\Delta = +0.359$、0--1合格スケール）であり、\pythonlang{}（$+0.469$）と\tslang{}（$+0.453$）で最大の効果を示した。
+
+本研究ではこれらの結果を\emph{明示性仮説}として定式化する。意図、契約、制御フロー、データ変換をローカルに可視化する言語とエコシステムは、コード生成モデルにかかる\emph{予測負荷}を軽減する。\elixir{}は現行データにおける最強の事例であるが、本論文のより持続的で論争的な主張はさらに広い。すなわち、AI支援プログラミングが当たり前になるにつれて、言語設計は性能やエルゴノミクスや人気だけでなく、\emph{機械にとってどれほど読みやすいか}によっても評価されるようになるという主張である。
+
+\medskip
+\noindent\textbf{日本の読者の方へ}\quad 本論文の著者は株式会社サイバーエージェントに所属しており、本研究は日本のテック産業の文脈において特に重要な意味を持つ。Elixirは日本でも活発なコミュニティ（tokyo.ex、ElixirConf JP等）を有し、日本企業での採用事例も増加している。ErlangおよびBEAM仮想マシンの歴史は通信技術に根差しており、NTTをはじめとする日本の通信企業が培った技術基盤と深い関連がある。本論文の知見は、LLMを活用したソフトウェア開発において、言語選択とドキュメント設計が品質に直結することを実証的に示すものである。
+\end{abstract}
+
+\vspace{0.5em}
+{\small\textbf{キーワード}\enspace---\enspace コード生成 \enspace$\cdot$\enspace LLM評価 \enspace$\cdot$\enspace プログラミング言語 \enspace$\cdot$\enspace \elixir{} \enspace$\cdot$\enspace \pythonlang{}\\
+ドキュメント設計 \enspace$\cdot$\enspace ベンチマーク分析 \enspace$\cdot$\enspace ソフトウェア工学}
+
+\vspace{0.3em}
+\noindent\rule{\textwidth}{0.4pt}
+\vspace{0.6em}
+
+\section{はじめに}
+
+まず、一つの印象的な数字から始めよう。87.4である。
+
+これは\acb{}における\elixir{}の\passatone{}である。\acb{}は20のプログラミング言語にまたがる3,920の自動生成コードタスクからなるベンチマークである。現代の機械学習において標準的な言語であり、公開コードコーパスにおいて最も多く表現される言語の一つである\pythonlang{}のスコアは43.9\%に留まる。JavaScriptは42.9\%である。両者と比較して市場シェアが極めて小さい\elixir{}が、これらをほぼ倍増させているのである。
+
+最初の直感的反応は「ノイズだろう」というものであろう。おそらく\elixir{}には簡単なタスクが割り当てられたのではないか。おそらくベンチマークが異常に洗練されたドキュメントを持つリポジトリを過剰にサンプリングしたのではないか。おそらくこの効果はプロンプトスタイルや評価メカニクスの人工的産物ではないか。二番目の直感は、この結果を関数型プログラミングの勝利として扱うことである。しかし、いずれの直感も浅すぎる。効果は大きいが、その説明はより繊細である。
+
+本論文はTencent Hunyuan AIが公開した\acb{}リーダーボード\cite{acb}を出発点とする。GPT-5.4（中推論）を用いて20言語の完全な評価を再現し、難易度統制後も\elixir{}が大きな正の外れ値であり続けることを検証した上で、リーダーボードの記述を超えて因果的調査へと進む。主要な知見は明確である。\elixir{}の優位性は、構文のミニマリズムや関数的純粋性だけでは最もよく説明できず、プログラムの意図とタスクの意味論をローカルなコンテキストから回復することを異常なほど容易にする設計上の決定の積み重ねと最も整合的なのである。
+
+本論文の最も論争的な主張は、したがって、\elixir{}が普遍的に優れているということでは\emph{ない}。それは、言語競争の次なる重要な軸が\emph{モデルにとっての可読性}になりうるということである。契約、状態遷移、期待される振る舞いを明示する言語とエコシステムは、コード生成、コードレビュー、およびエージェント的ソフトウェア構築において構造的優位性を享受するであろう。
+
+\subsection*{本研究の貢献}
+
+本論文は6つの具体的な貢献を行う。
+
+\begin{enumerate}
+  \item \textbf{人工物の統制を伴う再現。} 20言語の\acb{}結果を再現し、難易度バケット統制および一言語除外期待値分析の後も\elixir{}が最大の正の外れ値であることを示す。
+  \item \textbf{能動的アブレーションによる因果的証拠。} 4つの完了したアブレーション実験（A, D, E, F）を通じて、\elixir{}内部における支配的シグナルがドキュメント構造であることを明らかにする。サンプルの除去だけでは何も変わらないが、構造化ドキュメントを崩すと性能が約40パーセントポイント低下する。
+  \item \textbf{言語横断のポータビリティ分析。} 144行の完全一致タスクパネルおよび384行の分割要因計画による追加実験において、Holm補正を生き残る唯一のポータブルな介入が明示的な契約記述であることを示す。
+  \item \textbf{新しい概念的定式化。} \emph{予測負荷}フレームワークと可視性に基づく相互作用モデルを導入し、\elixir{}のベンチマーク上の優位性と、すでに高い可視性を持つ言語における明示性の限界収穫逓減の両方を説明する。
+  \item \textbf{言語設計の再定義。} \acro{LLM}にとっての親和性が実質的な設計軸になりつつあることを論じ、ドキュメントアーキテクチャがその軸の付随物ではなく第一級の構成要素であることを指摘する。
+  \item \textbf{プラットフォームレベルの含意。} 明示性の物語をBEAM仮想マシンのアクターモデルに接続し、\elixir{}をコード生成にとって読みやすくするのと同じ設計哲学が、エージェント的AI展開の要件とも整合する可能性を論じる。
+\end{enumerate}
+
+\paragraph{構成。}
+第2節で関連研究を概観する。第3節でベンチマークの再現と人工物統制を詳述する。第4節で実験設計を概説し、第5節で言語設計空間をマッピングする。第6節で能動的アブレーションからの因果的証拠を提示し、第7節で完全一致タスク多言語研究を報告する。第8--12節で解釈的フレームワーク、ドキュメントアーキテクチャの比較、実践的含意、プラットフォームレベルの議論を展開し、第13節で結論を述べる。
+
+\section{関連研究}
+
+\paragraph{AutoCodeBench。}
+\acb{}は、リポジトリの関数をマイニングし、自然言語タスクを生成し、公開・非公開テストを構築し、20言語にわたるコード生成を評価する自動パイプラインを導入した\cite{acb}。その規模と多言語カバレッジは比較分析にとって特に有用であるが、同時に課題も生じる。タスクは言語間で共有されないため、リーダーボードの生のスコア差だけでは因果的な言語効果を分離できないのである。
+
+\paragraph{関数型言語の評価。}
+FPEvalは「おそらく関数型言語はコードLLMにとって単純に優れている」という仮説に対する独立した統制を提供する\cite{fpeval}。その研究では、より純粋な関数型言語は現行モデルにとって依然として困難であることが示されており、\elixir{}の結果が抽象的な関数的純粋性では説明できないことを示唆している。
+
+\paragraph{低リソース言語の期待値。}
+低リソース言語に関する先行研究は、一般に本研究で観察されることの反対を予測する。すなわち、より小さな言語はプレトレーニングコーパスにおける表現が少ないため性能が劣るはずである\cite{lowresource}。\elixir{}が\pythonlang{}を劇的に上回るという事実は、したがって特別な精査に値する。日本のソフトウェア開発現場においても、Python偏重の傾向は強く、この知見は言語選択の再考を促すものである。
+
+\paragraph{言語混同とポピュラリティバイアス。}
+最近の研究は、多言語コード生成におけるプログラミング言語の混同\cite{plconfusion}と、Pythonや馴染みのあるライブラリへの強いベースライン選好\cite{llmpreferences}の両方を文書化している。この文脈において、\elixir{}の優越は二重に驚くべきものである。低リソースであり、かつ明らかな「デフォルト」言語でもないにもかかわらず勝利しているのである。
+
+\paragraph{コミュニティの観察。}
+\elixir{}コミュニティはベンチマーク結果にいち早く注目し、実務者のコメンタリーではドキュメント品質、ローカル推論、エコシステムの一貫性が候補的説明として強調されてきた\cite{dashbit,ronacher}。日本のElixirコミュニティ（tokyo.ex等）でもこの結果は大きな関心を集めている。本論文はそうした直感を統制された実証分析へと昇華させる。
+
+\paragraph{BEAMランタイムとエージェント的AI。}
+ベンチマークの物語とは独立に、最近の研究はBEAMアクターモデルと新興のAIエージェントアーキテクチャの間の構造的類似性に注目している。Guimarãesは、Erlangが1986年に導入したアクターモデルがLLMオーケストレーションのために再発見されつつあるエージェントモデルと密接に類似することを論じている\cite{guimaraes}。NVLangはBEAM言語のコード生成タスクにおける性能についての追加的証拠を提供する\cite{nvlang}。これらの接続について、第\ref{sec:beam}節で慎重に再検討する。なお、ErlangとBEAMの技術は、日本ではNTTの通信システム研究を通じて早い段階から注目されてきた歴史がある。
+
+\section{ベンチマークと主要結果}
+
+\subsection{リーダーボード}
+
+表\ref{tab:topbottom}は再現された20言語リーダーボードの上位5言語と下位5言語を示す。図\ref{fig:leaderboard}は完全なランキングを提示する。
+
+特に断りのない限り、本論文におけるリーダーボードの数値は、修正されたホストネイティブスコアリングパスを用いた2026年3月11日のローカルフォーク再現を指す。このスナップショットは合計3{,}920行を保持するが、均一な196タスクではなく、言語ごとにわずかに不均等な合計を持つ。Elixirの再現スライスは198タスクを含み、後述の能動的アブレーション実験も同一の198タスクElixirスライスを再利用する。
+
+\begin{table}[H]
+\centering
+\caption{\passatone{}による上位5言語と下位5言語（2026年3月11日のローカル\acb{}再現）。}
+\label{tab:topbottom}
+\begin{tabular}{llrr}
+\toprule
+順位 & 言語 & \passatone{} & 難問率 \\
+\midrule
+1 & Elixir & 87.4 & 70.2 \\
+2 & Kotlin & 76.5 & 43.5 \\
+3 & C\# & 72.4 & 46.2 \\
+4 & Ruby & 63.0 & 54.0 \\
+5 & Julia & 57.0 & 62.5 \\
+\midrule
+16 & Python & 43.9 & 68.4 \\
+17 & Swift & 43.5 & 60.5 \\
+18 & Go & 42.9 & 61.3 \\
+19 & JavaScript & 42.9 & 64.1 \\
+20 & PHP & 35.7 & 55.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/figure_1_leaderboard_ja.pdf}
+\caption{全20言語リーダーボード。棒グラフは\passatone{}を示し、重畳されたマーカーは各言語の難問タスクの割合を示す。\elixir{}は最高性能であると同時に、最も重い難問タスク構成を持つ言語の一つである。}
+\label{fig:leaderboard}
+\end{figure}
+
+第一に重要な点は、これが僅差の勝利ではないということである。\elixir{}は2位のKotlinを10.9 \pp{}、\pythonlang{}を43.5 \pp{}引き離している。第二に重要な点は、この優位が特に容易な問題を受け取ったことによるものではないということである。\elixir{}の難問タスク比率はベンチマーク中央値を上回っている。
+
+\paragraph{Goとの比較。}
+特に示唆に富む定性的対比はGoとのものである。両言語とも並行性を重視したサーバーサイドのワークロードをターゲットとし、両者とも明示的なエラーハンドリングを強調する（Goは複数戻り値、\elixir{}はタグ付きタプル）。両者ともに比較的小さなコア構文と直接的な操作モデルを好む。しかしGoのスコアは42.9\%であり、JavaScriptと同一で\elixir{}に44.5 \pp{}及ばない。本論文ではGoのドキュメントアーキテクチャを直接測定していないため、この比較は結果ではなく仮説として扱う。Go--\elixir{}のギャップは、\emph{個々の関数}レベルでの明示性は必要だが十分ではなく、契約、ドキュメント、サンプルのアーキテクチャ的統合が個別の機能よりも重要であるという考えと整合的である。
+
+\subsection{難易度耐性}
+
+表\ref{tab:difficulty}と図\ref{fig:difficulty}は、5つの参照言語の難易度バケット別内訳を示す。
+
+\begin{table}[H]
+\centering
+\caption{難易度バケット別の主要言語の\passatone{}。}
+\label{tab:difficulty}
+\begin{tabular}{lrrr}
+\toprule
+言語 & 易 & 中 & 難 \\
+\midrule
+Elixir & 96.6 & 86.7 & 86.3 \\
+Kotlin & 100.0 & 88.1 & 63.6 \\
+C\# & 97.8 & 81.1 & 63.1 \\
+Python & 82.0 & 48.6 & 31.6 \\
+JavaScript & 78.6 & 43.7 & 31.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/figure_3_difficulty_resilience_ja.pdf}
+\caption{Elixirの優位性は、脆弱な生成が失敗するはずの難問タスクにおいて最も顕著である。Pythonは易から難にかけて50.4 \pp{}低下するのに対し、Elixirはわずか10.3 \pp{}の低下に留まる。}
+\label{fig:difficulty}
+\end{figure}
+
+これは質的に重要なパターンである。\elixir{}は単に高い出発点を持つのではなく、タスク難易度の上昇に伴う劣化が異常に小さいのである。これは、偶然のベンチマーク上の癖から恩恵を受ける言語・タスクの組み合わせではなく、曖昧さを低減する言語・タスクの組み合わせから期待されるパターンと一致する。日本語で平たく言えば、Elixirは「難しい問題ほど差が開く」のである。
+
+\subsection{人工物の統制}
+
+リーダーボードの差がタスク構成によって説明可能かどうかを検証するため、各言語について難易度バケット内の他19言語の合格率を用いて期待成功率を計算した：
+\begin{equation}
+\expectedp(L) = \sum_{d \in \{E,M,H\}} \frac{n_d(L)}{N(L)} \cdot \bar{p}_d(\neg L).
+\label{eq:expected}
+\end{equation}
+
+\elixir{}の場合、観測された87.4\%は難易度調整済みの期待値44.7\%を42.7 \pp{}上回る。これはデータセット中で最大の正の残差である。
+
+\section{実験設計と方法論}
+
+\subsection{仮説検証スイート}
+
+調査を9つの仮説検証スイートに組織した。その概要を表\ref{tab:suites}に示す。
+
+\begin{table}[H]
+\centering
+\caption{\elixir{}の優位性を調査するために使用した仮説検証スイート。}
+\label{tab:suites}
+\small
+\begin{tabularx}{\textwidth}{>{\bfseries}c l X l}
+\toprule
+スイート & 次元 & 手法 & 状態 \\
+\midrule
+A & ドキュメントとタスクフレーミング & \elixir{}タスクにおけるプロンプト側ドキュメントの除去・劣化 & 完了 \\
+B & パターンマッチングの範囲 & 20言語横断のプロキシメトリック & プロキシのみ \\
+C & パイプライン合成 & 20言語横断のプロキシメトリック & プロキシのみ \\
+D & 制御フロースタイル & パターンディスパッチ構造の代替形式への書き換え & 完了 \\
+E & エラーハンドリング慣習 & タグ付きタプルの代替戻り値慣習への置換 & 完了 \\
+F & 状態とデータフロー & パイプライン、再束縛、状態スレッディングスタイルの変更 & 完了 \\
+G & 型システムシグナル & 仕様とアノテーションからのプロキシメトリック & プロキシのみ \\
+H & 難易度構成の人工物 & 一言語除外期待値分析 & 完了 \\
+I & リポジトリスケールのエコシステム効果 & フルプロジェクト評価 & 今後の課題 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+スイートA, D, E, Fは計792のスイート・タスクスロットと計2{,}970の条件レベル評価をカバーする。スイートHは核心的な人工物統制である。スイートB, C, Gは因果的主張ではなく記述的文脈を提供する。
+
+能動的アブレーション実験は、リーダーボード再現に使用したのと同一のローカルフォークスナップショットから抽出した固定198タスクElixirスライスに対して実施する。このマッチドスライス設計は意図的なものである。スイート内のすべてのデルタは同一タスク上の条件を比較するが、結果として得られる\texttt{full\_docs}ベースライン（84.3\%）は87.4\%のフルベンチマークスコアの第二の推定値として読むべきではない。
+
+\subsection{プロキシメトリック}
+
+20言語を比較するために3つの要約メトリックを使用する。
+
+\textbf{制御フロー明示性}
+\begin{equation}
+\cfscore(L) = \alpha \bar{P}(L) + \beta \bar{D}(L) - \gamma \bar{B}(L),
+\label{eq:cf}
+\end{equation}
+ここで$\bar{P}(L)$は平均パターンマッチ密度、$\bar{D}(L)$はパイプラインまたはディスパッチ密度、$\bar{B}(L)$は分岐密度である。
+
+\textbf{可変性負荷}
+\begin{equation}
+\mutscore(L) = \bar{A}(L) + \bar{U}(L) + \bar{W}(L),
+\label{eq:mut}
+\end{equation}
+ここで代入、更新、書き込みはすべて、モデルが追跡しなければならない隠れた状態に寄与する。
+
+\textbf{初回失敗分類法}
+各失敗生成を初回の非合格状態で分類する：構文またはコンパイルエラー、実行時例外、誤出力、タイムアウト、またはその他の実行時失敗。Wilson区間とFisher正確検定を割合比較に使用する。
+
+スイートA, D, E, Fの条件効果はマッチドタスク結果から推定し、すべての非ベースライン介入コントラストに対してHolm補正付きの両側正確McNemar検定で検定する。384行の要因計画では、各主効果をマッチド平均デルタとして要約し、タイを除外した勝ち/負けカウントに対する両側正確符号検定で検定し、4つの主効果にHolm補正を適用する。
+
+\subsection{主張の階層}
+
+修辞的な過剰主張を避けるため、本論文は主張を証拠の階層によって区分する。
+
+\begin{table}[H]
+\centering
+\caption{主張レベルの要約。}
+\label{tab:claims}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.04\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.15\textwidth} >{\raggedright\arraybackslash}p{0.26\textwidth}}
+\toprule
+\# & 主張 & 証拠レベル & 主要な証拠 \\
+\midrule
+1 & \elixir{}の87.4\%は人工物統制を生き残る & 強い & 難易度統制と+42.7 \pp{}残差 \\
+2 & ドキュメント構造が\elixir{}内部の支配的要因 & 強い（因果的） & スイートA：約-38〜-41 \pp{} \\
+3 & パターンマッチングディスパッチスタイルは独立に有意ではない & 強い（帰無） & スイートD：全効果$\pm$3 \pp{}以内 \\
+4 & エラーハンドリングスタイルは独立に有意ではない & 強い（帰無） & スイートE：全効果$\pm$3 \pp{}以内 \\
+5 & 状態フロースタイルは示唆的だが未確立 & 方向性のみ & スイートF：+5.1〜+5.6 \pp{} \\
+6 & 明示的契約が主要なポータブルな言語横断介入 & 中程度（因果的） & 要因計画：$\Delta=+0.359$、Holm調整$p=0.030$ \\
+7 & 明示性仮説は有用な統合的解釈である & フレームワーク & 完了した全証拠を統合 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{設計空間分析}
+
+能動的アブレーションに移る前に、\elixir{}が20言語の設計空間においてすでに異常に見えるかどうかを確認しておくことが有用である。図\ref{fig:designspace}はその問いにイエスと答える。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.96\textwidth]{figures/figure_2_design_space_ja.pdf}
+\caption{20言語プロキシテーブルから構築した設計空間マップ。横軸は制御フロー明示性を測定し、縦軸は状態明瞭度（可変性負荷の符号を反転させ、高いほど良いとしたもの）を示す。バブルサイズはドキュメントプロキシを反映する。\elixir{}は唯一の「右上方の遠い外れ値」である。}
+\label{fig:designspace}
+\end{figure}
+
+ここで3つの記述的事実が重要である。
+
+第一に、\elixir{}は強い正の制御フロー明示性スコア（$+6.517$）を持つ唯一の言語である。第二に、その可変性負荷はデータセットの下位近くにある。第三に、そのドキュメントプロキシは一意に最大というわけではない---JavaやC++は生のボリュームでは上回る---ことから、\emph{量}よりも\emph{構造}が重要であることがすでに示唆されている。
+
+プロキシ分析は因果関係を確立しないが、より正確なターゲットを示唆する。\elixir{}は明示的なディスパッチ、低い隠れ状態、およびコード自体と異常なほど統合されたドキュメント文化を兼ね備えているのである。
+
+\section{能動的アブレーションからの因果的証拠}
+
+\subsection{スイートA：ドキュメント構造が支配的要因}
+
+本論文で最も強い結果はスイートAであり、表\ref{tab:suitea}と図\ref{fig:suitea}に示す。スイートAは前述の固定198タスクElixirアブレーションスライスを使用するため、その\texttt{full\_docs}ベースラインは87.4\%のフルベンチマーク値ではなく、マッチドスライスベースラインである。
+
+\begin{table}[H]
+\centering
+\caption{スイートA 能動的アブレーション（各条件198タスク）。}
+\label{tab:suitea}
+\begin{tabular}{lrrr}
+\toprule
+条件 & 合格数 & \passatone{} & 全ドキュメントとの差 \\
+\midrule
+full\_docs & 167 & 84.3\% & --- \\
+reference\_no\_examples & 167 & 84.3\% & 0.0 \\
+minimal\_docs & 91 & 46.0\% & -38.4 \\
+signature\_only & 85 & 42.9\% & -41.4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/figure_4_suite_a_ablation_ja.pdf}
+\caption{\elixir{}内部において、サンプル単独では影響がないが、ドキュメント構造を崩すと\passatone{}がほぼ半減する。シグネチャのみのフレーミングでは、\elixir{}はPythonのACB全体ベースラインの近傍まで低下する。}
+\label{fig:suitea}
+\end{figure}
+
+3つの点が強調に値する。
+
+\begin{enumerate}
+  \item \textbf{サンプル単独ではベンチマークを動かさない。} 完全な\elixir{}フレーミングからサンプルを除去しても何も変わらない。
+  \item \textbf{構造こそがすべてである。} 構造化ドキュメントの除去は性能を約40 \pp{}低下させる。
+  \item \textbf{量は鍵となる変数ではない。} \texttt{minimal\_docs}と\texttt{signature\_only}の差は小さい。少しの非構造化テキストでは不十分である。重要なのはローカルに完全な仕様であること。
+\end{enumerate}
+
+両方の大きな低下は、全能動的アブレーションコントラストにわたるマッチドMcNemar分析においてHolm有意である。
+
+このパターンが本論文の中心的な因果的結果である。これは\elixir{}の問いを「モデルはどんな構文を好むか？」から「モデルは他を探さずにどんな情報を回復できるか？」へと再定義するものである。これは日本のソフトウェア開発においても重要な示唆を含む。すなわち、関数のドキュメントを「あとで書く」のではなく、コードと一体的に構造化して管理することが、AI時代のコード品質を左右するのである。
+
+\subsection{その他のElixir内スイート}
+
+スイートD, E, Fは物語を覆すのではなく、先鋭化する。制御フローをパターンディスパッチ構造から書き換えても大きなまたは有意な効果は生じない。エラーハンドリング慣習の書き換えも同様である。代替的な状態フロースタイルは小さな正のデルタを示すが、多重比較補正を生き残らない。完全な要約は付録\ref{app:ablations}に示す。
+
+この帰無的証拠は価値がある。最良の説明が単一の崇拝された言語機能ではないことを示しているからである。\elixir{}の優位性は「パイプ演算子が勝った」のでも「タグ付きタプルが勝った」のでもない。シグナルは意味論的スタックのより高い位置に集中している：ドキュメント、契約、タスクフレーミングである。
+
+\subsection{失敗分類法とコモンタスクの健全性チェック}
+
+198タスクの全ドキュメント評価においては25件の失敗のみが存在する。そのうち7件が誤出力、2件が言語レベル例外、16件がその他のランタイムまたは環境の失敗である。例外カウントの非常に少ないことは、多くの制御パスを例外駆動ではなく明示的にする言語と少なくとも方向性において整合的である。
+
+再帰タスクの固定効果健全性チェックも同方向を指す。\elixir{}が登場する再帰タスクタイトルの小さなサブセットにおいて、クラスター平均に対する平均残差は正（+0.2143）であるが、クラスター数が少ないため区間は広い。これはトピック構成が無関係であることを証明しないが、最も強い純粋に観察的な反論を弱めるものである。
+
+\section{完全一致タスク多言語研究}
+
+\subsection{144行完全一致タスクパネル}
+
+メインリーダーボードは異なるタスクで言語を比較する。この制約を部分的に中和するため、144行の完全一致タスクパネルを構築した：16の手作成の実行可能タスクを、\elixir{}・\pythonlang{}・\tslang{}のそれぞれ3つのフレーミング条件で実装したものである。
+
+集約した条件別結果は以下の通りである：
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+条件 & \passatone{}（48行） \\
+\midrule
+baseline\_compact & 35/48 = 72.9\% \\
+rich\_contract & 35/48 = 72.9\% \\
+rich\_contract\_examples & 40/48 = 83.3\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+2つの点が重要である。
+
+第一に、すべての言語に同一のタスク仕様が与えられた場合、\elixir{}はもはや支配的ではない。これは重要である。\acb{}の結果が言語特性とベンチマークのネイティブなフレーミングスタイルとの相互作用の一部であることを示唆するからである。
+
+第二に、この完全一致タスク設定ではサンプルが方向性として有用になる：マッチド改善7件対悪化2件。これはスイートAと矛盾しない。スイートAではサンプルがすでにリッチで構造化されたフレーミングから除去された。完全一致タスクパネルではサンプルがコンパクトな仕様に\emph{追加}されたのである。
+
+\subsection{384行分割要因計画による追加実験}
+
+最も情報量の多い同一タスク結果は384行の正則$2^{(4-1)}$分割要因計画から得られる。これは4つのプロンプト側要因を変動させる：リッチな散文、サンプル、明示的契約、状態フローガイダンスである。主効果はマッチドデルタとして推定し、タイを除外した勝ち/負けカウントに対する両側正確符号検定で検定し、4要因にわたるHolm補正を適用する。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/figure_5_factorial_effects_ja.pdf}
+\caption{完全一致タスク要因計画において、明示的な契約記述はHolm補正を生き残る唯一のポータブルな介入である。その効果はPythonとTypeScriptで最大であり、これらは類似の契約情報が周辺のエコシステムにあまりネイティブに存在しない言語である。}
+\label{fig:factorial}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{384行分割要因計画における主効果。}
+\label{tab:factorial}
+\begin{tabular}{lrrr}
+\toprule
+要因 & マッチド$\Delta$ & 正確符号$p$ & Holm調整$p$ \\
+\midrule
+docs\_rich & +0.047 & 0.549 & 1.000 \\
+examples & +0.203 & 0.039 & 0.116 \\
+contracts\_explicit & \textbf{+0.359} & \textbf{0.007} & \textbf{0.030} \\
+state\_guidance & -0.026 & 0.727 & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+言語別の契約効果は以下の通りである：
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+言語 & 契約$\Delta$ & Holm調整$p$ \\
+\midrule
+Elixir & +0.156 & 0.774 \\
+Python & \textbf{+0.469} & \textbf{0.001} \\
+TypeScript & \textbf{+0.453} & \textbf{0.004} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+これはまさに可視性に基づく説明が予測するパターンである。明示的な契約記述から最も恩恵を受ける言語は、そのエコシステムがその情報を\elixir{}ほど積極的かつローカルに表面化させない言語なのである。
+
+換言すれば、Elixirは「すでに契約が見えている」ため追加契約の効果が小さく、PythonとTypeScriptは「契約が見えにくい」ため追加契約の効果が大きい。これは日本のソフトウェア開発チームにとって直接的な教訓を含む。たとえElixirを使わなくとも、関数の入出力契約を明示的に記述することでLLMによるコード生成品質を大幅に向上させることができるのである。
+
+\section{考察：予測負荷、可視性、ベンチマーク整合性}
+
+実証的な全体像は、定式化に足るほど明瞭になった。データの最良の解釈は単一の機能の物語ではなく、可視性の物語である。
+
+\subsection{ローカルな意味論的可視性}
+
+次のように定義する：
+\begin{equation}
+V(L,T) = \lambda_t E_{\mathrm{task}} + \lambda_c E_{\mathrm{contract}} + \lambda_f E_{\mathrm{flow}} + \lambda_d E_{\mathrm{dispatch}},
+\label{eq:visibility}
+\end{equation}
+ここで各$E$項は言語$L$とタスク$T$について異なる意味論的次元のローカルな可視性を捕捉する：
+\begin{itemize}
+  \item $E_{\mathrm{task}}$：タスク記述が目的とエッジケースをどれほど明確に述べているか
+  \item $E_{\mathrm{contract}}$：入出力とエラー契約がどれほど明確に記述されているか
+  \item $E_{\mathrm{flow}}$：状態遷移とデータ変換がどれほど可視的であるか
+  \item $E_{\mathrm{dispatch}}$：制御フロー選択がどれほど明示的であるか
+\end{itemize}
+
+次に、成功を概念的に以下のようにモデル化する：
+\begin{equation}
+\Pr(\mathrm{pass} \mid L,T) = \sigma\!\left(\alpha + \beta V(L,T) - \kappa D(T)\right),
+\label{eq:logistic}
+\end{equation}
+ここで$D(T)$は内在的タスク難易度であり、$\sigma(\cdot)$はロジスティック関数である。
+
+式\eqref{eq:visibility}--\eqref{eq:logistic}は\emph{解釈的}なものであり、フィットされた推定値ではない。その価値は説明力にある。これらの式は、Elixir内アブレーション、完全一致タスク多言語追加実験、および複数の低レベル機能書き換えの弱い役割を統合的に説明できるメカニズムの種類を教えてくれる。
+
+\subsection{ベンチマーク整合性}
+
+\acb{}の完全な結果は主効果以上のものを示唆する。それは言語設計とベンチマークフレーミングの豊富さの間の相互作用を示唆する：
+\begin{equation}
+\Pr(\mathrm{pass} \mid L,T) =
+\sigma\!\left(
+\alpha + \beta V_L + \gamma R_T + \delta V_L R_T - \kappa D_T
+\right),
+\label{eq:interaction}
+\end{equation}
+ここで$V_L$は言語レベルの可視性事前分布であり、$R_T$はタスクフレーミングの豊富さである。
+
+この相互作用モデルは、本論文における最も重要な2つの実証的事実を直ちに説明する。
+
+\begin{itemize}
+  \item ネイティブな\acb{}タスクでは、\elixir{}は$V_L$とベンチマークのフレーミングスタイルの両方が有利であるため大差で勝利する。
+  \item 完全一致タスクパネルでは、フレーミングが言語間で統制・均等化されるため、\elixir{}は同一の固有な相互作用ボーナスをもはや享受しない。
+\end{itemize}
+
+したがって、本論文の真の教訓は「\elixir{}を使え」よりも広い。ベンチマークは\emph{整合された明示性}を報酬として与えているように見える。
+
+\subsection{飽和の結果}
+
+\elixir{}と\pythonlang{}/\tslang{}の間の契約効果の非対称性も、可視性モデルから自然に導出される。
+
+\begin{proposition}[明示性向上の飽和]
+式\eqref{eq:logistic}の下で、任意の可視性次元$E_k$を改善することによる限界利得は
+\begin{equation}
+\frac{\partial}{\partial E_k} \Pr(\mathrm{pass} \mid L,T)
+=
+\beta \lambda_k \, P(1-P),
+\label{eq:derivative}
+\end{equation}
+ここで$P = \Pr(\mathrm{pass} \mid L,T)$である。したがって、同一の可視性改善はベースライン性能がすでに天井に近い場合により小さな絶対利得をもたらす。
+\end{proposition}
+
+\textit{証明の概略。} 式\eqref{eq:logistic}のロジスティック形式を$E_k$で微分する。乗数$P(1-P)$は$P=0.5$付近で最大であり、$P \to 0$または$P \to 1$で縮小する。
+
+これは実証的に重要である。\elixir{}はすでに強いローカル契約可視性を出発点として持つため、同じ明示的契約介入はベースラインの契約可視性が弱い\pythonlang{}や\tslang{}よりも小さな限界利益しかもたらさない。数学的には限界収穫逓減の法則であり、直感的には「すでに十分見えているものをさらに見えるようにしても効果は小さい」ということである。
+
+\subsection{メカニズムの要約}
+
+\begin{table}[H]
+\centering
+\caption{メカニズムレベルの証拠要約。}
+\label{tab:mechanisms}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.18\textwidth}
+                >{\raggedright\arraybackslash}X
+                >{\raggedright\arraybackslash}X
+                >{\raggedright\arraybackslash}p{0.14\textwidth}}
+\toprule
+メカニズム & Elixir内の証拠 & 言語横断の証拠 & 判定 \\
+\midrule
+ドキュメント構造 & +38〜+41 \pp{}、マッチドMcNemar検定でHolm有意 & ポータブルには未検証 & \textbf{支配的要因} \\
+契約の明示性 & ベースラインがすでに高い & +0.359、正確符号検定でHolm有意 & \textbf{ポータブルな介入} \\
+制御フロースタイル & $\leq 3$ \pp{}、帰無 & 分離されていない & 主要因ではない \\
+エラーハンドリング & $\leq 3$ \pp{}、帰無 & 分離されていない & 主要因ではない \\
+状態フロースタイル & +5.1〜+5.6 \pp{}、非有意 & 分離されていない & 示唆的のみ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{情報密度との関連}
+
+可視性の説明は、人間の言語処理における均一情報密度の概念とも自然に接続する\cite{jaeger2010}。分散的でローカルに利用可能な情報は、まばらで高サプライズのバーストで到着する情報よりも処理しやすい。コードにおいて、パターンディスパッチヘッド、明示的パイプライン、近接する契約、実行可能なサンプルはすべて同じ一般的効果を持つ：意味論的サプライズを平坦化するのである。本研究でトークンレベルのエントロピーを測定したとは主張しないが、理論的接続は直接的なフォローアップ研究を動機づけるのに十分強い。
+
+\section{ドキュメントアーキテクチャ：なぜElixirは構造的に異なるのか}
+
+実証結果は繰り返し上方を、すなわち構文からアーキテクチャへと指し示す。\elixir{}のドキュメントスタックの何が正確に特別なのか。
+
+\begin{table}[H]
+\centering
+\caption{ドキュメントアーキテクチャの比較。}
+\label{tab:docscomp}
+\small
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{0.18\textwidth}
+                >{\raggedright\arraybackslash}X
+                >{\raggedright\arraybackslash}X
+                >{\raggedright\arraybackslash}X}
+\toprule
+特徴 & Elixir & Python & TypeScript \\
+\midrule
+ソース内モジュールドキュメント & \texttt{@moduledoc}属性 & モジュールdocstring & 組込みの第一級相当物なし \\
+ソース内関数ドキュメント & \texttt{@doc}属性 & 関数docstring & JSDocまたはTSDocコメント \\
+実行可能サンプル & 組込みのdoctestワークフロー & 標準ライブラリdoctestは存在するが使用が不均一 & ネイティブ相当物なし \\
+型と文書の近接 & \texttt{@spec}がドキュメントに隣接 & 型ヒントはしばしば散文から分離 & 型はしばしばコメントから分離 \\
+ドキュメント生成 & ExDoc & Sphinx, pdoc等 & TypeDoc等 \\
+一元的ホスティング規範 & HexDocs & 断片的、任意参加 & 断片的、任意参加 \\
+ランタイム検索 & \texttt{Code.fetch\_docs/1}、IEx help & \texttt{help()} via pydoc & エディタおよびビルドツール中心 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/figure_6_docs_pipeline_ja.pdf}
+\caption{Elixirの優位性はスタイルではなくアーキテクチャにある。言語、テスティングフレームワーク、ドキュメント生成器、パッケージエコシステム、ランタイムヘルプ機能が単一のドキュメントパイプラインを形成する。}
+\label{fig:docspipeline}
+\end{figure}
+
+鍵となる違いは、\elixir{}がより多くの散文を持つことではない。生のドキュメント量はこの結果を説明しない。違いは、目的、サンプル、契約、公開、検索がすべて安定したパイプラインの中に共存していることである。ソースレベルのドキュメント属性、実行可能なdoctest、ExDocによる生成、HexDocsでの公開、IExまたは\texttt{Code.fetch\_docs/1}によるランタイム検索が一つのシステムの一部である\cite{writingdocs,codefetchdocs,exunitdoctest,exdoc,hexdocs}。PythonとTypeScriptも確かにリッチなドキュメントをサポートするが、それはよりゆるい慣習とより断片化されたツールを通じてである\cite{pydoc,pydoctest,tsjsdoc,typedoc}。
+
+その構造的統合が重要なのは、コード生成モデルがコンテキスト制約の下で動作するからである。関数の説明が物理的にも意味論的にも近接している場合---別のファイル、別のツール、別の社会的慣習に隠れているのではなく---モデルは恩恵を受ける\cite{zachdaniel}。
+
+日本のソフトウェア開発の文脈で考えると、これはドキュメントを「コードの付随物」ではなく「コードアーキテクチャの一部」として設計すべきことを意味する。日本企業では仕様書や設計書を重視する文化があるが、それがコードと物理的に分離している限り、LLMにとっての可視性は限定的なのである。
+
+\subsection{これが単なるElixir礼賛ではない理由}
+
+この主張の健全な版はポータブルである。もし明示的契約が\pythonlang{}と\tslang{}で最大の言語横断的効果を生むなら、本論文はチームにスタックを\elixir{}で書き直せと言っているのではない。すでにいる場所で予測負荷を減らせと言っているのである：
+\begin{itemize}
+  \item 入出力契約を明示的に記述する
+  \item サンプルをそれが説明するコードに隣接させる
+  \item 状態遷移を線形かつ名前付きにする
+  \item ローカル推論を保全する慣習を選好する
+\end{itemize}
+
+これは言語部族主義よりも強く、かつ実践的な結論である。
+
+\section{含意}
+
+\subsection{言語設計者への含意}
+
+これらの結果が引き続き再現される場合、言語設計には新しい問いが必要になる：\emph{この言語はローカルビューに何を強制的に表示するか？} 即座の設計教訓はシンプルである。
+
+\begin{enumerate}
+  \item \textbf{契約を第一級にする。} 戻り値の慣習、無効入力時の振る舞い、副作用は近接する構文または近接するドキュメントから可視であるべきである。
+  \item \textbf{ドキュメントを開発ループに統合する。} 検証済みのサンプルは装飾的なサンプルよりも長持ちする。
+  \item \textbf{隠れた状態よりも可視的なフローを選好する。} 余分なミューテーションはそれぞれ、モデルが暗黙的に記憶しなければならない追加事項である。
+  \item \textbf{ドキュメントアーキテクチャを言語アーキテクチャとして扱う。} エコシステムが説明、公開、検索を標準化すれば、モデルはより規則的な世界を見る。
+\end{enumerate}
+
+\subsection{ソフトウェアチームへの含意}
+
+本論文はまた、直接的な運用レシピも提供する。
+
+\begin{itemize}
+  \item PythonまたはTypeScriptにおいて、明示的な戻り値・エラー契約を追加する。
+  \item コードベース全体で一貫したドキュメント形式を使用する。
+  \item 可能な限りサンプルを実行可能に保つ。
+  \item レビュアーがシグネチャ、近接するドキュメント、ローカルな本体から関数を理解できるように設計する。
+\end{itemize}
+
+平たく言えば、人間にもモデルにも宝探しをさせないコードを書くということである。
+
+日本のソフトウェア開発チームにとって、これは特に実践的な教訓を含む。日本語のdocstringやコメントであっても、構造化されていればLLMは情報を抽出できる。重要なのは言語ではなく、情報の構造と近接性なのである。
+
+\section{ベンチマークを超えて：BEAMプラットフォームとエージェント的含意}
+\label{sec:beam}
+
+本論文における証拠はコード\emph{生成}に関するものである：プロンプトが与えられたとき、モデルはどれほど信頼性高く正しいコードを生成するか。しかし\elixir{}のランタイム---BEAM仮想マシン---は、ベンチマークスコアだけでは語り尽くせないストーリーを持つ。
+
+\subsection{エージェントランタイムとしてのBEAM}
+
+\elixir{}が動作するErlang/OTPプラットフォームは、決して停止してはならない電話交換機のために設計された。その中核的抽象---軽量プロセス（各プロセスのヒープ初期値は約2\,KBである）、プリエンプティブスケジューリング、プロセス単位のガベージコレクション、スーパービジョンツリー、透過的分散---は元来、耐障害性を動機としていた\cite{nvlang}。これらの同じ抽象が、現代のAIエージェントフレームワークの要件と少なくとも示唆的に整合するのである：
+
+\begin{itemize}
+  \item \textbf{軽量な分離。} BEAMプロセスはOSスレッドよりも軽量であり、大半の言語ランタイムのグリーンスレッドよりも軽量である。実践的には、非常に多数の並行する隔離されたワーカーをサポートできる。
+  \item \textbf{障害の分離と回復。} 各プロセスは自身のヒープとクラッシュ境界を持つ。失敗したエージェントは隣接するプロセスを汚染せず、スーパーバイザーが宣言されたポリシーに従ってそれを再起動する。これは「let it crash」哲学であり、個々のツール呼び出しや推論ステップが失敗しうるエージェント的システムの信頼性要件に直接対応する。
+  \item \textbf{ホットコードリローディング。} BEAMはシステムを停止せずに実行中のコードをアップグレードすることをサポートする。長時間実行されるエージェントデプロイメントにおいて、これはモデル更新、プロンプト変更、ツール登録をサービス中断なしにロールアウトできることを意味する。
+  \item \textbf{第一級プリミティブとしてのメッセージパッシング。} BEAMプロセスは非同期メッセージパッシングを通じてのみ通信する。これは、エージェントがミュータブルな状態を共有するのではなく構造化メッセージを交換するマルチエージェントフレームワークにおけるエージェント間通信パターンと密接に類似する。
+\end{itemize}
+
+Guimarãesが観察したように、Erlangが1986年に導入したアクターモデルは、AIが今日再発見しつつあるエージェントモデルと強い類縁関係を持つ\cite{guimaraes}。スーパービジョンツリーはポリシーエンジンとして読めるし、プロセスメールボックスはエージェントインボックスに似ており、GenServerコールバックプロトコルはツール使用インターフェースに似ている。この並行性は示唆的であるが、決定的ではない。
+
+日本では、Erlang/BEAMの技術は通信インフラの文脈で早くから注目されてきた。NTTをはじめとする日本の通信企業が求めた高可用性・高信頼性の要件は、まさにBEAMが設計された文脈そのものである。エージェント的AIの時代において、この技術的遺産が新たな価値を持つ可能性がある。
+
+\subsection{可読性からライブネスへ}
+
+この接続は可読性の物語にフィードバックする。モデルにとって\emph{生成}しやすく、かつ生成されたエージェントを\emph{デプロイ、隔離、回復}できるランタイムを提供する言語は、複合的優位を享受しうる。\elixir{}をコード生成モデルにとって読みやすくするドキュメントパイプラインは、生成されたコードがエージェントとして実行される際にも自己文書化をもたらす。\texttt{@moduledoc}と\texttt{@doc}属性は本番環境まで生き残り、\texttt{Code.fetch\_docs/1}によってエージェントが自身または互いのインターフェースを実行時にイントロスペクトすることを可能にする\cite{codefetchdocs}。
+
+\subsection{本論文が主張しないこと}
+
+本論文は\elixir{}が唯一の実行可能なエージェントランタイムであるとも、BEAMの特性がここで観察されたベンチマークスコアを引き起こしたとも主張しない。ベンチマーク評価は純粋にプロンプトからのコード生成に関するものであり、デプロイメント、オーケストレーション、障害回復をテストしていない。主張は、同じ設計哲学---意図を可視にし、状態を明示的に保ち、隔離境界を強制する---がコード生成においては可読性として、ランタイム実行においては信頼性として顕現するということである。これらは同一のコインの表裏である。
+
+\section{限界と今後の課題}
+
+本論文は一つの点において強力であり、他の複数の点において意図的に控えめである。
+
+\begin{enumerate}
+  \item \textbf{単一モデルの限界。} 完了した全評価はGPT-5.4の中推論モードを使用している。強い結果はモデルファミリーの変動を生き残るべきである。
+  \item \textbf{ベンチマーク固有性。} \acb{}は大規模で有用であるが、依然として一つのタスク生成パイプラインを持つ一つのベンチマークに過ぎない。
+  \item \textbf{メインリーダーボードにおける共有タスクIDの不在。} 完全一致タスクパネルは有用であるが、真に共有されたタスクの多言語ベンチマークを完全には代替しない。
+  \item \textbf{マッチド研究の小規模性。} 144行パネルと384行要因計画は有益であるが、3,920タスクのベンチマークに比べれば依然として小規模である。
+  \item \textbf{プロキシメトリックは近似である。} 制御フローと可変性の要約は記述的な道具であり、言語の本質の直接的測定ではない。
+\end{enumerate}
+
+したがって、今後の研究は3つのことを行うべきである。完全一致タスク多言語パネルのスケールアップ、他のフロンティアモデルファミリーでの能動的アブレーション順序の再現、およびベンチマークスニペットからプロダクションフレームワーク間のリポジトリスケール比較への移行（例えば、PhoenixやEctoと、Django、Rails、Expressとの比較）である。
+
+\paragraph{新しい言語設計への含意。}
+おそらく本研究の最も帰結的な含意は、まだ存在しない言語について示唆することである。\acro{LLM}支援プログラミングにおける従来の仮定は、\emph{コーパスサイズが生成品質を決定する}というものであった。\elixir{}の結果はこの仮定に直接的に挑戦する。極小の市場シェアを持つ言語が、公開コードコーパスにおいて最も多く表現される言語のスコアをほぼ倍増させている---モデルがより多くの\elixir{}を暗記したからではなく、\elixir{}の設計がローカルなコンテキストから意図を回復可能にするからである。
+
+拘束条件がコーパス量ではなく構造的可読性であるなら、新しいプログラミング言語の設計空間は従来考えられていたよりも広い。本論文で特定された特性---明示的契約、パターン駆動制御フロー、第一級アーティファクトとしての構造化ドキュメント、パイプライン指向データ変換、デフォルトイミュータブルセマンティクス---に基づいて一から設計された言語は、原理的には\elixir{}のLLM可読性と同等かそれ以上を達成しうる。\acro{BEAM}プラットフォームの物語（第\ref{sec:beam}節）はさらなる次元を追加する：これらの生成親和的な設計選択をエージェントネイティブなランタイムと対にすることで、優位性が複合される可能性がある。\footnote{著者はこれらの設計上の問いの一部をDreamLang（\url{https://dreamlang.dev}）において別途探求している。この注記は関連する進行中の作業の開示として含まれており、本研究における評価対象のアーティファクトとしてではない。}目的設計された\acro{LLM}可読言語が進化したエコシステムを最終的に上回るかどうかは、本論文が回答できない実証的問いであるが、ここに提示されたデータは、その問いを真剣に問う価値があることを示唆している。
+
+\section{結論}
+
+本研究は印象的な結果から出発した。\elixir{}は\acb{}で87.4\%をスコアし、\pythonlang{}は43.9\%であった。
+
+人工物の統制と因果的追加実験を経て、最も明瞭な解釈が可視となった。この結果は関数型プログラミングについての単純な道徳劇ではない。それは\emph{可読性}についてのものである。\elixir{}が異常に高い性能を示すのは、関数の目的、契約、データフロー、失敗モードが近接するコンテキストから読み取り可能であることが多いからである。その構造が除去されると性能は崩壊する。明示的契約がより弱いエコシステムに追加されると性能は上昇する。
+
+本論文の持続的な主張は、したがって\elixir{}よりも大きく、誇大宣伝よりもシャープである。\emph{LLM指向のソフトウェアエンジニアリングは明示性を報酬として与える}。予測負荷を軽減する言語とエコシステムは、モデルにとって生成、修復、レビュー、拡張がより容易になる。
+
+さらに、BEAM仮想マシンの軽量プロセス、障害隔離スーパービジョンツリー、ホットコードリローディングは、ここでは直接テストされていないものの、生成だけでなくデプロイメントについてもより広い仮説を動機づける。モデルにとって生成しやすく、\emph{かつ}生成されたエージェントをデプロイ、隔離、回復できるプラットフォームを提供する言語は、エージェント的システムにおいて複合的優位を享受しうる。
+
+その意味で、将来の言語戦争は速度、安全性、人気だけでは決まらないかもしれない。意図の回復を最も容易にする者が---そしてそれに基づいて行動するエージェントに最適な運用上の住処を提供するランタイムが---勝利するかもしれないのである。
+
+\bigskip
+\begin{center}
+$\ast\quad\ast\quad\ast$
+\end{center}
+
+\section*{データとコードの利用可能性}
+本研究で参照されるすべてのタスク生成スクリプト、プロンプトテンプレート、実行ハーネス、生の評価ログ、および手動監査パックは以下で利用可能である：
+
+\begin{center}
+\url{https://github.com/gunta/AutoCodeBenchmark}
+\end{center}
+
+\noindent 上記リポジトリには、分割要因計画行列、タスク単位の合否CSV、および本論文のすべての表とプロットを再現するために必要な図生成コードが含まれている。
+
+\section*{謝辞}
+
+本研究の実施にあたり支援をいただいた株式会社サイバーエージェントの同僚諸氏に感謝する。また、日本のElixirコミュニティ、特にtokyo.exおよびElixirConf JPの参加者との議論が本研究の着想に貢献したことを付記する。
+
+\clearpage
+\appendix
+
+\section{全言語プロキシデータ}
+\label{app:proxy}
+
+\begin{table}[H]
+\centering
+\caption{全20言語のプロキシメトリック（\passatone{}順にソート）。}
+\label{tab:proxyfull}
+\small
+\begin{tabular}{lrrrrrrr}
+\toprule
+言語 & \passatone{} & CF値 & 可変性 & ドキュメント & パターン & 代入数 & 難問率 \\
+\midrule
+Elixir & 87.4 & 6.517 & 4.289 & 17.694 & 3.545 & 4.970 & 70.2 \\
+Kotlin & 76.5 & -1.285 & 11.780 & 26.144 & 0.000 & 10.665 & 43.5 \\
+C\# & 72.4 & -1.196 & 19.964 & 30.210 & 0.000 & 20.693 & 46.2 \\
+Ruby & 63.0 & -0.678 & 11.297 & 19.840 & 0.000 & 11.265 & 54.0 \\
+Julia & 57.0 & -2.208 & 9.060 & 18.166 & 0.000 & 9.540 & 62.5 \\
+Dart & 56.5 & -0.698 & 14.050 & 28.481 & 0.000 & 13.635 & 68.0 \\
+R & 54.5 & -1.588 & 5.844 & 18.255 & 0.000 & 5.389 & 64.1 \\
+Java & 51.1 & -1.322 & 14.851 & 35.082 & 0.000 & 12.410 & 56.4 \\
+Racket & 51.0 & 0.103 & 1.897 & 15.944 & 0.000 & 1.051 & 56.6 \\
+Scala & 50.8 & 1.553 & 17.202 & 29.427 & 0.000 & 17.653 & 68.8 \\
+Shell & 50.5 & -0.555 & 7.320 & 25.757 & 0.000 & 7.580 & 61.2 \\
+C++ & 50.0 & -2.959 & 29.284 & 35.156 & 0.000 & 23.704 & 63.4 \\
+TypeScript & 49.2 & -0.676 & 12.308 & 11.356 & 0.000 & 10.271 & 75.4 \\
+Perl & 44.5 & -1.326 & 7.281 & 15.299 & 0.000 & 7.155 & 61.5 \\
+Python & 43.9 & -2.014 & 10.671 & 21.264 & 0.000 & 10.020 & 68.4 \\
+Swift & 43.5 & -1.945 & 9.434 & 16.783 & 0.000 & 10.220 & 60.5 \\
+Go & 42.9 & -0.194 & 9.821 & 16.338 & 0.000 & 9.885 & 61.3 \\
+JavaScript & 42.9 & -0.574 & 13.891 & 15.844 & 0.000 & 11.190 & 64.1 \\
+Rust & 40.2 & -2.718 & 22.566 & 26.343 & 0.000 & 19.070 & 76.9 \\
+PHP & 35.7 & -1.217 & 17.849 & 11.497 & 0.000 & 18.698 & 55.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{能動的アブレーション要約}
+\label{app:ablations}
+
+\begin{table}[H]
+\centering
+\caption{スイートA, D, E, Fにわたる能動的アブレーション条件。}
+\label{tab:ablationfull}
+\small
+\begin{tabular}{llrrrr}
+\toprule
+スイート & 条件 & 合格 & 合計 & \passatone{} & ベースラインとの差 \\
+\midrule
+A & full\_docs & 167 & 198 & 84.3\% & --- \\
+A & reference\_no\_examples & 167 & 198 & 84.3\% & 0.0 \\
+A & minimal\_docs & 91 & 198 & 46.0\% & -38.4 \\
+A & signature\_only & 85 & 198 & 42.9\% & -41.4 \\
+\midrule
+D & baseline & 167 & 198 & 84.3\% & --- \\
+D & case\_with & 161 & 198 & 81.3\% & -3.0 \\
+D & cond\_if & 172 & 198 & 86.9\% & +2.5 \\
+D & function\_heads & 164 & 198 & 82.8\% & -1.5 \\
+\midrule
+E & baseline & 166 & 198 & 83.8\% & --- \\
+E & tagged\_tuple\_helpers & 172 & 198 & 86.9\% & +3.0 \\
+E & sentinel\_helpers & 166 & 198 & 83.8\% & 0.0 \\
+\midrule
+F & baseline & 162 & 198 & 81.8\% & --- \\
+F & immutable\_pipeline & 162 & 198 & 81.8\% & 0.0 \\
+F & explicit\_state\_threading & 172 & 198 & 86.9\% & +5.1 \\
+F & rebinding\_stepwise & 173 & 198 & 87.4\% & +5.6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{マッチド研究のロバストネスチェック}
+\label{app:robustness}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/figure_A1_robustness_ja.pdf}
+\caption{マッチド研究のロバストネス要約。サンプル効果は控えめで低検出力のままである。契約効果はブートストラップおよび一要素除外摂動の両方で正を維持する。}
+\label{fig:robustness}
+\end{figure}
+
+16タスク明示パネルについて、\texttt{rich\_contract\_examples}から\texttt{baseline\_compact}を引いたペアードデルタは$+0.104$であり、タスククラスターブートストラップ95\%区間は$[-0.063, +0.292]$である。一タスク除外デルタは$+0.044$から$+0.156$の範囲であり、一言語除外デルタは$+0.031$から$+0.156$の範囲である。
+
+384行要因計画について、主効果のロバストネス範囲は以下の通りである：
+\begin{itemize}
+  \item \texttt{docs\_rich}：ブートストラップ $[-0.021, +0.125]$；一タスク除外 $[+0.028, +0.061]$
+  \item \texttt{examples}：ブートストラップ $[+0.089, +0.323]$；一タスク除外 $[+0.172, +0.228]$
+  \item \texttt{contracts\_explicit}：ブートストラップ $[+0.198, +0.531]$；一タスク除外 $[+0.317, +0.394]$；一言語除外 $[+0.305, +0.461]$
+  \item \texttt{state\_guidance}：ブートストラップ $[-0.099, +0.031]$；一タスク除外 $[-0.033, -0.006]$
+\end{itemize}
+
+\section{16タスクパネルのタスクレベル要約}
+
+\begin{table}[H]
+\centering
+\caption{16タスク明示パネルにおける結果パターン。}
+\label{tab:paneltasks}
+\small
+\begin{tabularx}{\textwidth}{l X}
+\toprule
+タスク & 結果パターン \\
+\midrule
+Account Balance Rollup & Elixirは3条件すべてで失敗；PythonとTypeScriptは3条件すべてで合格 \\
+Bracket Balance Report & 全3条件で不変 \\
+CSV Split With Quotes & 全3条件で不変 \\
+Dense Rankings & Elixirについてサンプルにより救済 \\
+Dependency Batches & 全3条件で不変 \\
+Inventory Reconcile & 全3条件で不変 \\
+Merge Touching Intervals & 全3条件で不変 \\
+Normalize Phone Book & Elixirは3条件すべてで失敗；PythonとTypeScriptはサンプル追加時に退行 \\
+Queue Wait Times & 全3条件で不変 \\
+Rule Based Discount & ElixirとTypeScriptについてサンプルにより救済 \\
+Session Durations & 全3言語についてサンプルにより救済 \\
+Stable Group Runs & Elixirについてサンプルにより救済 \\
+Threshold Bursts & 全3条件で不変 \\
+Token Bucket Decisions & 全3言語が全3条件で失敗 \\
+Top K Frequencies & 全3条件で不変 \\
+Sliding Window Majority & 全3条件で不変 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{査読者チェックリスト}
+
+\begin{table}[H]
+\centering
+\caption{査読者の懸念事項マップ。}
+\label{tab:reviewer}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+査読者の懸念 & 本バージョンでの対応 & 残留状態 \\
+\midrule
+メインリーダーボードは観察的 & 難易度統制＋完全一致タスク補助研究 & 縮小されたが排除されず \\
+マッチドタスクパネルが小規模すぎる可能性 & 16タスク、ペアード検定、タスク付録、ロバストネスチェック & 依然として小規模 \\
+マッチド結論が単一タスクの人工物である可能性 & ブートストラップおよび一要素除外スキャン & 実質的に改善 \\
+要因計画が脆弱である可能性 & Holm補正＋ロバストネス範囲 & 範囲限定、普遍的ではない \\
+Elixirのタスクが単に容易である可能性 & 一言語除外期待値と難問タスク統制 & 実質的に改善 \\
+失敗分析がノイジーである可能性 & 初回失敗分類法＋リポジトリ内の手動監査パック & 部分的に改善 \\
+論文が二次的メカニズムを過剰主張する可能性 & 主張階層テーブルと明示的帰無結果 & 対応済み \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+\begin{thebibliography}{99}
+
+\bibitem{acb}
+Jason Chou, Ao Liu, Yuchi Deng, Zhiying Zeng, Tao Zhang, Haotian Zhu, Jianwei Cai, Yue Mao, Chenchen Zhang, Lingyun Tan, Ziyan Xu, Bohui Zhai, Hengyi Liu, Speed Zhu, Wiggin Zhou, and Fengzong Lian.
+\newblock AutoCodeBench: Large Language Models are Automatic Code Benchmark Generators.
+\newblock \emph{arXiv preprint arXiv:2508.09101}, 2025.
+
+\bibitem{fpeval}
+Nguyet-Anh H. Lang, Eric Lang, Thanh Le-Cong, Bach Le, and Quyet-Thang Huynh.
+\newblock Perish or Flourish? A Holistic Evaluation of Large Language Models for Code Generation in Functional Programming.
+\newblock \emph{arXiv preprint arXiv:2601.02060}, 2026.
+
+\bibitem{lowresource}
+Sathvik Joel, Jie JW Wu, and Fatemeh H. Fard.
+\newblock A Survey on LLM-based Code Generation for Low-Resource and Domain-Specific Programming Languages.
+\newblock \emph{arXiv preprint arXiv:2410.03981}, 2024.
+
+\bibitem{plconfusion}
+Micheline B\'en\'edicte Moumoula, Serge Lionel Nikiema, Abdoul Kader Kabore, Jacques Klein, and Tegawend\'e F. Bissyande.
+\newblock Programming Language Confusion: When Code LLMs Can't Keep their Languages Straight.
+\newblock \emph{arXiv preprint arXiv:2503.13620}, 2025.
+
+\bibitem{llmpreferences}
+Lukas Twist, Jie M. Zhang, Mark Harman, Don Syme, Joost Noppen, Helen Yannakoudakis, and Detlef Nauck.
+\newblock A Study of LLMs' Preferences for Libraries and Programming Languages.
+\newblock \emph{arXiv preprint arXiv:2503.17181}, 2025.
+
+\bibitem{dashbit}
+Dashbit.
+\newblock Why Elixir is the Best Language for AI.
+\newblock Dashbit blog, 2025.
+
+\bibitem{ronacher}
+Armin Ronacher.
+\newblock A Language for Agents.
+\newblock lucumr.pocoo.org, February 2026.
+\newblock \url{https://lucumr.pocoo.org/2026/2/9/a-language-for-agents/}.
+
+\bibitem{jaeger2010}
+T. Florian Jaeger.
+\newblock Redundancy and Reduction: Speakers Manage Syntactic Information Density.
+\newblock \emph{Cognitive Psychology}, 61(1):23--62, 2010.
+
+\bibitem{writingdocs}
+Elixir Documentation Team.
+\newblock Writing Documentation.
+\newblock HexDocs.
+\newblock \url{https://hexdocs.pm/elixir/writing-documentation.html}.
+
+\bibitem{codefetchdocs}
+Elixir Documentation Team.
+\newblock Code.fetch\_docs/1.
+\newblock HexDocs.
+\newblock \url{https://hexdocs.pm/elixir/Code.html#fetch_docs/1}.
+
+\bibitem{exunitdoctest}
+ExUnit Documentation Team.
+\newblock ExUnit.DocTest.
+\newblock HexDocs.
+\newblock \url{https://hexdocs.pm/ex_unit/ExUnit.DocTest.html}.
+
+\bibitem{exdoc}
+ExDoc Documentation Team.
+\newblock ExDoc.
+\newblock HexDocs.
+\newblock \url{https://hexdocs.pm/ex_doc/ExDoc.html}.
+
+\bibitem{hexdocs}
+Hex.pm Team.
+\newblock HexDocs.
+\newblock Hex package manager documentation.
+\newblock \url{https://hex.pm/docs}.
+
+\bibitem{pydoc}
+Python Documentation Team.
+\newblock pydoc --- documentation generator and online help system.
+\newblock Python standard library documentation.
+\newblock \url{https://docs.python.org/3/library/pydoc.html}.
+
+\bibitem{pydoctest}
+Python Documentation Team.
+\newblock doctest --- test interactive Python examples.
+\newblock Python standard library documentation.
+\newblock \url{https://docs.python.org/3/library/doctest.html}.
+
+\bibitem{tsjsdoc}
+TypeScript Team.
+\newblock JSDoc Reference.
+\newblock Official TypeScript documentation.
+\newblock \url{https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html}.
+
+\bibitem{typedoc}
+TypeDoc Team.
+\newblock Overview.
+\newblock TypeDoc documentation.
+\newblock \url{https://typedoc.org/documents/Overview.html}.
+
+\bibitem{guimaraes}
+George Guimar\~{a}es.
+\newblock The Actor Model is the Agent Model.
+\newblock Dashbit blog, 2026.
+
+\bibitem{nvlang}
+Nguyet-Anh H. Lang, Eric Lang, Bach Le, and Quyet-Thang Huynh.
+\newblock NVLang: A Benchmark for Evaluating LLM Code Generation in Niche Languages on the BEAM.
+\newblock \emph{arXiv preprint arXiv:2512.05224}, 2025.
+
+\bibitem{zachdaniel}
+Zach Daniel.
+\newblock Context-Aware Documentation and LLM Output Quality.
+\newblock Blog post, 2025.
+
+\end{thebibliography}
+
+\end{document}

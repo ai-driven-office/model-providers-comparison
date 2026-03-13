@@ -1,6 +1,30 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import LanguageIsThePromptPage from "../components/LanguageIsThePromptPage";
+import LanguageIsThePromptPage, {
+  LANG_SHIKI,
+  codeSamples,
+  type HighlightMap,
+  type LangId,
+} from "../components/language-is-the-prompt";
+
+const { createHighlighter } = await import("shiki");
+const highlighter = await createHighlighter({
+  themes: ["night-owl"],
+  langs: [...new Set(Object.values(LANG_SHIKI))],
+});
+
+const highlights: HighlightMap = {};
+
+for (const sample of codeSamples) {
+  const sampleHighlights: Partial<Record<LangId, string>> = {};
+  for (const [langId, code] of Object.entries(sample.snippets) as [LangId, string][]) {
+    sampleHighlights[langId] = highlighter.codeToHtml(code, {
+      lang: LANG_SHIKI[langId],
+      theme: "night-owl",
+    });
+  }
+  highlights[sample.id] = sampleHighlights;
+}
 ---
 
 <BaseLayout
@@ -8,5 +32,5 @@ import LanguageIsThePromptPage from "../components/LanguageIsThePromptPage";
   title="The Language Is the Prompt - Language Design and LLM Code Generation"
   description="What Elixir's 87.4% vs Python's 43.9% suggests about explicitness, language design, and LLM code generation. Research explained for engineers."
 >
-  <LanguageIsThePromptPage client:load />
+  <LanguageIsThePromptPage client:load highlights={highlights} />
 </BaseLayout>
