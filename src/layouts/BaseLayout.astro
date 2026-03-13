@@ -169,9 +169,14 @@ const analyticsEnabled = import.meta.env.PROD;
     })} />
 
     <!-- Persist route language for client-side helpers -->
-    <script is:inline>
-      (function(){
-        localStorage.setItem('aid-lang', {JSON.stringify(lang)});
+    <script
+      is:inline
+      define:vars={{
+        persistedLang: lang,
+      }}
+    >
+      (() => {
+        localStorage.setItem("aid-lang", persistedLang);
       })();
     </script>
 

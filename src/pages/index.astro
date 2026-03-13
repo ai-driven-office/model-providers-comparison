@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import ModelDashboard from "../components/ModelDashboard";
+import ModelDashboardShell from "../components/ModelDashboardShell.astro";
 
 const i18nEntries = await getCollection("i18n");
 const i18n = Object.fromEntries(
@@ -34,6 +34,7 @@ const news = newsEntries
 
 const buildDate = new Date().toISOString().split("T")[0];
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const shareUrl = new URL(base, Astro.site ?? Astro.url).href;
 ---
 
 <BaseLayout
@@ -46,13 +47,13 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
   alternateJaPath={base}
   alternateEnPath={`${base}en/`}
 >
-  <ModelDashboard
+  <ModelDashboardShell
     models={models}
     providers={providers}
     news={news}
     i18n={i18n}
     buildDate={buildDate}
     lang="ja"
-    client:load
+    shareUrl={shareUrl}
   />
 </BaseLayout>

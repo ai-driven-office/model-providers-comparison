@@ -176,8 +176,7 @@ export const LANG_SHIKI: Record<LangId, string> = {
   typescript: "typescript",
   typescript_effect: "typescript",
   go: "go",
-  // Reuse TS highlighting for C# to avoid an extra browser-side grammar fetch.
-  csharp: "typescript",
+  csharp: "csharp",
   dart: "dart",
   swift: "swift",
   kotlin: "kotlin",
@@ -345,9 +344,9 @@ function SyntaxBlock({
   const [activeAnnotation, setActiveAnnotation] = useState<number | null>(null);
   /* annotation ordering: indices into `annotations` array, reordered on click */
   const [annoOrder, setAnnoOrder] = useState<number[]>(() => annotations.map((_, i) => i));
-  const [enhancedHtml, setEnhancedHtml] = useState<string | null>(null);
+  const [enhancedHtml, setEnhancedHtml] = useState<string | null>(() => highlightedHtml ?? null);
   const codeWrapperRef = useRef<HTMLDivElement | null>(null);
-  const segments = highlightedHtml ? [] : getCodeSegments(code, annotations);
+  const segments = enhancedHtml ? [] : getCodeSegments(code, annotations);
 
   useEffect(() => {
     setActiveAnnotation(null);
@@ -761,7 +760,7 @@ export const codeSamples: CodeSample[] = [
     libraries: [
       { lang: "python", name: "match statement (3.10+)", url: "https://docs.python.org/3/reference/compound_stmts.html#the-match-statement", builtin: true },
       { lang: "typescript", name: "Discriminated unions", url: "https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions", builtin: true },
-      { lang: "typescript_effect", name: "Match module", url: "https://effect.website/docs/data-types/match" },
+      { lang: "typescript_effect", name: "Match.tag + Schema.TaggedClass (v4 beta)", url: "https://effect.website/docs/data-types/match" },
       { lang: "go", name: "Type switch", url: "https://go.dev/tour/methods/16", builtin: true },
       { lang: "csharp", name: "Switch expressions (C# 8+)", url: "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/switch-expression", builtin: true },
       { lang: "dart", name: "Switch expressions (Dart 3.0+)", url: "https://dart.dev/language/branches#switch-expressions", builtin: true },
@@ -875,25 +874,34 @@ area({ kind: "circle", radius: 5 }) // 78.53981633974483
 area({ kind: "rect", width: 3, height: 4 }) // 12
 area({ kind: "triangle", base: 6, height: 3 }) // 9`,
 
-      typescript_effect: `import { Data } from "effect"
+      typescript_effect: `import { Match, Schema } from "effect"
 
-type Shape = Data.TaggedEnum<{
-  Circle: { radius: number }
-  Rect: { width: number; height: number }
-  Triangle: { base: number; height: number }
-}>
+class Circle extends Schema.TaggedClass<Circle>()("Circle", {
+  radius: Schema.Number,
+}) {}
 
-const Shape = Data.taggedEnum<Shape>()
+class Rect extends Schema.TaggedClass<Rect>()("Rect", {
+  width: Schema.Number,
+  height: Schema.Number,
+}) {}
 
-const area = Shape.$match({
-  Circle: ({ radius }) => Math.PI * radius ** 2,
-  Rect: ({ width, height }) => width * height,
-  Triangle: ({ base, height }) => 0.5 * base * height,
-})
+class Triangle extends Schema.TaggedClass<Triangle>()("Triangle", {
+  base: Schema.Number,
+  height: Schema.Number,
+}) {}
 
-area(Shape.Circle({ radius: 5 })) // 78.53981633974483
-area(Shape.Rect({ width: 3, height: 4 })) // 12
-area(Shape.Triangle({ base: 6, height: 3 })) // 9`,
+type Shape = Circle | Rect | Triangle
+
+const area = Match.type<Shape>().pipe(
+  Match.tag("Circle", ({ radius }) => Math.PI * radius ** 2),
+  Match.tag("Rect", ({ width, height }) => width * height),
+  Match.tag("Triangle", ({ base, height }) => 0.5 * base * height),
+  Match.exhaustive,
+)
+
+area(new Circle({ radius: 5 })) // 78.53981633974483
+area(new Rect({ width: 3, height: 4 })) // 12
+area(new Triangle({ base: 6, height: 3 })) // 9`,
 
       go: `import "math"
 
@@ -1042,7 +1050,7 @@ area(Triangle(6.0, 3.0))  // 9`,
     libraries: [
       { lang: "python", name: "returns", url: "https://github.com/dry-python/returns" },
       { lang: "typescript", name: "neverthrow", url: "https://github.com/supermacro/neverthrow" },
-      { lang: "typescript_effect", name: "Effect", url: "https://effect.website/docs/getting-started/running-effects" },
+      { lang: "typescript_effect", name: "Schema.TaggedErrorClass + ServiceMap.Service (v4 beta)", url: "https://effect.website/docs/getting-started/running-effects" },
       { lang: "go", name: "(value, error) tuple", url: "https://go.dev/blog/error-handling-and-go", builtin: true },
       { lang: "csharp", name: "Result<T> (manual / CSharpFunctionalExtensions)", url: "https://github.com/vkhorikov/CSharpFunctionalExtensions" },
       { lang: "dart", name: "fpdart", url: "https://pub.dev/packages/fpdart" },
@@ -1184,28 +1192,41 @@ const updateEmail = (
   return persistEmail(userResult.value, newEmail)
 }`,
 
-      typescript_effect: `import { Data, Effect } from "effect"
+      typescript_effect: `import { Effect, Schema, ServiceMap } from "effect"
 
-class NotFound extends Data.TaggedError("NotFound")<{
-  readonly userId: number
-}> {}
-class UpdateFailed extends Data.TaggedError("UpdateFailed")<{
-  readonly message: string
-}> {}
+class NotFound extends Schema.TaggedErrorClass<NotFound>()(
+  "NotFound",
+  { userId: Schema.Number },
+) {}
 
-const fetchUser = (userId: number) =>
-  Effect.gen(function* () {
-    const user = yield* repo.get(userId)
-    if (!user) {
-      return yield* Effect.fail(new NotFound({ userId }))
-    }
-    return user
-  })
+class UpdateFailed extends Schema.TaggedErrorClass<UpdateFailed>()(
+  "UpdateFailed",
+  { message: Schema.String },
+) {}
 
-const persistEmail = (user: User, newEmail: string) =>
-  repo.update(user, { email: newEmail }).pipe(
+class UserRepo extends ServiceMap.Service<UserRepo, {
+  getById(userId: number): Effect.Effect<User | null>
+  updateEmail(user: User, newEmail: string): Effect.Effect<User, string>
+}>()("example/UserRepo") {}
+
+const fetchUser = Effect.fn("fetchUser")(function*(userId: number) {
+  const repo = yield* UserRepo
+  const user = yield* repo.getById(userId)
+  if (!user) {
+    return yield* new NotFound({ userId })
+  }
+  return user
+})
+
+const persistEmail = Effect.fn("persistEmail")(function*(
+  user: User,
+  newEmail: string,
+) {
+  const repo = yield* UserRepo
+  return yield* repo.updateEmail(user, newEmail).pipe(
     Effect.mapError((message) => new UpdateFailed({ message })),
   )
+})
 
 const updateEmail = (userId: number, newEmail: string) =>
   Effect.gen(function* () {
@@ -1214,7 +1235,9 @@ const updateEmail = (userId: number, newEmail: string) =>
   })
 
 const program = updateEmail(42, "new@example.com").pipe(
-  Effect.catchTag("NotFound", () => Effect.succeed(fallback)),
+  Effect.catchTags({
+    NotFound: () => Effect.succeed(fallback),
+  }),
 )`,
 
       go: `import (
@@ -1453,23 +1476,26 @@ const nextState = increment(state)
 state.count // 0
 nextState.count // 1`,
 
-      typescript_effect: `import { Struct } from "effect"
+      typescript_effect: `import { Schema } from "effect"
 
-type CounterState = Readonly<{
-  count: number
-  history: ReadonlyArray<number>
-}>
+class CounterState extends Schema.Class<CounterState>(
+  "CounterState",
+)({
+  count: Schema.Number,
+  history: Schema.Array(Schema.Number),
+}) {}
 
 const increment = (state: CounterState): CounterState => {
   const nextCount = state.count + 1
 
-  return Struct.evolve(state, {
-    count: () => nextCount,
-    history: (history) => [...history, nextCount],
+  return new CounterState({
+    ...state,
+    count: nextCount,
+    history: [...state.history, nextCount],
   })
 }
 
-const state: CounterState = { count: 0, history: [] }
+const state = new CounterState({ count: 0, history: [] })
 const nextState = increment(state)
 
 state.count // 0
@@ -1585,7 +1611,7 @@ nextState.count  // 1`,
       { lang: "elixir", name: "Immutable by default (all data)", url: "https://hexdocs.pm/elixir/basic-types.html", builtin: true },
       { lang: "python", name: "dataclasses(frozen=True)", url: "https://docs.python.org/3/library/dataclasses.html#frozen-instances", builtin: true },
       { lang: "typescript", name: "Readonly<T> + as const", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html#readonly-properties", builtin: true },
-      { lang: "typescript_effect", name: "Effect Data.Class (immutable by design)", url: "https://effect.website/docs/data-types/data" },
+      { lang: "typescript_effect", name: "Schema.Class (v4 beta immutable data)", url: "https://effect.website/docs/data-types/data" },
       { lang: "go", name: "Value types (struct copy semantics)", url: "https://go.dev/doc/effective_go#allocation_new", builtin: true },
       { lang: "csharp", name: "record + with expression (C# 9+)", url: "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/record", builtin: true },
       { lang: "dart", name: "freezed code generation", url: "https://pub.dev/packages/freezed" },
@@ -1760,7 +1786,7 @@ const result = pipe(
 )
 // => "hello-world"`,
 
-      typescript_effect: `import { pipe, Array, String } from "effect"
+      typescript_effect: `import { Array, String, pipe } from "effect"
 
 // Effect's pipe() is the idiomatic today-runnable choice.
 const revenue = pipe(
@@ -1944,25 +1970,26 @@ const buildUser = (
 })`,
 
       typescript_effect: `// High-performance formatter: oxfmt
-import { String, pipe } from "effect"
+import { Schema, String, pipe } from "effect"
 
-type User = {
-  readonly name: string
-  readonly email: string
-  readonly isAdmin: boolean
-  readonly tags: ReadonlyArray<string>
-}
+class User extends Schema.Class<User>("User")({
+  name: Schema.String,
+  email: Schema.String,
+  isAdmin: Schema.Boolean,
+  tags: Schema.Array(Schema.String),
+}) {}
 
 const buildUser = (
   name: string,
   email: string,
   isAdmin: boolean,
-): User => ({
-  name: pipe(name, String.trim),
-  email: pipe(email, String.trim, String.toLowerCase),
-  isAdmin,
-  tags: ["active", isAdmin ? "staff" : "member"],
-})`,
+): User =>
+  new User({
+    name: pipe(name, String.trim),
+    email: pipe(email, String.trim, String.toLowerCase),
+    isAdmin,
+    tags: ["active", isAdmin ? "staff" : "member"],
+  })`,
 
       go: `// Stricter drop-in formatter: gofumpt -w .
 import "strings"
@@ -2136,7 +2163,7 @@ fun buildUser(
       { lang: "elixir", name: "with/else special form", url: "https://hexdocs.pm/elixir/Kernel.SpecialForms.html#with/1", builtin: true },
       { lang: "python", name: "returns Result.do", url: "https://returns.readthedocs.io/en/latest/pages/railway.html" },
       { lang: "typescript", name: "neverthrow andThen()", url: "https://github.com/supermacro/neverthrow#chaining" },
-      { lang: "typescript_effect", name: "Effect.gen (generator DSL)", url: "https://effect.website/docs/getting-started/using-generators" },
+      { lang: "typescript_effect", name: "Effect.gen + Schema.TaggedErrorClass (v4 beta)", url: "https://effect.website/docs/getting-started/using-generators" },
       { lang: "go", name: "Sequential if err != nil", url: "https://go.dev/blog/error-handling-and-go", builtin: true },
       { lang: "csharp", name: "CSharpFunctionalExtensions Bind", url: "https://github.com/vkhorikov/CSharpFunctionalExtensions" },
       { lang: "dart", name: "fpdart flatMap", url: "https://pub.dev/packages/fpdart" },
@@ -2295,33 +2322,45 @@ const createOrder = (
   return orderResult
 }`,
 
-      typescript_effect: `import { Data, Effect } from "effect"
+      typescript_effect: `import { Effect, Schema } from "effect"
 
-class Unauthorized extends Data.TaggedError("Unauthorized") {}
-class InvalidItems extends Data.TaggedError("InvalidItems") {}
-class PaymentFailed extends Data.TaggedError("PaymentFailed") {}
-class OrderFailed extends Data.TaggedError("OrderFailed")<{
-  readonly message: string
-}> {}
+class Unauthorized extends Schema.TaggedErrorClass<Unauthorized>()(
+  "Unauthorized",
+  {},
+) {}
 
-const createOrder = (params: OrderParams) =>
-  Effect.gen(function* () {
-    const user = yield* authenticate(params.token).pipe(
-      Effect.orElseFail(() => new Unauthorized()),
-    )
-    const items = yield* validateItems(params.items).pipe(
-      Effect.orElseFail(() => new InvalidItems()),
-    )
-    const payment = yield* chargeCard(user, items).pipe(
-      Effect.orElseFail(() => new PaymentFailed()),
-    )
-    const order = yield* saveOrder(user, items, payment).pipe(
-      Effect.mapError((message) => new OrderFailed({ message })),
-    )
+class InvalidItems extends Schema.TaggedErrorClass<InvalidItems>()(
+  "InvalidItems",
+  {},
+) {}
 
-    yield* sendConfirmation(user, order)
-    return order
-  })`,
+class PaymentFailed extends Schema.TaggedErrorClass<PaymentFailed>()(
+  "PaymentFailed",
+  {},
+) {}
+
+class OrderFailed extends Schema.TaggedErrorClass<OrderFailed>()(
+  "OrderFailed",
+  { message: Schema.String },
+) {}
+
+const createOrder = Effect.fn("createOrder")(function*(params: OrderParams) {
+  const user = yield* authenticate(params.token).pipe(
+    Effect.orElseFail(() => new Unauthorized({})),
+  )
+  const items = yield* validateItems(params.items).pipe(
+    Effect.orElseFail(() => new InvalidItems({})),
+  )
+  const payment = yield* chargeCard(user, items).pipe(
+    Effect.orElseFail(() => new PaymentFailed({})),
+  )
+  const order = yield* saveOrder(user, items, payment).pipe(
+    Effect.mapError((message) => new OrderFailed({ message })),
+  )
+
+  yield* sendConfirmation(user, order)
+  return order
+})`,
 
       go: `import (
   "errors"
@@ -2543,7 +2582,7 @@ fun createOrder(
       { lang: "elixir", name: "GenServer (OTP)", url: "https://hexdocs.pm/elixir/GenServer.html", builtin: true },
       { lang: "python", name: "asyncio.Queue + Task", url: "https://docs.python.org/3/library/asyncio-queue.html", builtin: true },
       { lang: "typescript", name: "Worker Threads", url: "https://nodejs.org/api/worker_threads.html", builtin: true },
-      { lang: "typescript_effect", name: "Effect Ref + Fiber", url: "https://effect.website/docs/concurrency/fibers" },
+      { lang: "typescript_effect", name: "Mailbox + Stream + Deferred", url: "https://effect.website/docs/concurrency/fibers" },
       { lang: "go", name: "goroutine + channel", url: "https://go.dev/doc/effective_go#goroutines", builtin: true },
       { lang: "csharp", name: "Channel<T> + Task", url: "https://learn.microsoft.com/en-us/dotnet/core/extensions/channels", builtin: true },
       { lang: "dart", name: "Isolate + SendPort", url: "https://dart.dev/language/concurrency", builtin: true },
@@ -2735,14 +2774,11 @@ await counter.increment() // 1
 await counter.increment() // 2
 await counter.get() // 2`,
 
-      typescript_effect: `import { Data, Deferred, Effect, Mailbox, Stream } from "effect"
+      typescript_effect: `import { Deferred, Effect, Mailbox, Match, Stream } from "effect"
 
-type Command = Data.TaggedEnum<{
-  Increment: { reply: Deferred.Deferred<number> }
-  Get: { reply: Deferred.Deferred<number> }
-}>
-
-const Command = Data.taggedEnum<Command>()
+type Command =
+  | { readonly _tag: "Increment"; readonly reply: Deferred.Deferred<number> }
+  | { readonly _tag: "Get"; readonly reply: Deferred.Deferred<number> }
 
 const makeCounter = (initial = 0) =>
   Effect.scoped(
@@ -2753,14 +2789,15 @@ const makeCounter = (initial = 0) =>
 
       yield* Mailbox.toStream(mailbox).pipe(
         Stream.runFoldEffect(initial, (count, command) =>
-          Command.$match(command, {
-            Increment: ({ reply }) => {
+          Match.value(command).pipe(
+            Match.tag("Increment", ({ reply }) => {
               const next = count + 1
               return Deferred.succeed(reply, next).pipe(Effect.as(next))
-            },
-            Get: ({ reply }) =>
-              Deferred.succeed(reply, count).pipe(Effect.as(count)),
-          }),
+            }),
+            Match.tag("Get", ({ reply }) =>
+              Deferred.succeed(reply, count).pipe(Effect.as(count))),
+            Match.exhaustive,
+          ),
         ),
         Effect.forkScoped,
       )
@@ -2773,8 +2810,8 @@ const makeCounter = (initial = 0) =>
         })
 
       return {
-        increment: ask((reply) => Command.Increment({ reply })),
-        get: ask((reply) => Command.Get({ reply })),
+        increment: ask((reply) => ({ _tag: "Increment", reply })),
+        get: ask((reply) => ({ _tag: "Get", reply })),
       } as const
     }),
   )
@@ -3030,7 +3067,7 @@ coroutineScope {
       { lang: "elixir", name: "ExUnit doctest", url: "https://hexdocs.pm/ex_unit/ExUnit.DocTest.html", builtin: true },
       { lang: "python", name: "doctest module", url: "https://docs.python.org/3/library/doctest.html", builtin: true },
       { lang: "typescript", name: "tsdoc + Vitest", url: "https://tsdoc.org/" },
-      { lang: "typescript_effect", name: "Effect @example + Vitest", url: "https://vitest.dev/" },
+      { lang: "typescript_effect", name: "@effect/vitest + JSDoc @example", url: "https://github.com/Effect-TS/effect/tree/main/packages/vitest" },
       { lang: "go", name: "Example functions (_test.go)", url: "https://go.dev/blog/examples", builtin: true },
       { lang: "csharp", name: "DocFX code snippets", url: "https://dotnet.github.io/docfx/" },
       { lang: "dart", name: "dartdoc_test", url: "https://pub.dev/packages/dartdoc_test" },
@@ -3169,35 +3206,40 @@ export const safeAdd = (
 // }`,
 
       typescript_effect: `// Tooling-based executable docs:
-// doc-vitest runs the example, while Effect stays in the code.
-import { Data, Effect } from "effect"
+// doc-vitest runs the example; @effect/vitest fits the real test files.
+import { Effect, Exit, Schema } from "effect"
 
-class Overflow extends Data.TaggedError("Overflow") {}
+class Overflow extends Schema.TaggedErrorClass<Overflow>()(
+  "Overflow",
+  {},
+) {}
 
 /**
  * Safely adds two integers.
  *
  * @example
  * \`\`\`ts @import.meta.vitest
- * await expect(runEffect(safeAdd(1, 2))).resolves.toBe(3)
- * await expect(
- *   runEffect(safeAdd(9_999_999_999, 1)),
- * ).rejects.toBeInstanceOf(Overflow)
+ * const ok = await Effect.runPromiseExit(safeAdd(1, 2))
+ * expect(ok).toStrictEqual(Exit.succeed(3))
+ *
+ * const overflow = await Effect.runPromiseExit(safeAdd(9_999_999_999, 1))
+ * expect(Exit.isFailure(overflow)).toBe(true)
  * \`\`\`
  */
-const safeAdd = (a: number, b: number) =>
-  Effect.succeed(a + b).pipe(
-    Effect.filterOrFail(
-      (result) => Math.abs(result) <= 9_999_999_999,
-      () => new Overflow(),
-    ),
-  )
+const safeAdd = Effect.fn("safeAdd")(function*(a: number, b: number) {
+  const result = a + b
+  if (Math.abs(result) > 9_999_999_999) {
+    return yield* new Overflow({})
+  }
+  return result
+})
 
-// vitest.setup.ts
-// import { Effect } from "effect"
-// globalThis.runEffect = Effect.runPromise
-// // addEqualityTesters() helps when comparing
-// // Effect data structures directly`,
+// math.test.ts
+// import { expect, it } from "@effect/vitest"
+// it.effect("safeAdd docs stay honest", () =>
+//   Effect.gen(function* () {
+//     expect(yield* safeAdd(1, 2)).toBe(3)
+//   }))`,
 
       go: `// Native executable docs:
 // Example... functions run under go test.
@@ -3355,7 +3397,7 @@ object Samples {
       { lang: "elixir", name: "for comprehension", url: "https://hexdocs.pm/elixir/comprehensions.html", builtin: true },
       { lang: "python", name: "List/dict/set comprehensions", url: "https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions", builtin: true },
       { lang: "typescript", name: "Array .map/.filter/.flatMap", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#instance_methods", builtin: true },
-      { lang: "typescript_effect", name: "Effect Stream + Array module", url: "https://effect.website/docs/data-types/stream" },
+      { lang: "typescript_effect", name: "Array.Do + Stream + Schema", url: "https://effect.website/docs/data-types/stream" },
       { lang: "go", name: "iter.Seq + slices package (Go 1.23+)", url: "https://pkg.go.dev/iter", builtin: true },
       { lang: "csharp", name: "LINQ query expressions", url: "https://learn.microsoft.com/en-us/dotnet/csharp/linq/get-started/query-expression-basics", builtin: true },
       { lang: "dart", name: "Collection-for + sync* generators", url: "https://dart.dev/language/collections#control-flow-operators", builtin: true },
@@ -3484,14 +3526,24 @@ function* honorRoll(
 const pairs = [...matchingPairs()]
 const results = [...honorRoll(lines)]`,
 
-      typescript_effect: `import { Array, Stream, pipe } from "effect"
+      typescript_effect: `import { Array, Schema, Stream, pipe } from "effect"
 
 type Pair = readonly [x: number, y: number]
-type HonorRollEntry = {
-  readonly name: string
-  readonly score: number
-  readonly grade: "A"
-}
+
+class HonorRollEntry extends Schema.Class<HonorRollEntry>(
+  "HonorRollEntry",
+)({
+  name: Schema.String,
+  score: Schema.Number,
+  grade: Schema.Literal("A"),
+}) {}
+
+const ParsedEntry = Schema.Struct({
+  name: Schema.String,
+  score: Schema.NumberFromString,
+})
+
+const decodeEntry = Schema.decodeUnknownSync(ParsedEntry)
 
 const lines = ["Alice,88", "Bob,72", "Carol,91"]
 
@@ -3507,16 +3559,14 @@ const honorRoll = (lines: Iterable<string>) =>
   Stream.fromIterable(lines).pipe(
     Stream.map((line) => {
       const [name, scoreText] = line.split(",", 2)
-      return {
+      return decodeEntry({
         name: name.trim(),
-        score: Number.parseInt(scoreText.trim(), 10),
-      }
+        score: scoreText.trim(),
+      })
     }),
-    Stream.filter(
-      ({ score }) => !Number.isNaN(score) && score > 80,
-    ),
+    Stream.filter(({ score }) => score > 80),
     Stream.map(
-      ({ name, score }): HonorRollEntry => ({
+      ({ name, score }) => new HonorRollEntry({
         name,
         score,
         grade: "A",
@@ -6035,14 +6085,14 @@ function CodeComparison({
   sample,
   lang,
   activeLang,
-  setActiveLang,
+  onActiveLangChange,
   accentColor = "#10B981",
   highlights,
 }: {
   sample: CodeSample;
   lang: Lang;
   activeLang: LangId;
-  setActiveLang: (lid: LangId) => void;
+  onActiveLangChange: (lid: LangId) => void;
   accentColor?: string;
   highlights: HighlightMap;
 }) {
@@ -6110,7 +6160,7 @@ function CodeComparison({
               <div className="flex w-max min-w-full px-2">
                 {OTHER_LANGS.map((lid) => (
                   <LangTab key={lid} lid={lid} isActive={activeLang === lid}
-                    onClick={() => setActiveLang(lid)} />
+                    onClick={() => onActiveLangChange(lid)} />
                 ))}
               </div>
             </div>
@@ -6234,7 +6284,9 @@ export default function LanguageIsThePromptPage({
   highlights?: HighlightMap;
 }) {
   const [lang, setLang] = useState<Lang>("ja");
-  const [activeLang, setActiveLang] = useState<LangId>("python");
+  const [sectionLangs, setSectionLangs] = useState<LangId[]>(
+    () => codeSamples.map(() => "python" as LangId),
+  );
   useEffect(() => {
     const stored = localStorage.getItem("aid-lang");
     if (stored === "en" || stored === "ja") setLang(stored);
@@ -6242,11 +6294,21 @@ export default function LanguageIsThePromptPage({
   useEffect(() => {
     localStorage.setItem("aid-lang", lang);
   }, [lang]);
+  useEffect(() => {
+    setSectionLangs((prev) => {
+      if (prev.length === codeSamples.length) return prev;
+      return codeSamples.map((_, idx) => prev[idx] ?? ("python" as LangId));
+    });
+  }, []);
   const isJa = lang === "ja";
   const l = content[lang];
   const reduceMotion = useReduceMotion();
   const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
   const fontBody = isJa ? JA_SANS : SANS;
+
+  const handleSectionLangChange = (sectionIndex: number, lid: LangId) => {
+    setSectionLangs((prev) => prev.map((current, idx) => (idx < sectionIndex ? current : lid)));
+  };
 
   return (
     <div className={`max-w-[1320px] mx-auto relative isolate px-4 sm:px-6 pb-16${!reduceMotion ? " hdr-active" : ""}`}>
@@ -6605,8 +6667,8 @@ export default function LanguageIsThePromptPage({
             key={sample.id}
             sample={sample}
             lang={lang}
-            activeLang={activeLang}
-            setActiveLang={setActiveLang}
+            activeLang={sectionLangs[idx] ?? "python"}
+            onActiveLangChange={(lid) => handleSectionLangChange(idx, lid)}
             accentColor={["#10B981", "#3B82F6", "#9B59B6", "#F59E0B", "#06B6D4", "#E0247A", "#8B5CF6"][idx % 7]}
             highlights={highlights}
           />

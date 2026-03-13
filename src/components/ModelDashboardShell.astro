@@ -1,0 +1,166 @@
+---
+import type { Lang } from "../data/i18n";
+import type { Model, NewsPost, Provider } from "../data/types";
+import ModelDashboard from "./ModelDashboard";
+import DashboardStaticSections from "./dashboard/DashboardStaticSections";
+import { getDashboardShareText, DASHBOARD_STATE_EVENT } from "./dashboard/share";
+
+interface Props {
+  models: Model[];
+  providers: Provider[];
+  news: NewsPost[];
+  i18n: Record<string, Record<string, string>>;
+  lang: Lang;
+  buildDate: string;
+  shareUrl: string;
+}
+
+const { models, providers, news, i18n, lang, buildDate, shareUrl } = Astro.props;
+
+const fallbackCopy =
+  i18n.en ?? Object.values(i18n)[0] ?? ({} as Record<string, string>);
+const copy = i18n[lang] ?? fallbackCopy;
+const heroModel = models.find((m) => m.hero);
+const pricedModels = models.filter((m) => m.input != null && m.output != null);
+const priceHero =
+  [...pricedModels]
+    .filter((m) => m.tag !== "fast")
+    .sort((a, b) => (a.output ?? 0) - (b.output ?? 0))[0];
+const initialShareText = getDashboardShareText({
+  activeTab: "throughput",
+  heroModel,
+  priceHero,
+  copy,
+  lang,
+});
+const shareTitle = copy.title ?? "AI Model Comparison";
+---
+
+<div id="dashboard-shell" class="max-w-[960px] mx-auto relative isolate hdr-active">
+  <ModelDashboard
+    models={models}
+    providers={providers}
+    news={news}
+    i18n={i18n}
+    lang={lang}
+    shareUrl={shareUrl}
+    client:load
+  />
+
+  <DashboardStaticSections
+    models={models}
+    providers={providers}
+    news={news}
+    lang={lang}
+    copy={copy}
+    buildDate={buildDate}
+  />
+</div>
+
+<script
+  is:inline
+  define:vars={{
+    dashboardStateEvent: DASHBOARD_STATE_EVENT,
+    initialShareText,
+    initialShareUrl: shareUrl,
+    initialShareTitle: shareTitle,
+  }}
+>
+  (() => {
+    const defaultTable = document.getElementById("dashboard-data-table");
+    const abilityTable = document.getElementById("dashboard-ability-table");
+    const shareRoot = document.getElementById("dashboard-share-cta");
+    if (!shareRoot) return;
+
+    const nativeButton = shareRoot.querySelector("[data-share-native]");
+    const xButton = shareRoot.querySelector("[data-share-x]");
+    const copyButton = shareRoot.querySelector("[data-share-copy]");
+    const copyLabel = copyButton?.querySelector("span");
+
+    let shareState = {
+      activeTab: "throughput",
+      shareText: initialShareText,
+      shareUrl: initialShareUrl,
+      shareTitle: initialShareTitle,
+    };
+
+    const trackShare = (method) => {
+      window.gtag?.("event", "share", {
+        method,
+        content_type: "dashboard",
+      });
+    };
+
+    const syncTables = (activeTab) => {
+      const showAbilities = activeTab === "abilities";
+      if (defaultTable) defaultTable.hidden = showAbilities;
+      if (abilityTable) abilityTable.hidden = !showAbilities;
+    };
+
+    const syncCopyLabel = (copied) => {
+      if (!copyButton || !copyLabel) return;
+      const defaultLabel = copyButton.getAttribute("data-label-default") ?? "Copy link";
+      const copiedLabel = copyButton.getAttribute("data-label-copied") ?? "Copied!";
+      copyLabel.textContent = copied ? copiedLabel : defaultLabel;
+    };
+
+    syncTables(shareState.activeTab);
+    syncCopyLabel(false);
+
+    if (nativeButton) {
+      if (typeof navigator.share === "function") {
+        nativeButton.hidden = false;
+        nativeButton.addEventListener("click", async () => {
+          try {
+            await navigator.share({
+              title: shareState.shareTitle,
+              text: shareState.shareText,
+              url: shareState.shareUrl,
+            });
+            trackShare("native_cta");
+          } catch {
+            /* user cancelled */
+          }
+        });
+      } else {
+        nativeButton.hidden = true;
+      }
+    }
+
+    xButton?.addEventListener("click", () => {
+      const params = new URLSearchParams({
+        text: shareState.shareText,
+        url: shareState.shareUrl,
+      });
+      window.open(
+        `https://x.com/intent/tweet?${params.toString()}`,
+        "_blank",
+        "noopener,noreferrer,width=550,height=420",
+      );
+      trackShare("x_cta");
+    });
+
+    copyButton?.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(`${shareState.shareText}\n${shareState.shareUrl}`);
+        syncCopyLabel(true);
+        trackShare("copy_link_cta");
+        window.setTimeout(() => syncCopyLabel(false), 2000);
+      } catch {
+        /* clipboard unavailable */
+      }
+    });
+
+    window.addEventListener(dashboardStateEvent, (event) => {
+      const detail = event.detail ?? {};
+      shareState = {
+        activeTab: detail.activeTab ?? shareState.activeTab,
+        shareText: detail.shareText ?? shareState.shareText,
+        shareUrl: detail.shareUrl ?? shareState.shareUrl,
+        shareTitle: detail.shareTitle ?? shareState.shareTitle,
+      };
+      syncTables(shareState.activeTab);
+      syncCopyLabel(false);
+    });
+  })();
+</script>
