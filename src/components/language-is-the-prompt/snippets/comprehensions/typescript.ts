@@ -1,34 +1,45 @@
 type Pair = readonly [x: number, y: number]
 type HonorRollEntry = {
-  name: string
-  score: number
-  grade: "A"
+  readonly name: string
+  readonly score: number
+  readonly grade: "A"
 }
 
-const lines = ["Alice,88", "Bob,72", "Carol,91"]
+const lines = ["Alice,88", "Bob,72", "Carol,91"] as const
 
-function* matchingPairs(): Generator<Pair> {
-  for (let x = 1; x <= 10; x++) {
-    for (let y = 1; y <= 10; y++) {
-      if (x + y > 12 && (x * y) % 3 === 0) {
-        yield [x, y] as const
-      }
-    }
+const numbers = Array.from({ length: 10 }, (_, index) => index + 1)
+
+const toHonorRollEntry = (
+  line: string,
+): HonorRollEntry | null => {
+  const [name, scoreText] = line.split(",", 2)
+  if (scoreText === undefined) {
+    return null
+  }
+
+  const score = Number.parseInt(scoreText.trim(), 10)
+  if (Number.isNaN(score) || score <= 80) {
+    return null
+  }
+
+  return {
+    name: name.trim(),
+    score,
+    grade: "A",
   }
 }
 
-function* honorRoll(
-  lines: Iterable<string>,
-): Generator<HonorRollEntry> {
-  for (const line of lines) {
-    const [name, scoreText] = line.split(",", 2)
-    const score = Number.parseInt(scoreText.trim(), 10)
+const pairs: ReadonlyArray<Pair> = numbers.flatMap((x) =>
+  numbers.flatMap((y) =>
+    x + y > 12 && (x * y) % 3 === 0
+      ? [[x, y] as const]
+      : [],
+  ),
+)
 
-    if (score > 80) {
-      yield { name: name.trim(), score, grade: "A" }
-    }
-  }
-}
-
-const pairs = [...matchingPairs()]
-const results = [...honorRoll(lines)]
+const results: ReadonlyArray<HonorRollEntry> = lines.flatMap(
+  (line) => {
+    const entry = toHonorRollEntry(line)
+    return entry ? [entry] : []
+  },
+)

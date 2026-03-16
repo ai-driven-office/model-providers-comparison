@@ -18,10 +18,10 @@ libraries:
     url: https://docs.python.org/3/library/doctest.html
     builtin: true
   - lang: typescript
-    name: tsdoc + Vitest
+    name: Vitest + TSDoc @example
     url: https://tsdoc.org/
   - lang: typescript_effect
-    name: "@effect/vitest + JSDoc @example"
+    name: "@effect/vitest + TSDoc @example"
     url: https://github.com/Effect-TS/effect/tree/main/packages/vitest
   - lang: go
     name: Example functions (_test.go)

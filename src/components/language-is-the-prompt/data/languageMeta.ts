@@ -169,7 +169,7 @@ export const LANG_SHIKI: Record<LangId, string | null> = {
   prose: null,
   agda: "haskell",
   coq: "coq",
-  dream: null,
+  dream: "moonbit",
 };
 
 export const LANG_ORDER: LangId[] = [
@@ -178,7 +178,11 @@ export const LANG_ORDER: LangId[] = [
 
 export const DEFAULT_COMPARISON_LANGS: LangId[] = [
   "python",
-  "rust",
   "typescript",
-  "java",
+  "typescript_effect",
+  "go",
+  "csharp",
+  "kotlin",
+  "rust",
+  "dream",
 ];

@@ -13,6 +13,10 @@ final class Get extends CounterCommand {
   const Get(super.replyTo);
 }
 
+final class Stop extends CounterCommand {
+  const Stop(super.replyTo);
+}
+
 Future<SendPort> startCounter([int initial = 0]) async {
   final ready = ReceivePort();
   await Isolate.spawn(_counterLoop, (initial, ready.sendPort));
@@ -32,6 +36,9 @@ void _counterLoop((int, SendPort) args) {
         replyTo.send(count);
       case Get(replyTo: final replyTo):
         replyTo.send(count);
+      case Stop(replyTo: final replyTo):
+        replyTo.send(null);
+        mailbox.close();
     }
   });
 }
@@ -52,7 +59,18 @@ Future<int> get(SendPort counter) async {
   return value;
 }
 
+Future<void> closeCounter(SendPort counter) async {
+  final reply = ReceivePort();
+  counter.send(Stop(reply.sendPort));
+  await reply.first;
+  reply.close();
+}
+
 final counter = await startCounter(0);
-await increment(counter); // => 1
-await increment(counter); // => 2
-await get(counter);       // => 2
+try {
+  await increment(counter); // => 1
+  await increment(counter); // => 2
+  await get(counter);       // => 2
+} finally {
+  await closeCounter(counter);
+}

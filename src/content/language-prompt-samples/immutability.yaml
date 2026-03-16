@@ -39,12 +39,11 @@ libraries:
     url: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/classesandstructures/
     builtin: true
   - lang: kotlin
-    name: data class + copy()
-    url: https://kotlinlang.org/docs/data-classes.html#copying
-    builtin: true
+    name: data class + PersistentList
+    url: https://github.com/Kotlin/kotlinx.collections.immutable
 caveats:
-  en: Elixir, Erlang, and Haskell are truly immutable by default -all others require opt-in. Python frozen dataclasses are shallow-frozen only. TypeScript Readonly is a compile-time check only (no runtime enforcement). Go struct copies are shallow -nested pointers still alias. Dart requires codegen (freezed) for deep immutability. Swift structs are value types but classes are reference types.
-  ja: Elixir・Erlang・Haskellのみが真のデフォルト不変 -他はすべてオプトイン。Pythonのfrozen dataclassは浅いフリーズのみ。TypeScriptのReadonlyはコンパイル時チェックのみ（実行時は未保証）。Goの構造体コピーは浅く、ネストしたポインタはエイリアスする。Dartは深い不変性にコード生成（freezed）が必要。Swiftのstructは値型だがclassは参照型。
+  en: Elixir, Erlang, and Haskell are truly immutable by default -all others require opt-in. Python frozen dataclasses are shallow-frozen only. TypeScript Readonly is a compile-time check only (no runtime enforcement). Go struct copies are shallow -nested pointers still alias. Dart commonly reaches for freezed to get copyWith plus unmodifiable collections. Kotlin's read-only List interface is not deeply immutable; persistent collections are the stronger choice when you want Elixir-like update semantics. Swift structs are value types but classes are reference types.
+  ja: Elixir・Erlang・Haskellのみが真のデフォルト不変 -他はすべてオプトイン。Pythonのfrozen dataclassは浅いフリーズのみ。TypeScriptのReadonlyはコンパイル時チェックのみ（実行時は未保証）。Goの構造体コピーは浅く、ネストしたポインタはエイリアスする。DartではcopyWithと変更不可コレクションを得るためにfreezedがよく使われる。Kotlinのread-only Listは深い不変性を保証せず、Elixirに近い更新意味論にはpersistent collectionの方が強い。Swiftのstructは値型だがclassは参照型。
 annotations:
   elixir:
     - match: next = state.count + 1

@@ -1,13 +1,16 @@
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
+
 data class CounterState(
     val count: Int,
-    val history: List<Int> = emptyList(),
+    val history: PersistentList<Int> = persistentListOf(),
 )
 
 fun increment(state: CounterState): CounterState {
     val nextCount = state.count + 1
     return state.copy(
         count = nextCount,
-        history = state.history + nextCount,
+        history = state.history.add(nextCount),
     )
 }
 

@@ -1,39 +1,28 @@
-type Result<T, E> =
-  | { ok: true; value: T }
-  | { ok: false; error: E }
+import { err, ok, type Result } from "neverthrow"
 
 type UpdateEmailError =
-  | { type: "not_found"; userId: number }
-  | { type: "update_failed"; message: string }
+  | { readonly type: "not_found"; readonly userId: number }
+  | { readonly type: "update_failed"; readonly message: string }
 
 const fetchUser = (
   userId: number,
 ): Result<User, UpdateEmailError> => {
   const user = repo.get(userId)
   return user
-    ? { ok: true, value: user }
-    : { ok: false, error: { type: "not_found", userId } }
+    ? ok(user)
+    : err({ type: "not_found", userId } as const)
 }
 
 const persistEmail = (
   user: User,
   newEmail: string,
 ): Result<User, UpdateEmailError> => {
-  const result = repo.update(user, { email: newEmail })
-  return result.ok
-    ? result
-    : {
-        ok: false,
-        error: { type: "update_failed", message: result.error },
-      }
+  return repo
+    .update(user, { email: newEmail })
+    .mapErr((message) => ({ type: "update_failed", message } as const))
 }
 
-const updateEmail = (
-  userId: number,
-  newEmail: string,
-): Result<User, UpdateEmailError> => {
-  const userResult = fetchUser(userId)
-  if (!userResult.ok) return userResult
-
-  return persistEmail(userResult.value, newEmail)
-}
+const updateEmail = (userId: number, newEmail: string) =>
+  fetchUser(userId).andThen((user) =>
+    persistEmail(user, newEmail),
+  )

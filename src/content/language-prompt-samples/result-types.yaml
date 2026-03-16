@@ -35,8 +35,8 @@ libraries:
     name: Arrow Either
     url: https://arrow-kt.io/docs/apidocs/arrow-core/arrow.core/-either/
 caveats:
-  en: Python returns library provides monadic Result; native Python has no built-in Result type. TypeScript has no native Result -neverthrow or manual discriminated unions. C# sample uses a manual Result record; consider CSharpFunctionalExtensions for production use.
-  ja: Pythonのreturnsライブラリはモナド的Resultを提供。ネイティブPythonにはResult型がない。TypeScriptにもネイティブResultはなく、neverthrowまたは手動の判別共用体を使用。C#サンプルは手動Result record。本番にはCSharpFunctionalExtensionsも検討を。
+  en: Python returns library provides monadic Result; native Python has no built-in Result type. TypeScript has no native Result -neverthrow or manual discriminated unions remain the common options. C# still has no built-in Result type, so libraries such as CSharpFunctionalExtensions or ErrorOr fill that gap.
+  ja: Pythonのreturnsライブラリはモナド的Resultを提供。ネイティブPythonにはResult型がない。TypeScriptにもネイティブResultはなく、neverthrowや手動の判別共用体が依然よく使われる。C#にも組み込みのResult型はないため、CSharpFunctionalExtensionsやErrorOrのようなライブラリがその空白を埋めている。
 annotations:
   elixir:
     - match: nil   -> {:error, :not_found}

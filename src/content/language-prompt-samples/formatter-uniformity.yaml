@@ -16,11 +16,11 @@ libraries:
     name: ruff format
     url: https://docs.astral.sh/ruff/formatter/
   - lang: typescript
-    name: oxfmt (Oxc project)
-    url: https://oxc.rs/docs/guide/usage/formatter
+    name: Biome
+    url: https://biomejs.dev/formatter/
   - lang: typescript_effect
-    name: oxfmt (Oxc project)
-    url: https://oxc.rs/docs/guide/usage/formatter
+    name: Biome
+    url: https://biomejs.dev/formatter/
   - lang: go
     name: gofumpt (stricter gofmt)
     url: https://github.com/mvdan/gofumpt
@@ -38,8 +38,8 @@ libraries:
     name: ktfmt
     url: https://github.com/facebook/ktfmt
 caveats:
-  en: Only Elixir (mix format), Go (gofmt), and Dart (dart format) ship built-in formatters with zero config. Python migrated from Black to the faster Ruff. TypeScript ecosystem is shifting from Prettier to Rust-native oxfmt (Oxc). Go's gofumpt adds stricter rules on top of gofmt. Swift-format is official but not bundled with the compiler. Kotlin has multiple competing formatters (ktfmt, ktlint, IntelliJ built-in).
-  ja: Elixir（mix format）・Go（gofmt）・Dart（dart format）のみがゼロコンフィグの組み込みフォーマッタを提供。PythonはBlackからより高速なRuffに移行中。TypeScriptエコシステムはPrettierからRustネイティブのoxfmt（Oxc）へシフト中。Goのgofumptはgofmtの上により厳密なルールを追加。swift-formatは公式だがコンパイラには同梱されず。Kotlinには複数の競合フォーマッタ（ktfmt, ktlint, IntelliJ組み込み）がある。
+  en: Only Elixir (mix format), Go (gofmt), and Dart (dart format) ship built-in formatters with zero config. Python increasingly standardizes on Ruff for linting plus formatting. TypeScript teams still commonly use Prettier, but Biome is the clearest modern all-in-one formatter/linter choice. Go's gofumpt adds stricter rules on top of gofmt. Swift-format is official but not bundled with the compiler. Kotlin still has multiple competing formatters (ktfmt, ktlint, IntelliJ built-in).
+  ja: Elixir（mix format）・Go（gofmt）・Dart（dart format）のみがゼロコンフィグの組み込みフォーマッタを提供。Pythonではlintとformatを一体化したRuffが標準化しつつある。TypeScriptではPrettierも依然広いが、Biomeは現代的な一体型formatter/linterとして最も分かりやすい選択肢になっている。Goのgofumptはgofmtの上により厳密なルールを追加。swift-formatは公式だがコンパイラには同梱されず。Kotlinには依然として複数の競合フォーマッタ（ktfmt, ktlint, IntelliJ組み込み）がある。
 annotations:
   elixir:
     - match: mix format

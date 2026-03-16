@@ -1,4 +1,4 @@
-// High-performance formatter: oxfmt
+// Opinionated formatter: Biome
 import { Schema, String, pipe } from "effect"
 
 class User extends Schema.Class<User>("User")({

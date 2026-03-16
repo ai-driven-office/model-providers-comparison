@@ -27,8 +27,8 @@ libraries:
     url: https://learn.microsoft.com/en-us/dotnet/csharp/linq/
     builtin: true
   - lang: dart
-    name: Cascade (..) notation
-    url: https://dart.dev/language/operators#cascade-notation
+    name: Iterable method chains
+    url: https://dart.dev/libraries/collections/iterables
     builtin: true
   - lang: swift
     name: Method chaining
@@ -39,8 +39,8 @@ libraries:
     url: https://kotlinlang.org/docs/scope-functions.html
     builtin: true
 caveats:
-  en: TC39 Pipe Operator (|>) proposal is at Stage 2 -current Node/Bun/Deno do not ship it natively. Effect's pipe() is the recommended workaround for TypeScript. Python's toolz.pipe() is a third-party utility; most Python code uses method chaining or intermediate variables.
-  ja: TC39パイプ演算子(|>)提案はStage 2 -現行のNode/Bun/Denoはネイティブ未実装。Effectのpipe()がTypeScriptの推奨回避策。Pythonのtoolz.pipe()はサードパーティ。多くのPythonコードはメソッドチェーンまたは中間変数を使用。
+  en: TC39 Pipe Operator (|>) proposal is still not shipped natively in mainstream Node/Bun/Deno. Effect's pipe() is the recommended workaround for TypeScript. Python's toolz.pipe() is a third-party utility; most Python code still uses method chaining or intermediate variables. Dart cascades are for repeated calls on the same receiver, not general value pipelines, so regular method chains are the closer idiom here.
+  ja: TC39パイプ演算子(|>)提案は、主流のNode/Bun/Denoでは依然ネイティブ実装されていない。Effectのpipe()がTypeScriptの推奨回避策。Pythonのtoolz.pipe()はサードパーティで、多くのPythonコードは依然メソッドチェーンまたは中間変数を使う。Dartのcascadeは同一レシーバへの連続呼び出し向けであり、一般的な値パイプラインとは異なるため、ここでは通常のメソッドチェーンの方が近い。
 annotations:
   elixir:
     - match: "|> Enum.filter(&(&1.status == :completed))"

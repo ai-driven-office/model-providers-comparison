@@ -1,6 +1,7 @@
+/* @refresh reset */
 import { useState, useEffect, useRef, type ReactNode, type WheelEvent as ReactWheelEvent } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, Zap, Code2, Beaker, Shield, Layers, GitBranch, Terminal, BookOpen, Cpu, FlaskConical, Sparkles, FileCheck, Shuffle, Lock, ArrowRight, Paintbrush, FileText, ExternalLink, PenTool, TestTube, CheckCircle, BookMarked, BrainCircuit } from "lucide-react";
+import { ArrowLeft, Zap, Code2, Beaker, Shield, Layers, GitBranch, Terminal, BookOpen, Cpu, FlaskConical, Sparkles, FileCheck, Shuffle, Lock, ArrowRight, Paintbrush, FileText, ExternalLink, PenTool, TestTube, CheckCircle, BookMarked, BrainCircuit, Eraser } from "lucide-react";
 import type { Lang } from "../../data/i18n";
 import {
   DEFAULT_COMPARISON_LANGS,
@@ -618,18 +619,7 @@ const WINDOW_SHADOW = "0 25px 60px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255
 const DIVIDER = "1px solid rgba(255,255,255,0.06)";
 
 const SELECTOR_LANGS = LANG_ORDER.filter((lid) => lid !== "elixir");
-const RADAR_LANGS: LangId[] = [
-  "elixir",
-  "rust",
-  "gleam",
-  "typescript_effect",
-  "typescript",
-  "go",
-  "swift",
-  "kotlin",
-  "python",
-  "javascript",
-];
+const RADAR_LANGS: LangId[] = ["elixir", ...DEFAULT_COMPARISON_LANGS];
 
 /* ── Tab change sounds (Web Audio API) ── */
 function getTabSoundConfig(lid: LangId): { notes: [number, number]; type: OscillatorType; dur: number } {
@@ -730,9 +720,11 @@ const RADAR_SCORES: Partial<Record<LangId, number[]>> = {
   typescript:       [0.75, 0.40, 0.45, 0.25, 0.70, 0.30],
   typescript_effect: [0.90, 0.65, 0.80, 0.90, 0.70, 0.35],
   go:               [0.55, 0.30, 0.40, 0.15, 0.95, 0.75],
+  csharp:           [0.82, 0.62, 0.55, 0.18, 0.72, 0.58],
   swift:            [0.80, 0.85, 0.65, 0.15, 0.55, 0.30],
   kotlin:           [0.75, 0.75, 0.60, 0.25, 0.65, 0.30],
   rust:             [0.86, 0.82, 0.88, 0.25, 0.90, 0.78],
+  dream:            [0.84, 0.88, 0.84, 0.78, 0.94, 0.64],
   javascript:       [0.45, 0.25, 0.25, 0.20, 0.72, 0.18],
   gleam:            [0.90, 0.92, 0.92, 0.55, 0.95, 0.70],
 };
@@ -801,7 +793,7 @@ function ExplicitnessRadar({ isJa }: { isJa: boolean }) {
         })}
         {/* Language areas - render in reverse so first enabled is on top */}
         {[...enabledLangs].reverse().map((lid) => {
-          const scores = RADAR_SCORES[lid];
+          const scores = RADAR_SCORES[lid] ?? [0, 0, 0, 0, 0, 0];
           const color = LANG_COLORS[lid];
           return (
             <path key={lid} d={makePath(scores)}
@@ -811,7 +803,7 @@ function ExplicitnessRadar({ isJa }: { isJa: boolean }) {
         })}
         {/* Dots */}
         {enabledLangs.map((lid) => {
-          const scores = RADAR_SCORES[lid];
+          const scores = RADAR_SCORES[lid] ?? [0, 0, 0, 0, 0, 0];
           const color = LANG_COLORS[lid];
           return scores.map((s, i) => {
             const [x, y] = point(i, s);
@@ -2939,67 +2931,71 @@ function ComparisonLanguageBar({
   selectedLangs,
   onToggle,
   onReset,
+  onClear,
 }: {
   lang: Lang;
   availableLangs: LangId[];
   selectedLangs: LangId[];
   onToggle: (lid: LangId) => void;
   onReset: () => void;
+  onClear: () => void;
 }) {
   const isJa = lang === "ja";
 
   return (
     <div
-      className="sticky top-4 z-20 mb-8 rounded-[20px] border p-4 sm:p-5 backdrop-blur-xl"
+      className="sticky top-4 z-20 mb-8 rounded-[20px] border px-4 py-3 sm:px-5 sm:py-3.5 backdrop-blur-xl"
       style={{
         background: "linear-gradient(135deg, rgba(18,28,45,0.88), rgba(29,36,58,0.84))",
         borderColor: "rgba(255,255,255,0.08)",
         boxShadow: "0 16px 40px rgba(0,0,0,0.24)",
       }}
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: "#7DD3FC", fontFamily: MONO }}>
-            {isJa ? "比較バー" : "Comparison Bar"}
-          </div>
-          <div className="mt-1 text-[13px] leading-[1.7]" style={{ color: "rgba(255,255,255,0.58)", fontFamily: isJa ? JA_SANS : SANS }}>
-            {isJa
-              ? "Elixirは常に基準として表示されます。下のチップで比較したい言語を追加・削除できます。"
-              : "Elixir stays pinned as the baseline. Use the chips below to add or remove comparison languages."}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <div className="text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: "#7DD3FC", fontFamily: MONO }}>
+              {isJa ? "比較バー" : "Comparison Bar"}
+            </div>
+            <div className="text-[12px] leading-[1.6]" style={{ color: "rgba(255,255,255,0.58)", fontFamily: isJa ? JA_SANS : SANS }}>
+              {isJa
+                ? "下のチップで比較したい言語を追加・削除できます。"
+                : "Use the chips below to add or remove comparison languages."}
+            </div>
           </div>
         </div>
-        <button
-          onClick={onReset}
-          className="self-start rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] transition-all duration-200 hover:opacity-100"
-          style={{
-            fontFamily: MONO,
-            color: "rgba(255,255,255,0.72)",
-            borderColor: "rgba(255,255,255,0.12)",
-            background: "rgba(255,255,255,0.04)",
-            opacity: 0.9,
-          }}
-        >
-          {isJa ? "既定に戻す" : "Reset"}
-        </button>
+        <div className="flex flex-wrap gap-2 self-start sm:self-auto">
+          <button
+            onClick={onClear}
+            className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] transition-all duration-200 hover:opacity-100"
+            style={{
+              fontFamily: MONO,
+              color: "rgba(255,255,255,0.6)",
+              borderColor: "rgba(255,255,255,0.10)",
+              background: "rgba(255,255,255,0.025)",
+              opacity: 0.9,
+            }}
+          >
+            <Eraser className="h-3.5 w-3.5" />
+            {isJa ? "すべて外す" : "Clear all"}
+          </button>
+          <button
+            onClick={onReset}
+            className="rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] transition-all duration-200 hover:opacity-100"
+            style={{
+              fontFamily: MONO,
+              color: "rgba(255,255,255,0.72)",
+              borderColor: "rgba(255,255,255,0.12)",
+              background: "rgba(255,255,255,0.04)",
+              opacity: 0.9,
+            }}
+          >
+            {isJa ? "既定に戻す" : "Reset"}
+          </button>
+        </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <div
-          className="inline-flex items-center gap-2 rounded-full border px-3 py-2"
-          style={{
-            borderColor: tint(LANG_COLORS.elixir, 0.45),
-            background: tint(LANG_COLORS.elixir, 0.14),
-            color: LANG_COLORS.elixir,
-            fontFamily: MONO,
-          }}
-        >
-          <LangIcon id="elixir" size={14} />
-          <span className="text-[11px] font-bold">{LANG_LABELS.elixir}</span>
-          <span className="text-[9px] uppercase tracking-[0.08em]" style={{ opacity: 0.7 }}>
-            {isJa ? "固定" : "Pinned"}
-          </span>
-        </div>
-
+      <div className="mt-3">
         <div
           className="min-w-0 flex-1 overflow-x-auto scrollbar-hide"
           onWheel={scrollTabsOnWheel}
@@ -3015,7 +3011,7 @@ function ComparisonLanguageBar({
                     playTabSound(lid);
                     onToggle(lid);
                   }}
-                  className="inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[11px] font-bold transition-all duration-200"
+                  className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-bold transition-all duration-200"
                   style={{
                     fontFamily: MONO,
                     borderColor: active ? tint(color, 0.42) : "rgba(255,255,255,0.08)",
@@ -3030,6 +3026,50 @@ function ComparisonLanguageBar({
               );
             })}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MissingSnippetState({
+  lang,
+  lid,
+  emptySelection = false,
+}: {
+  lang: Lang;
+  lid: LangId;
+  emptySelection?: boolean;
+}) {
+  const isJa = lang === "ja";
+  const fontBody = isJa ? JA_SANS : SANS;
+
+  return (
+    <div
+      className="flex h-full min-h-[200px] items-center justify-center px-8 text-center"
+      style={{
+        color: "rgba(255,255,255,0.48)",
+        fontFamily: fontBody,
+        background: "rgba(255,255,255,0.015)",
+      }}
+    >
+      <div>
+        {!emptySelection && (
+          <div
+            className="mb-2 text-[11px] font-bold uppercase tracking-[0.1em]"
+            style={{ color: LANG_COLORS[lid], fontFamily: MONO }}
+          >
+            {LANG_LABELS[lid]}
+          </div>
+        )}
+        <div className="text-[13px] leading-[1.7]">
+          {emptySelection
+            ? isJa
+              ? "比較言語がまだ選択されていません。上の比較バーから言語を追加してください。"
+              : "No comparison language is selected yet. Add one from the comparison bar above."
+            : isJa
+              ? "この比較サンプルはまだ用意していません。タブは保持したまま、今後ここに追加できます。"
+              : "This comparison snippet is not available yet. The tab stays visible so it can be filled in later."}
         </div>
       </div>
     </div>
@@ -3053,10 +3093,10 @@ function CodeComparison({
   accentColor?: string;
   highlights: HighlightMap;
 }) {
-  const availableComparisonLangs = comparisonLangs.filter((lid) => Boolean(sample.snippets[lid]));
-  const fallbackLang = availableComparisonLangs[0] ?? null;
+  const visibleComparisonLangs = comparisonLangs;
+  const fallbackLang = visibleComparisonLangs[0] ?? null;
   const resolvedActiveLang =
-    activeLang && availableComparisonLangs.includes(activeLang)
+    activeLang && visibleComparisonLangs.includes(activeLang)
       ? activeLang
       : fallbackLang;
   const [mobileLang, setMobileLang] = useState<LangId>("elixir");
@@ -3065,10 +3105,10 @@ function CodeComparison({
   const diagramNode = sample.diagramId === "doc-pipeline" ? <DocPipelineDiagram isJa={isJa} /> : null;
 
   useEffect(() => {
-    if (mobileLang !== "elixir" && !availableComparisonLangs.includes(mobileLang)) {
+    if (mobileLang !== "elixir" && !visibleComparisonLangs.includes(mobileLang)) {
       setMobileLang("elixir");
     }
-  }, [availableComparisonLangs, mobileLang]);
+  }, [mobileLang, visibleComparisonLangs]);
 
   return (
     <div className="mb-20">
@@ -3107,7 +3147,7 @@ function CodeComparison({
               showStar
               onClick={() => setMobileLang("elixir")}
             />
-            {availableComparisonLangs.map((lid) => (
+            {visibleComparisonLangs.map((lid) => (
               <LangTab
                 key={lid}
                 lid={lid}
@@ -3117,13 +3157,17 @@ function CodeComparison({
             ))}
           </div>
 
-          <SyntaxBlock
-            code={sample.snippets[mobileLang] ?? sample.snippets.elixir ?? ""}
-            language={LANG_SHIKI[mobileLang] ?? LANG_LABELS[mobileLang]}
-            annotations={sample.annotations?.[mobileLang] ?? []}
-            uiLang={lang}
-            highlightedHtml={highlights[sample.id]?.[mobileLang]}
-          />
+          {sample.snippets[mobileLang] ? (
+            <SyntaxBlock
+              code={sample.snippets[mobileLang] ?? ""}
+              language={LANG_SHIKI[mobileLang] ?? LANG_LABELS[mobileLang]}
+              annotations={sample.annotations?.[mobileLang] ?? []}
+              uiLang={lang}
+              highlightedHtml={highlights[sample.id]?.[mobileLang]}
+            />
+          ) : (
+            <MissingSnippetState lang={lang} lid={mobileLang} />
+          )}
         </div>
       </div>
 
@@ -3146,7 +3190,7 @@ function CodeComparison({
             </div>
             <div className="min-w-0 overflow-x-auto scrollbar-hide" onWheel={scrollTabsOnWheel}>
               <div className="flex w-max min-w-full px-2">
-                {availableComparisonLangs.map((lid) => (
+                {visibleComparisonLangs.map((lid) => (
                   <LangTab
                     key={lid}
                     lid={lid}
@@ -3173,22 +3217,19 @@ function CodeComparison({
             <div className="flex flex-col">
               <div className="flex-1">
                 {resolvedActiveLang ? (
-                  <SyntaxBlock
-                    code={sample.snippets[resolvedActiveLang] ?? ""}
-                    language={LANG_SHIKI[resolvedActiveLang] ?? LANG_LABELS[resolvedActiveLang]}
-                    annotations={sample.annotations?.[resolvedActiveLang] ?? []}
-                    uiLang={lang}
-                    highlightedHtml={highlights[sample.id]?.[resolvedActiveLang]}
-                  />
+                  sample.snippets[resolvedActiveLang] ? (
+                    <SyntaxBlock
+                      code={sample.snippets[resolvedActiveLang] ?? ""}
+                      language={LANG_SHIKI[resolvedActiveLang] ?? LANG_LABELS[resolvedActiveLang]}
+                      annotations={sample.annotations?.[resolvedActiveLang] ?? []}
+                      uiLang={lang}
+                      highlightedHtml={highlights[sample.id]?.[resolvedActiveLang]}
+                    />
+                  ) : (
+                    <MissingSnippetState lang={lang} lid={resolvedActiveLang} />
+                  )
                 ) : (
-                  <div
-                    className="flex h-full items-center justify-center px-8 text-center text-[13px] leading-[1.7]"
-                    style={{ color: "rgba(255,255,255,0.45)", fontFamily: fontBody }}
-                  >
-                    {isJa
-                      ? "選択中の比較言語には、この節のサンプルがまだありません。"
-                      : "None of the selected comparison languages has a snippet for this section yet."}
-                  </div>
+                  <MissingSnippetState lang={lang} lid="python" emptySelection />
                 )}
               </div>
             </div>
@@ -3201,22 +3242,6 @@ function CodeComparison({
           <FootnoteSection sample={sample} lang={lang} />
         </div>
       </div>
-
-      {!availableComparisonLangs.length && (
-        <div
-          className="mt-3 rounded-xl border px-4 py-3 text-[13px] leading-[1.7] md:hidden"
-          style={{
-            color: "rgba(255,255,255,0.5)",
-            borderColor: "rgba(255,255,255,0.06)",
-            background: "rgba(255,255,255,0.02)",
-            fontFamily: fontBody,
-          }}
-        >
-          {isJa
-            ? "この節では、選択中の比較言語のサンプルがまだありません。Elixirの基準コードだけを表示しています。"
-            : "No selected comparison language has a snippet for this section yet, so only the Elixir baseline is shown."}
-        </div>
-      )}
 
       <div className="md:hidden">
         <FootnoteSection sample={sample} lang={lang} />
@@ -3356,7 +3381,7 @@ export default function LanguageIsThePromptPage({
           return current;
         }
 
-        return availableForSample[0] ?? selectedLangs[0] ?? DEFAULT_COMPARISON_LANGS[0];
+        return availableForSample[0] ?? selectedLangs[0] ?? DEFAULT_COMPARISON_LANGS[0] ?? "python";
       }),
     );
   }, [codeSamples, selectedLangs]);
@@ -3365,7 +3390,7 @@ export default function LanguageIsThePromptPage({
   const reduceMotion = useReduceMotion();
   const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
   const fontBody = isJa ? JA_SANS : SANS;
-  const availableComparisonLangs = SELECTOR_LANGS.filter((lid) =>
+  const availableComparisonLangs: LangId[] = SELECTOR_LANGS.filter((lid) =>
     codeSamples.some((sample) => Boolean(sample.snippets[lid])),
   );
 
@@ -3388,6 +3413,10 @@ export default function LanguageIsThePromptPage({
       availableComparisonLangs.includes(lid),
     );
     setSelectedLangs(defaults.length > 0 ? defaults : availableComparisonLangs.slice(0, 4));
+  };
+
+  const clearComparisonLangs = () => {
+    setSelectedLangs([]);
   };
 
   return (
@@ -3748,6 +3777,7 @@ export default function LanguageIsThePromptPage({
           selectedLangs={selectedLangs}
           onToggle={toggleComparisonLang}
           onReset={resetComparisonLangs}
+          onClear={clearComparisonLangs}
         />
 
         {codeSamples.map((sample, idx) => (
@@ -3756,7 +3786,7 @@ export default function LanguageIsThePromptPage({
             sample={sample}
             lang={lang}
             comparisonLangs={selectedLangs}
-            activeLang={sectionLangs[idx] ?? selectedLangs[0] ?? DEFAULT_COMPARISON_LANGS[0]}
+            activeLang={sectionLangs[idx] ?? selectedLangs[0] ?? DEFAULT_COMPARISON_LANGS[0] ?? "python"}
             onActiveLangChange={(lid) => handleSectionLangChange(idx, lid)}
             accentColor={["#10B981", "#3B82F6", "#9B59B6", "#F59E0B", "#06B6D4", "#E0247A", "#8B5CF6"][idx % 7]}
             highlights={resolvedHighlights}

@@ -3,8 +3,8 @@ title:
   en: Pattern Matching
   ja: パターンマッチング
 description:
-  en: "Algebraic data decomposition -instead of testing conditions imperatively, you declare the shape of data each branch handles, and the compiler guarantees exhaustiveness. The paper found function-head dispatch eliminates hidden control flow, making each branch a self-contained, locally predictable unit for LLMs. Below: Elixir multi-clause function heads, Python 3.10+ structural matching, Kotlin sealed-class when, TypeScript discriminated unions, and more."
-  ja: 代数的データ分解 -命令的に条件をテストする代わりに、各分岐が処理するデータの形状を宣言し、コンパイラが網羅性を保証する。論文では関数ヘッドディスパッチが隠れた制御フローを排除し、各分岐がLLMにとって自己完結した予測可能な単位になることを発見。以下：Elixirの複数句関数ヘッド、Python 3.10+構造的マッチ、Kotlinのsealed class + when、TypeScriptの判別共用体など。
+  en: "Algebraic data decomposition -instead of testing conditions imperatively, you declare the shape of data each branch handles, and the compiler guarantees exhaustiveness. The paper found function-head dispatch eliminates hidden control flow, making each branch a self-contained, locally predictable unit for LLMs. Below: Elixir multi-clause function heads, Python 3.10+ structural matching, Kotlin sealed-class when, TypeScript with ts-pattern over discriminated unions, and more."
+  ja: 代数的データ分解 -命令的に条件をテストする代わりに、各分岐が処理するデータの形状を宣言し、コンパイラが網羅性を保証する。論文では関数ヘッドディスパッチが隠れた制御フローを排除し、各分岐がLLMにとって自己完結した予測可能な単位になることを発見。以下：Elixirの複数句関数ヘッド、Python 3.10+構造的マッチ、Kotlinのsealed class + when、判別共用体の上にts-patternを重ねたTypeScriptなど。
 importance: high
 icon: git-branch
 libraries:
@@ -13,9 +13,8 @@ libraries:
     url: https://docs.python.org/3/reference/compound_stmts.html#the-match-statement
     builtin: true
   - lang: typescript
-    name: Discriminated unions
-    url: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions
-    builtin: true
+    name: ts-pattern
+    url: https://github.com/gvergnaud/ts-pattern
   - lang: typescript_effect
     name: Match.tag + Schema.TaggedClass (v4 beta)
     url: https://effect.website/docs/data-types/match
@@ -40,8 +39,8 @@ libraries:
     url: https://kotlinlang.org/docs/sealed-classes.html
     builtin: true
 caveats:
-  en: Python structural pattern matching requires 3.10+. Dart switch expressions require Dart 3.0+. C# switch expressions require C# 8+.
-  ja: Pythonの構造的パターンマッチには3.10+が必要。Dartのswitch式にはDart 3.0+が必要。C#のswitch式にはC# 8+が必要。
+  en: Python structural pattern matching requires 3.10+. Dart switch expressions require Dart 3.0+. C# switch expressions require C# 8+. TypeScript still has no native match expression, so the strongest expression-oriented style comes from discriminated unions plus a library such as ts-pattern.
+  ja: Pythonの構造的パターンマッチには3.10+が必要。Dartのswitch式にはDart 3.0+が必要。C#のswitch式にはC# 8+が必要。TypeScriptには依然としてネイティブのmatch式がないため、最も式指向に近い書き味は判別共用体とts-patternのようなライブラリの組み合わせで得られる。
 annotations:
   elixir:
     - match: def area(

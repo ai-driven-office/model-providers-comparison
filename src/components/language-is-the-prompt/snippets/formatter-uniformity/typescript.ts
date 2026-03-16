@@ -1,18 +1,19 @@
-// High-performance formatter: oxfmt
+// Opinionated formatter: Biome
 type User = {
-  name: string
-  email: string
-  isAdmin: boolean
-  tags: ReadonlyArray<string>
+  readonly name: string
+  readonly email: string
+  readonly isAdmin: boolean
+  readonly tags: ReadonlyArray<string>
 }
 
 const buildUser = (
   name: string,
   email: string,
   isAdmin: boolean,
-): User => ({
-  name: name.trim(),
-  email: email.trim().toLowerCase(),
-  isAdmin,
-  tags: ["active", isAdmin ? "staff" : "member"],
-})
+): User =>
+  ({
+    name: name.trim(),
+    email: email.trim().toLowerCase(),
+    isAdmin,
+    tags: ["active", isAdmin ? "staff" : "member"],
+  }) satisfies User

@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: false
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -30,6 +32,13 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+
+      - name: Normalize git metadata for CI cleanup
+        run: |
+          git config --unset-all submodule.active || true
+          if [ -f .gitmodules ]; then
+            git submodule init
+          fi
 
       - name: Install dependencies
         run: bun install --frozen-lockfile

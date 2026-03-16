@@ -6,6 +6,9 @@ func (increment) isCommand() {}
 type get struct{ reply chan int }
 func (get) isCommand() {}
 
+type stop struct{ done chan struct{} }
+func (stop) isCommand() {}
+
 type Counter struct {
   mailbox chan command
 }
@@ -22,6 +25,9 @@ func NewCounter(initial int) *Counter {
         msg.reply <- count
       case get:
         msg.reply <- count
+      case stop:
+        close(msg.done)
+        return
       }
     }
   }()
@@ -30,18 +36,26 @@ func NewCounter(initial int) *Counter {
 }
 
 func (c *Counter) Increment() int {
-  reply := make(chan int)
+  reply := make(chan int, 1)
   c.mailbox <- increment{reply: reply}
   return <-reply
 }
 
 func (c *Counter) Get() int {
-  reply := make(chan int)
+  reply := make(chan int, 1)
   c.mailbox <- get{reply: reply}
   return <-reply
 }
 
+func (c *Counter) Close() {
+  done := make(chan struct{})
+  c.mailbox <- stop{done: done}
+  <-done
+  close(c.mailbox)
+}
+
 counter := NewCounter(0)
+defer counter.Close()
 counter.Increment() // => 1
 counter.Increment() // => 2
 counter.Get()       // => 2

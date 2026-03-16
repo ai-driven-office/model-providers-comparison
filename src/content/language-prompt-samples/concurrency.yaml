@@ -13,7 +13,7 @@ libraries:
     url: https://hexdocs.pm/elixir/GenServer.html
     builtin: true
   - lang: python
-    name: asyncio.Queue + Task
+    name: asyncio.TaskGroup + Queue
     url: https://docs.python.org/3/library/asyncio-queue.html
     builtin: true
   - lang: typescript

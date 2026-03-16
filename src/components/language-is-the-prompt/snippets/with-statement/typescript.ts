@@ -1,49 +1,57 @@
-type Result<T, E> =
-  | { ok: true; value: T }
-  | { ok: false; error: E }
+import { type ResultAsync } from "neverthrow"
 
 type CreateOrderError =
-  | { type: "unauthorized" }
-  | { type: "invalid_items" }
-  | { type: "payment_failed" }
-  | { type: "order_failed"; message: string }
+  | { readonly type: "unauthorized" }
+  | { readonly type: "invalid_items" }
+  | { readonly type: "payment_failed" }
+  | { readonly type: "order_failed"; readonly message: string }
+
+type OrderContext = {
+  readonly user: User
+  readonly items: Items
+}
+
+type ChargedOrderContext = OrderContext & {
+  readonly payment: Payment
+}
 
 const createOrder = (
   params: OrderParams,
-): Result<Order, CreateOrderError> => {
-  const userResult = authenticate(params.token)
-  if (!userResult.ok) {
-    return { ok: false, error: { type: "unauthorized" } }
-  }
-
-  const itemsResult = validateItems(params.items)
-  if (!itemsResult.ok) {
-    return { ok: false, error: { type: "invalid_items" } }
-  }
-
-  const paymentResult = chargeCard(
-    userResult.value,
-    itemsResult.value,
-  )
-  if (!paymentResult.ok) {
-    return { ok: false, error: { type: "payment_failed" } }
-  }
-
-  const orderResult = saveOrder(
-    userResult.value,
-    itemsResult.value,
-    paymentResult.value,
-  )
-  if (!orderResult.ok) {
-    return {
-      ok: false,
-      error: {
-        type: "order_failed",
-        message: orderResult.error,
-      },
-    }
-  }
-
-  sendConfirmation(userResult.value, orderResult.value)
-  return orderResult
-}
+): ResultAsync<Order, CreateOrderError> =>
+  authenticate(params.token)
+    .mapErr(() => ({ type: "unauthorized" } as const))
+    .andThen((user) =>
+      validateItems(params.items)
+        .mapErr(() => ({ type: "invalid_items" } as const))
+        .map(
+          (items): OrderContext => ({
+            user,
+            items,
+          }),
+        ),
+    )
+    .andThen(({ user, items }) =>
+      chargeCard(user, items)
+        .mapErr(() => ({ type: "payment_failed" } as const))
+        .map(
+          (payment): ChargedOrderContext => ({
+            user,
+            items,
+            payment,
+          }),
+        ),
+    )
+    .andThen(({ user, items, payment }) =>
+      saveOrder(user, items, payment)
+        .mapErr(
+          (message) =>
+            ({
+              type: "order_failed",
+              message,
+            }) as const,
+        )
+        .map((order) => {
+          sendConfirmation(user, order)
+          return order
+        }),
+    )

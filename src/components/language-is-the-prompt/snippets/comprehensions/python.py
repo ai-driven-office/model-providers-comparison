@@ -20,8 +20,16 @@ pairs: list[Pair] = [
 
 def honor_roll(lines: Iterable[str]) -> Iterator[HonorRollEntry]:
     for line in lines:
-        name, score_text = line.split(",", maxsplit=1)
-        if (score := int(score_text.strip())) > 80:
+        name, separator, score_text = line.partition(",")
+        if not separator:
+            continue
+
+        try:
+            score = int(score_text.strip())
+        except ValueError:
+            continue
+
+        if score > 80:
             yield HonorRollEntry(name=name.strip(), score=score)
 
 results = list(honor_roll(lines))

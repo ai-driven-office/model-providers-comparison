@@ -4,13 +4,21 @@ abstract record Command;
 sealed record Increment(TaskCompletionSource<int> Reply) : Command;
 sealed record Get(TaskCompletionSource<int> Reply) : Command;
 
-sealed class Counter
+sealed class Counter : IAsyncDisposable
 {
-    private readonly Channel<Command> _mailbox = Channel.CreateUnbounded<Command>();
+    private readonly Channel<Command> _mailbox =
+        Channel.CreateUnbounded<Command>(
+            new UnboundedChannelOptions
+            {
+                SingleReader = true,
+                SingleWriter = false,
+            }
+        );
+    private readonly Task _loop;
 
     public Counter(int initial = 0)
     {
-        _ = Run(initial);
+        _loop = Run(initial);
     }
 
     private async Task Run(int count)
@@ -42,9 +50,15 @@ sealed class Counter
         await _mailbox.Writer.WriteAsync(new Get(reply));
         return await reply.Task;
     }
+
+    public async ValueTask DisposeAsync()
+    {
+        _mailbox.Writer.TryComplete();
+        await _loop;
+    }
 }
 
-var counter = new Counter(0);
+await using var counter = new Counter(0);
 await counter.IncrementAsync(); // => 1
 await counter.IncrementAsync(); // => 2
 await counter.GetAsync();       // => 2

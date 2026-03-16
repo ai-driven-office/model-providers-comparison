@@ -7,17 +7,19 @@ import kotlinx.coroutines.launch
 sealed interface Command
 data class Increment(val reply: CompletableDeferred<Int>) : Command
 data class Get(val reply: CompletableDeferred<Int>) : Command
+data class Stop(val reply: CompletableDeferred<Unit>) : Command
 
 class Counter(scope: CoroutineScope, initial: Int = 0) {
     private val mailbox = Channel<Command>(Channel.UNLIMITED)
-
-    init {
-        scope.launch {
-            var count = initial
-            for (command in mailbox) {
-                when (command) {
-                    is Increment -> command.reply.complete(++count)
-                    is Get -> command.reply.complete(count)
+    private val loop = scope.launch {
+        var count = initial
+        for (command in mailbox) {
+            when (command) {
+                is Increment -> command.reply.complete(++count)
+                is Get -> command.reply.complete(count)
+                is Stop -> {
+                    command.reply.complete(Unit)
+                    return@launch
                 }
             }
         }
@@ -34,11 +36,23 @@ class Counter(scope: CoroutineScope, initial: Int = 0) {
         mailbox.send(Get(reply))
         return reply.await()
     }
+
+    suspend fun close() {
+        val reply = CompletableDeferred<Unit>()
+        mailbox.send(Stop(reply))
+        reply.await()
+        mailbox.close()
+        loop.join()
+    }
 }
 
 coroutineScope {
     val counter = Counter(this, 0)
-    counter.increment() // => 1
-    counter.increment() // => 2
-    counter.get()       // => 2
+    try {
+        counter.increment() // => 1
+        counter.increment() // => 2
+        counter.get()       // => 2
+    } finally {
+        counter.close()
+    }
 }

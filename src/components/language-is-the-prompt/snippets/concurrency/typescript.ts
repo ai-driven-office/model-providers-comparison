@@ -62,9 +62,17 @@ class Counter {
   get(): Promise<number> {
     return this.#ask("get")
   }
+
+  async dispose(): Promise<void> {
+    await this.#worker.terminate()
+  }
 }
 
 const counter = new Counter(0)
-await counter.increment() // 1
-await counter.increment() // 2
-await counter.get() // 2
+try {
+  await counter.increment() // 1
+  await counter.increment() // 2
+  await counter.get() // 2
+} finally {
+  await counter.dispose()
+}

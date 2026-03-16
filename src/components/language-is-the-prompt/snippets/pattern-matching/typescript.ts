@@ -1,22 +1,19 @@
-type Shape =
-  | { kind: "circle"; radius: number }
-  | { kind: "rect"; width: number; height: number }
-  | { kind: "triangle"; base: number; height: number }
+import { match } from "ts-pattern"
 
-const area = (shape: Shape): number => {
-  switch (shape.kind) {
-    case "circle":
-      return Math.PI * shape.radius ** 2
-    case "rect":
-      return shape.width * shape.height
-    case "triangle":
-      return 0.5 * shape.base * shape.height
-    default: {
-      const exhaustiveCheck: never = shape
-      return exhaustiveCheck
-    }
-  }
-}
+type Shape =
+  | { readonly kind: "circle"; readonly radius: number }
+  | { readonly kind: "rect"; readonly width: number; readonly height: number }
+  | { readonly kind: "triangle"; readonly base: number; readonly height: number }
+
+const area = (shape: Shape): number =>
+  match(shape)
+    .with({ kind: "circle" }, ({ radius }) => Math.PI * radius ** 2)
+    .with({ kind: "rect" }, ({ width, height }) => width * height)
+    .with(
+      { kind: "triangle" },
+      ({ base, height }) => 0.5 * base * height,
+    )
+    .exhaustive()
 
 area({ kind: "circle", radius: 5 }) // 78.53981633974483
 area({ kind: "rect", width: 3, height: 4 }) // 12

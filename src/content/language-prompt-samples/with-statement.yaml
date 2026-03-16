@@ -32,8 +32,8 @@ libraries:
     name: fpdart flatMap
     url: https://pub.dev/packages/fpdart
   - lang: swift
-    name: Result flatMap
-    url: https://developer.apple.com/documentation/swift/result/flatmap(_:)
+    name: typed throws + Result.get()
+    url: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/functions/
     builtin: true
   - lang: kotlin
     name: Arrow either { } / bind()

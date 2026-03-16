@@ -10,46 +10,71 @@ public abstract record CreateOrderError
     ) : CreateOrderError;
 }
 
+readonly record struct ValidatedOrder(
+    User User,
+    Items Items
+);
+
+readonly record struct ChargedOrder(
+    User User,
+    Items Items,
+    Payment Payment
+);
+
 Result<Order, CreateOrderError> CreateOrder(
-    OrderParams params
+    OrderParams parameters
 ) =>
-    Authenticate(params.Token)
+    Authenticate(parameters.Token)
         .MapError(
             _ =>
                 (CreateOrderError)new CreateOrderError
                     .Unauthorized()
         )
         .Bind(
-            user => ValidateItems(params.Items)
+            user => ValidateItems(parameters.Items)
                 .MapError(
                     _ =>
                         (CreateOrderError)new CreateOrderError
                             .InvalidItems()
                 )
-                .Bind(
-                    items => ChargeCard(user, items)
-                        .MapError(
-                            _ =>
-                                (CreateOrderError)new
-                                    CreateOrderError.PaymentFailed()
-                        )
-                        .Bind(
-                            payment =>
-                                SaveOrder(user, items, payment)
-                                .MapError(
-                                    message =>
-                                        (CreateOrderError)new
-                                            CreateOrderError.OrderFailed(
-                                                message
-                                            )
-                                )
-                                .Tap(
-                                    order =>
-                                        SendConfirmation(
-                                            user,
-                                            order
-                                        )
-                                )
+                .Map(items => new ValidatedOrder(user, items))
+        )
+        .Bind(
+            validated =>
+                ChargeCard(validated.User, validated.Items)
+                    .MapError(
+                        _ =>
+                            (CreateOrderError)new
+                                CreateOrderError.PaymentFailed()
+                    )
+                    .Map(
+                        payment =>
+                            new ChargedOrder(
+                                validated.User,
+                                validated.Items,
+                                payment
+                            )
+                    )
+        )
+        .Bind(
+            charged =>
+                SaveOrder(
+                    charged.User,
+                    charged.Items,
+                    charged.Payment
+                )
+                .MapError(
+                    message =>
+                        (CreateOrderError)new
+                            CreateOrderError.OrderFailed(
+                                message
+                            )
+                )
+                .Tap(
+                    order =>
+                        SendConfirmation(
+                            charged.User,
+                            order
                         )
                 )
         );

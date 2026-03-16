@@ -1,4 +1,4 @@
-import { Array, Schema, Stream, pipe } from "effect"
+import { Array, Option, Schema, Stream, pipe } from "effect"
 
 type Pair = readonly [x: number, y: number]
 
@@ -10,14 +10,27 @@ class HonorRollEntry extends Schema.Class<HonorRollEntry>(
   grade: Schema.Literal("A"),
 }) {}
 
-const ParsedEntry = Schema.Struct({
-  name: Schema.String,
-  score: Schema.NumberFromString,
-})
-
-const decodeEntry = Schema.decodeUnknownSync(ParsedEntry)
-
 const lines = ["Alice,88", "Bob,72", "Carol,91"]
+
+const toHonorRollEntry = (line: string) => {
+  const [name, scoreText] = line.split(",", 2)
+  if (scoreText === undefined) {
+    return Option.none()
+  }
+
+  const score = Number.parseInt(scoreText.trim(), 10)
+  if (Number.isNaN(score) || score <= 80) {
+    return Option.none()
+  }
+
+  return Option.some(
+    new HonorRollEntry({
+      name: name.trim(),
+      score,
+      grade: "A",
+    }),
+  )
+}
 
 const pairs: ReadonlyArray<Pair> = pipe(
   Array.Do,
@@ -29,21 +42,7 @@ const pairs: ReadonlyArray<Pair> = pipe(
 
 const honorRoll = (lines: Iterable<string>) =>
   Stream.fromIterable(lines).pipe(
-    Stream.map((line) => {
-      const [name, scoreText] = line.split(",", 2)
-      return decodeEntry({
-        name: name.trim(),
-        score: scoreText.trim(),
-      })
-    }),
-    Stream.filter(({ score }) => score > 80),
-    Stream.map(
-      ({ name, score }) => new HonorRollEntry({
-        name,
-        score,
-        grade: "A",
-      }),
-    ),
+    Stream.filterMap(toHonorRollEntry),
   )
 
 const program = Stream.runCollect(honorRoll(lines))
